@@ -1,19 +1,15 @@
 import { expect, test } from '@playwright/test'
 
-test('el visor muestra lo que se tipea y los botones de tipo guardan', async ({ page }) => {
+test('en el muestrario, el importe se tipea con el teclado y + guarda digital', async ({
+  page,
+}) => {
   await page.goto('/estilo')
-
-  const efectivo = page.getByRole('button', { name: 'Guardar venta en efectivo' })
-  await expect(efectivo).toBeDisabled()
-
-  for (const tecla of ['1', '2', '5']) {
-    await page.getByRole('button', { name: tecla, exact: true }).click()
-  }
-  await page.getByRole('button', { name: 'Tres ceros' }).click()
-  await expect(page.getByLabel('Importe: $ 125.000')).toBeVisible()
-
-  await page.getByRole('button', { name: 'Guardar venta digital' }).click()
+  const importe = page.getByLabel('Importe', { exact: true })
+  await importe.fill('125000')
+  await expect(importe).toHaveValue('125.000')
+  await importe.press('+')
   await expect(page.getByText(/Guardada · Digital \$\s125\.000/)).toBeVisible()
-  await expect(page.getByLabel('Importe: $ 0')).toBeVisible()
-  await expect(efectivo).toBeDisabled()
+  await expect(importe).toHaveValue('')
+  await importe.fill('9abc9')
+  await expect(importe).toHaveValue('99')
 })

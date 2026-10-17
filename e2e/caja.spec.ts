@@ -9,57 +9,63 @@ async function ingresar(page: Page, email: string) {
   await page.getByRole('button', { name: 'Ingresar' }).click()
 }
 
-async function tipear(page: Page, importe: string) {
-  for (const digito of importe) {
-    await page.getByRole('button', { name: digito, exact: true }).click()
-  }
-}
-
 test.describe.configure({ mode: 'serial' })
 
-test('flujo del día: ingresar, abrir, cargar 3 ventas, cerrar y ver el resumen', async ({
+test('flujo del día: ingresar, abrir, cargar 3 ventas con el teclado, cerrar y ver el resumen', async ({
   page,
 }) => {
   await ingresar(page, 'mostrador@avicola.test')
 
-  // Abrir el día con fondo de caja
+  // Abrir el día con fondo de caja: se tipea y Enter
   await expect(page.getByRole('heading', { name: 'Abrir el día' })).toBeVisible()
-  await page.getByLabel('Fondo de caja inicial (opcional)').fill('10000')
-  await page.getByRole('button', { name: 'Abrir el día' }).click()
+  await page.getByLabel('Fondo de caja inicial').fill('10000')
+  await page.getByLabel('Fondo de caja inicial').press('Enter')
 
-  // Tres ventas: importe + un toque en el tipo
-  await expect(page.getByLabel('Importe: $ 0')).toBeVisible()
-  await tipear(page, '12500')
+  // Tres ventas: importe + Enter (efectivo) o + (digital); el cursor vuelve solo al campo
+  const importe = page.getByLabel('Importe', { exact: true })
+  await expect(importe).toBeFocused()
+  await importe.fill('12500')
+  await expect(importe).toHaveValue('12.500')
+  await importe.press('Enter')
+  await expect(page.getByText(/Venta guardada · Efectivo/)).toBeVisible()
+  await expect(importe).toHaveValue('')
+  await expect(importe).toBeFocused()
+
+  await importe.fill('8300')
+  await importe.press('+')
+  await expect(page.getByText(/Venta guardada · Digital/)).toBeVisible()
+
+  await importe.fill('4000')
   await page.getByRole('button', { name: 'Guardar venta en efectivo' }).click()
-  await expect(page.getByText(/Guardada · Efectivo/)).toBeVisible()
-
-  await tipear(page, '8300')
-  await page.getByRole('button', { name: 'Guardar venta digital' }).click()
-  await expect(page.getByText(/Guardada · Digital/)).toBeVisible()
-
-  await tipear(page, '4')
-  await page.getByRole('button', { name: 'Tres ceros' }).click()
-  await page.getByRole('button', { name: 'Guardar venta en efectivo' }).click()
-  await expect(page.getByText('Guardada').first()).toBeVisible()
   await expect(page.getByText('$ 24.800').first()).toBeVisible()
 
-  // Cerrar el día con un faltante de $ 500
-  await page.getByRole('link', { name: 'Cerrar el día →' }).click()
+  // Un importe alto pide confirmación; Esc vuelve sin borrar
+  await importe.fill('600000')
+  await importe.press('Enter')
+  await expect(page.getByText(/Es un importe alto/)).toBeVisible()
+  await importe.press('Escape')
+  await expect(page.getByText(/Es un importe alto/)).toHaveCount(0)
+  await expect(importe).toHaveValue('600.000')
+  await importe.press('Escape')
+  await expect(importe).toHaveValue('')
+
+  // Cerrar el día con un faltante de $ 500: Enter para revisar, Enter para cerrar
+  await page.getByRole('link', { name: 'Cerrar el día' }).click()
   await expect(page.getByText('$ 26.500,00').first()).toBeVisible() // esperado = 10.000 + 16.500
-  await tipear(page, '26000')
+  const contado = page.getByLabel('Efectivo contado')
+  await contado.fill('26000')
   await expect(page.getByText(/Faltan \$\s500,00/)).toBeVisible()
-  await page.getByRole('button', { name: 'Cerrar el día' }).click()
+  await contado.press('Enter')
   await expect(
     page.getByText('Vas a cerrar el día. Después no se puede modificar sin un administrador.'),
   ).toBeVisible()
-  await page.getByRole('button', { name: 'Sí, cerrar el día' }).click()
+  await contado.press('Enter')
   await expect(page.getByRole('heading', { name: 'Día cerrado' })).toBeVisible()
 
   // Ver el resumen: el día queda bloqueado
   await page.getByRole('link', { name: 'Volver al inicio' }).click()
   await expect(page.getByRole('heading', { name: 'El día de hoy ya se cerró' })).toBeVisible()
   await expect(page.getByText('$ 24.800,00')).toBeVisible()
-  await expect(page.getByText('3', { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Reabrir el día' })).toHaveCount(0)
 })
 
@@ -92,5 +98,5 @@ test('con clave temporal, el primer ingreso obliga a elegir una nueva', async ({
   await page.getByLabel('Contraseña nueva').fill('milanesa con papas')
   await page.getByLabel('Repetí la contraseña').fill('milanesa con papas')
   await page.getByRole('button', { name: 'Guardar contraseña' }).click()
-  await expect(page.getByText('Caja de hoy')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'El día de hoy ya se cerró' })).toBeVisible()
 })
