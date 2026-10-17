@@ -7,7 +7,7 @@ export function Segmentado<T extends string>({
 }: {
   etiqueta: string
   opciones: { valor: T; texto: string }[]
-  valor: T
+  valor: T | null
   onCambio: (v: T) => void
 }) {
   return (
