@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ListaVentas } from '../../components/caja/ListaVentas'
+import { ExportarMes } from '../../components/ExportarMes'
 import { Diferencia, ResumenDia } from '../../components/caja/ResumenDia'
 import { TablaDatos } from '../../components/graficos/Piezas'
 import { Indicador, Variacion } from '../../components/graficos/Piezas'
@@ -201,6 +202,7 @@ function ConsultaPeriodo({ tipo, fecha }: { tipo: 'semana' | 'mes'; fecha: strin
 
   return (
     <div className="flex flex-col gap-4">
+      {tipo === 'mes' && <ExportarMes fecha={fecha} />}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Indicador
           etiqueta="Facturación"
