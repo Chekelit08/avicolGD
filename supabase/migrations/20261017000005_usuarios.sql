@@ -71,3 +71,52 @@ $$;
 
 revoke execute on function public.registrar_auditoria_servicio(uuid, text, uuid, jsonb) from public, anon, authenticated;
 grant execute on function public.registrar_auditoria_servicio(uuid, text, uuid, jsonb) to service_role;
+
+-- Auth crea el usuario y DESPUÉS escribe app_metadata, así que el rol no llega al insert.
+-- Cuando el servidor cambia el rol o la marca de clave temporal en app_metadata, se copia al perfil.
+-- (app_metadata solo lo puede escribir el servidor; desde la app el rol se cambia en perfiles.)
+create function public.sincronizar_perfil_de_usuario()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if (new.raw_app_meta_data ->> 'rol') is distinct from (old.raw_app_meta_data ->> 'rol')
+    or (new.raw_app_meta_data ->> 'debe_cambiar_clave') is distinct from (old.raw_app_meta_data ->> 'debe_cambiar_clave') then
+    perform set_config('avicola.sincronizando', 'si', true);
+    update public.perfiles
+    set rol = coalesce((new.raw_app_meta_data ->> 'rol')::public.rol_usuario, rol),
+        debe_cambiar_clave = coalesce((new.raw_app_meta_data ->> 'debe_cambiar_clave')::boolean, debe_cambiar_clave)
+    where id = new.id;
+    perform set_config('avicola.sincronizando', '', true);
+  end if;
+  return new;
+end;
+$$;
+
+create trigger al_actualizar_usuario after update of raw_app_meta_data on auth.users
+  for each row execute function public.sincronizar_perfil_de_usuario();
+
+-- La sincronización de un alta no es un "cambio de rol" para la auditoría (el alta ya queda registrada).
+create or replace function public.auditar_perfiles()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if current_setting('avicola.sincronizando', true) = 'si' then
+    return new;
+  end if;
+  if new.rol <> old.rol then
+    perform public.registrar_auditoria('cambiar_rol', 'perfiles', new.id, to_jsonb(old), to_jsonb(new));
+  end if;
+  if old.activo and not new.activo then
+    perform public.registrar_auditoria('desactivar_usuario', 'perfiles', new.id, to_jsonb(old), to_jsonb(new));
+  elsif not old.activo and new.activo then
+    perform public.registrar_auditoria('reactivar_usuario', 'perfiles', new.id, to_jsonb(old), to_jsonb(new));
+  end if;
+  return new;
+end;
+$$;
