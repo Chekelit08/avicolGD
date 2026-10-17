@@ -2,6 +2,7 @@ import {
   addDays,
   addMonths,
   addWeeks,
+  differenceInCalendarDays,
   endOfMonth,
   endOfWeek,
   format,
@@ -100,3 +101,22 @@ export const NOMBRES_DIA_SEMANA = [
   'Sábado',
   'Domingo',
 ]
+
+/**
+ * Si el período todavía no terminó (por ejemplo, este mes), lo corta en hoy y compara
+ * contra el mismo tramo del período anterior: del 1 al 17 contra del 1 al 17.
+ */
+export function hastaHoy(per: Periodo, hoy: string): Periodo & { recortado: boolean } {
+  if (per.hasta <= hoy) return { ...per, recortado: false }
+  const dias = differenceInCalendarDays(leerFecha(hoy), leerFecha(per.desde))
+  const finAnterior = iso(addDays(leerFecha(per.anterior.desde), dias))
+  return {
+    ...per,
+    hasta: hoy,
+    anterior: {
+      desde: per.anterior.desde,
+      hasta: finAnterior < per.anterior.hasta ? finAnterior : per.anterior.hasta,
+    },
+    recortado: true,
+  }
+}

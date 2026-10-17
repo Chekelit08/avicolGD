@@ -10,11 +10,13 @@ export function ListaVentas({
   ventas,
   editable,
   limite,
+  titulo,
 }: {
   ventas: Venta[]
   /** false en días cerrados: no se puede anular. */
   editable: boolean
   limite?: number
+  titulo?: string
 }) {
   const { perfil, esAdmin } = useSesion()
   const [mostrarAnuladas, setMostrarAnuladas] = useState(false)
@@ -30,7 +32,7 @@ export function ListaVentas({
     <section aria-labelledby="titulo-ventas">
       <div className="mb-2 flex items-center justify-between gap-3">
         <h2 id="titulo-ventas" className="font-bold">
-          {limite ? 'Últimas ventas' : 'Ventas'}
+          {titulo ?? (limite ? 'Últimas ventas' : 'Ventas')}
         </h2>
         {cantidadAnuladas > 0 && (
           <label className="flex min-h-11 items-center gap-2 text-sm text-suave">

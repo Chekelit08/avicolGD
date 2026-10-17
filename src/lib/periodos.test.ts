@@ -31,3 +31,21 @@ describe('moverPeriodo y rangos', () => {
     expect(fechaCorta('2026-10-05')).toBe('05/10')
   })
 })
+
+describe('hastaHoy', () => {
+  it('compara el mes en curso con el mismo tramo del mes anterior', async () => {
+    const { hastaHoy, periodo } = await import('./periodos')
+    const p = hastaHoy(periodo('mes', '2026-10-17'), '2026-10-17')
+    expect(p).toMatchObject({ desde: '2026-10-01', hasta: '2026-10-17', recortado: true })
+    expect(p.anterior).toEqual({ desde: '2026-09-01', hasta: '2026-09-17' })
+  })
+  it('un período terminado queda igual', async () => {
+    const { hastaHoy, periodo } = await import('./periodos')
+    expect(hastaHoy(periodo('mes', '2026-09-10'), '2026-10-17').recortado).toBe(false)
+  })
+  it('no se pasa del fin del mes anterior (31 contra febrero)', async () => {
+    const { hastaHoy, periodo } = await import('./periodos')
+    const p = hastaHoy(periodo('mes', '2026-03-31'), '2026-03-30')
+    expect(p.anterior.hasta).toBe('2026-02-28')
+  })
+})
