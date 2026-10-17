@@ -6,14 +6,18 @@ const executablePath = process.env.PLAYWRIGHT_CHROMIUM || undefined
 
 export default defineConfig({
   testDir: 'e2e',
+  globalSetup: './e2e/preparar.ts',
+  workers: 1,
   use: {
     baseURL: 'http://localhost:4173',
     launchOptions: { executablePath },
   },
   projects: [
+    // El flujo de caja cambia la base: corre una sola vez, en celular (el caso real del mostrador).
     { name: 'celular', use: { ...devices['Pixel 5'], launchOptions: { executablePath } } },
     {
       name: 'escritorio',
+      testIgnore: /caja\.spec/,
       use: { ...devices['Desktop Chrome'], launchOptions: { executablePath } },
     },
   ],
