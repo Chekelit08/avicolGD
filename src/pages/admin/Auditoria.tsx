@@ -36,7 +36,7 @@ export default function Auditoria() {
         <Vacio titulo="Todavía no hay movimientos registrados" />
       ) : (
         <>
-          <ol className="divide-y divide-borde overflow-hidden rounded-2xl border border-borde bg-superficie">
+          <ol className="divide-y divide-borde overflow-hidden rounded-xl border border-borde bg-superficie shadow-tarjeta">
             {registros.data.map((r) => {
               const { frase, cuando } = describir(r)
               return (

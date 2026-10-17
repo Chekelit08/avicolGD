@@ -1,16 +1,15 @@
+import { ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router'
 import { Diferencia, ResumenDia } from '../components/caja/ResumenDia'
-import { Teclado } from '../components/caja/Teclado'
-import { Visor } from '../components/caja/Visor'
+import { CampoImporte } from '../components/caja/CampoImporte'
 import { Boton } from '../components/ui/Boton'
 import { AreaTexto } from '../components/ui/Campo'
-import { Cargando, MensajeError, Tarjeta, Titulo } from '../components/ui/Estados'
+import { Aviso, Cargando, MensajeError, Tarjeta, Titulo } from '../components/ui/Estados'
 import { useCerrarDia, useEstadoDelDia, useResumenJornada, type Jornada } from '../datos/caja'
 import { calcularArqueo } from '../lib/caja'
 import { mensajeDeError } from '../lib/errores'
 import { formatearFecha, formatearPesos } from '../lib/formato'
-import { aplicarTecla } from '../lib/importe'
 
 export function CerrarDia() {
   const estado = useEstadoDelDia()
@@ -36,6 +35,7 @@ function FormularioCierre({
   const [tipeado, setTipeado] = useState(false)
   const [nota, setNota] = useState('')
   const [confirmando, setConfirmando] = useState(false)
+  const [aviso, setAviso] = useState<string | null>(null)
 
   if (resumen.isPending) return <Cargando />
   if (resumen.isError || !resumen.data)
@@ -43,43 +43,63 @@ function FormularioCierre({
 
   const arqueo = calcularArqueo(resumen.data.fondo_inicial, resumen.data.total_efectivo, contado)
   const fecha = formatearFecha(new Date(`${jornada.fecha}T12:00:00-03:00`))
+  const confirmarCierre = () =>
+    cerrar.mutate({ jornadaId: jornada.id, contado, nota }, { onSuccess: alCerrar })
+
+  const alAccion = (accion: 'efectivo' | 'digital' | 'borrar') => {
+    if (accion === 'borrar') {
+      if (confirmando) setConfirmando(false)
+      else {
+        setContado(0)
+        setTipeado(false)
+      }
+      return
+    }
+    if (accion !== 'efectivo') return
+    if (!tipeado) {
+      setAviso('Escribí cuánto efectivo contaste. Si no hay nada, escribí 0.')
+      return
+    }
+    if (confirmando) confirmarCierre()
+    else setConfirmando(true)
+  }
 
   return (
     <div>
       <Titulo
+        subtitulo="Contá la plata de la caja (incluido el fondo inicial) y escribila."
         accion={
           <Link
             to="/"
-            className="min-h-11 py-2 font-bold text-suave underline-offset-4 hover:underline"
+            className="inline-flex min-h-11 items-center gap-2 rounded-[10px] px-3 text-sm font-medium text-suave hover:bg-hundida hover:text-texto"
           >
-            ← Volver a la caja
+            <ArrowLeft className="size-4" aria-hidden="true" /> Volver a la caja
           </Link>
         }
       >
         Cerrar el día {fecha.slice(0, 5)}
       </Titulo>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Tarjeta className="self-start">
-          <ResumenDia resumen={resumen.data} />
-        </Tarjeta>
-
-        <div className="flex flex-col gap-4">
-          <div>
-            <h2 className="font-bold">Contá el efectivo de la caja</h2>
-            <p className="text-sm text-suave">
-              Incluí el fondo inicial. Esperado: {formatearPesos(arqueo.esperado)}
-            </p>
-          </div>
-          <Visor importe={contado} etiqueta="Efectivo contado" />
-          <Teclado
-            onTecla={(t) => {
-              setConfirmando(false)
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,28rem)]">
+        <Tarjeta className="flex flex-col gap-4 self-start p-6">
+          <CampoImporte
+            etiqueta="Efectivo contado"
+            importe={contado}
+            enfocar
+            deshabilitado={cerrar.isPending}
+            onCambio={(n) => {
+              setContado(n)
               setTipeado(true)
-              setContado((c) => aplicarTecla(c, t))
+              setConfirmando(false)
+              setAviso(null)
             }}
+            onAccion={alAccion}
           />
-          <div aria-live="polite" className="min-h-8">
-            {tipeado && <Diferencia monto={arqueo.diferencia} />}
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span className="text-suave">
+              Esperado en caja:{' '}
+              <strong className="text-texto cifras">{formatearPesos(arqueo.esperado)}</strong>
+            </span>
+            <span aria-live="polite">{tipeado && <Diferencia monto={arqueo.diferencia} />}</span>
           </div>
           <AreaTexto
             etiqueta="Nota (opcional)"
@@ -93,43 +113,37 @@ function FormularioCierre({
             onChange={(e) => setNota(e.target.value)}
           />
 
+          {aviso && <Aviso tono="aviso">{aviso}</Aviso>}
           {cerrar.isError && <MensajeError>{mensajeDeError(cerrar.error)}</MensajeError>}
 
           {confirmando ? (
             <div
               role="alertdialog"
               aria-labelledby="confirmar-cierre"
-              className="flex flex-col gap-3 rounded-2xl border-2 border-alerta bg-superficie p-4"
+              className="flex flex-col gap-3 rounded-xl border border-alerta/30 bg-alerta-suave p-4"
             >
-              <p id="confirmar-cierre" className="text-lg font-bold">
+              <p id="confirmar-cierre" className="font-semibold text-texto">
                 Vas a cerrar el día. Después no se puede modificar sin un administrador.
               </p>
-              <div className="grid grid-cols-2 gap-3">
-                <Boton variante="secundario" className="h-14" onClick={() => setConfirmando(false)}>
-                  Volver
+              <div className="flex flex-wrap gap-2">
+                <Boton variante="peligro" cargando={cerrar.isPending} onClick={confirmarCierre}>
+                  Sí, cerrar el día · Enter
                 </Boton>
-                <Boton
-                  variante="peligro"
-                  className="h-14"
-                  cargando={cerrar.isPending}
-                  onClick={() =>
-                    cerrar.mutate({ jornadaId: jornada.id, contado, nota }, { onSuccess: alCerrar })
-                  }
-                >
-                  Sí, cerrar el día
+                <Boton variante="secundario" onClick={() => setConfirmando(false)}>
+                  Volver · Esc
                 </Boton>
               </div>
             </div>
           ) : (
-            <Boton
-              className="h-14 text-lg"
-              disabled={!tipeado}
-              onClick={() => setConfirmando(true)}
-            >
-              {tipeado ? 'Cerrar el día' : 'Tipeá el efectivo contado'}
+            <Boton tamano="grande" disabled={!tipeado} onClick={() => setConfirmando(true)}>
+              {tipeado ? 'Cerrar el día · Enter' : 'Escribí el efectivo contado'}
             </Boton>
           )}
-        </div>
+        </Tarjeta>
+
+        <Tarjeta titulo="Resumen del día" className="self-start">
+          <ResumenDia resumen={resumen.data} />
+        </Tarjeta>
       </div>
     </div>
   )
@@ -137,18 +151,23 @@ function FormularioCierre({
 
 function DiaCerradoOk({ jornada }: { jornada: Jornada }) {
   return (
-    <Tarjeta className="mx-auto flex max-w-md flex-col gap-4 p-6 text-center">
-      <h1 className="font-cartel text-4xl font-extrabold uppercase">Día cerrado</h1>
-      <p>
-        La caja del {formatearFecha(new Date(`${jornada.fecha}T12:00:00-03:00`))} quedó cerrada.
-      </p>
-      {jornada.diferencia_efectivo !== null && <Diferencia monto={jornada.diferencia_efectivo} />}
-      <Link
-        to="/"
-        className="flex min-h-14 items-center justify-center rounded-xl bg-marca text-lg font-bold text-sobre-marca"
-      >
-        Volver al inicio
-      </Link>
-    </Tarjeta>
+    <div className="mx-auto w-full max-w-md py-12">
+      <Tarjeta className="flex flex-col items-center gap-4 p-8 text-center">
+        <CheckCircle2 className="size-12 text-ok" aria-hidden="true" />
+        <h1 className="text-2xl font-semibold tracking-tight">Día cerrado</h1>
+        <p className="text-sm text-suave">
+          La caja del {formatearFecha(new Date(`${jornada.fecha}T12:00:00-03:00`))} quedó cerrada.
+        </p>
+        {jornada.diferencia_efectivo !== null && (
+          <Diferencia monto={jornada.diferencia_efectivo} grande />
+        )}
+        <Link
+          to="/"
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-marca font-semibold text-sobre-marca shadow-tarjeta hover:bg-marca-hover"
+        >
+          Volver al inicio
+        </Link>
+      </Tarjeta>
+    </div>
   )
 }

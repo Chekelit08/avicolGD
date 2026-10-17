@@ -43,7 +43,7 @@ export default function Usuarios() {
           ) : perfiles.isError ? (
             <MensajeError>{mensajeDeError(perfiles.error)}</MensajeError>
           ) : (
-            <ul className="divide-y divide-borde overflow-hidden rounded-2xl border border-borde bg-superficie">
+            <ul className="divide-y divide-borde overflow-hidden rounded-xl border border-borde bg-superficie shadow-tarjeta">
               {perfiles.data.map((p) => (
                 <FilaUsuario key={p.id} perfil={p} />
               ))}
@@ -75,7 +75,7 @@ function NuevoUsuario() {
 
   return (
     <Tarjeta className="self-start">
-      <h2 className="mb-3 font-bold">Crear una cuenta</h2>
+      <h2 className="mb-3 font-semibold">Crear una cuenta</h2>
       <form onSubmit={guardar} noValidate className="flex flex-col gap-3">
         <Campo
           etiqueta="Nombre"
@@ -115,7 +115,7 @@ function NuevoUsuario() {
         {crear.isError && <MensajeError>{mensajeDeError(crear.error)}</MensajeError>}
         {creado && (
           <div role="status" className="rounded-xl border-l-4 border-ok px-3 py-2">
-            <p className="font-bold text-ok">✓ Cuenta creada</p>
+            <p className="font-semibold text-ok">✓ Cuenta creada</p>
             <p className="text-sm">
               Pasale estos datos: <strong>{creado.email}</strong> /{' '}
               <strong className="cifras">{creado.clave}</strong>
@@ -143,17 +143,19 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
     <li className="px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className={`font-bold ${perfil.activo ? '' : 'text-suave line-through'}`}>
+          <p className={`font-semibold ${perfil.activo ? '' : 'text-suave line-through'}`}>
             {perfil.nombre} {soyYo && <span className="text-sm font-normal text-suave">(vos)</span>}
           </p>
           <p className="text-sm break-all text-suave">{perfil.email}</p>
           {!perfil.activo && (
-            <p className="text-sm font-bold">
+            <p className="text-sm font-semibold">
               Desactivado: no puede entrar. Su historial se conserva.
             </p>
           )}
           {perfil.activo && perfil.debe_cambiar_clave && (
-            <p className="text-sm font-bold text-aviso">Tiene que cambiar la contraseña temporal</p>
+            <p className="text-sm font-semibold text-aviso">
+              Tiene que cambiar la contraseña temporal
+            </p>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -165,7 +167,7 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
             value={perfil.rol}
             disabled={soyYo || !perfil.activo || actualizar.isPending}
             onChange={(e) => actualizar.mutate({ id: perfil.id, rol: e.target.value as Rol })}
-            className="min-h-11 rounded-xl border border-borde bg-superficie px-2"
+            className="min-h-11 rounded-xl border border-borde bg-superficie px-2 shadow-tarjeta"
           >
             <option value="cajero">Cajero</option>
             <option value="admin">Administrador</option>
@@ -208,7 +210,7 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
 
       {accion === 'desactivar' && (
         <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl bg-hundida p-3">
-          <p className="flex-1 font-bold">
+          <p className="flex-1 font-semibold">
             ¿Desactivar a {perfil.nombre}? No va a poder entrar más. Queda en la auditoría.
           </p>
           <Boton variante="secundario" onClick={() => setAccion(null)}>
@@ -234,7 +236,7 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
           {nuevaClave ? (
             <>
               <p role="status">
-                <span className="font-bold text-ok">✓ Listo.</span> Contraseña temporal:{' '}
+                <span className="font-semibold text-ok">✓ Listo.</span> Contraseña temporal:{' '}
                 <strong className="cifras">{nuevaClave}</strong>. La va a tener que cambiar al
                 entrar.
               </p>
@@ -251,7 +253,9 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
                 autoComplete="off"
               />
               {restablecer.isError && (
-                <p className="font-bold text-alerta-texto">{mensajeDeError(restablecer.error)}</p>
+                <p className="font-semibold text-alerta-texto">
+                  {mensajeDeError(restablecer.error)}
+                </p>
               )}
               <div className="flex gap-2">
                 <Boton variante="secundario" onClick={() => setAccion(null)}>
@@ -275,7 +279,7 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
         </div>
       )}
       {actualizar.isError && (
-        <p className="mt-2 text-sm font-bold text-alerta-texto">
+        <p className="mt-2 text-sm font-semibold text-alerta-texto">
           {mensajeDeError(actualizar.error)}
         </p>
       )}

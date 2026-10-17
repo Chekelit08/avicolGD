@@ -224,7 +224,7 @@ export function DistribucionMedios({ efectivo, digital }: { efectivo: number; di
                 />
                 {m.n}
               </dt>
-              <dd className="text-2xl font-bold">
+              <dd className="text-2xl font-semibold">
                 {formatearPorcentaje(m.pc, { conSigno: false })}
               </dd>
               <dd className="text-sm text-suave cifras">{p(m.v)}</dd>
@@ -268,7 +268,7 @@ export function GraficoDiasSemana({
       }
     >
       <ResponsiveContainer width="100%" height={filas.length * 36 + 16}>
-        <BarChart data={filas} layout="vertical" margin={{ top: 0, right: 72, left: 0, bottom: 0 }}>
+        <BarChart data={filas} layout="vertical" margin={{ top: 0, right: 88, left: 0, bottom: 0 }}>
           <XAxis type="number" hide domain={[0, 'dataMax']} />
           <YAxis type="category" dataKey="nombre" {...EJE} axisLine={false} width={84} />
           <Tooltip cursor={{ fill: COLORES.grilla, opacity: 0.6 }} content={<TooltipPesos />} />
@@ -401,7 +401,7 @@ export function GraficoEgresosCategoria({
       }
     >
       <ResponsiveContainer width="100%" height={Math.max(1, datos.length) * 36 + 16}>
-        <BarChart data={datos} layout="vertical" margin={{ top: 0, right: 72, left: 0, bottom: 0 }}>
+        <BarChart data={datos} layout="vertical" margin={{ top: 0, right: 88, left: 0, bottom: 0 }}>
           <XAxis type="number" hide domain={[0, 'dataMax']} />
           <YAxis type="category" dataKey="categoria" {...EJE} axisLine={false} width={104} />
           <Tooltip cursor={{ fill: COLORES.grilla, opacity: 0.6 }} content={<TooltipPesos />} />

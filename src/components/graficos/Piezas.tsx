@@ -48,10 +48,10 @@ export function TarjetaGrafico({
   cargando?: boolean
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-borde bg-superficie p-4">
+    <section className="flex flex-col gap-4 rounded-xl border border-borde bg-superficie p-5 shadow-tarjeta">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="font-bold">{titulo}</h2>
+          <h2 className="text-[15px] font-semibold">{titulo}</h2>
           {subtitulo && <p className="text-sm text-suave">{subtitulo}</p>}
         </div>
         {accion}
@@ -60,7 +60,7 @@ export function TarjetaGrafico({
       <div className={`transition-opacity ${cargando ? 'opacity-50' : ''}`}>{children}</div>
       {tabla && (
         <details className="text-sm">
-          <summary className="min-h-11 cursor-pointer py-2 font-bold text-suave">
+          <summary className="min-h-9 cursor-pointer py-1.5 text-sm font-medium text-suave hover:text-texto">
             Ver los datos
           </summary>
           <div className="max-h-72 overflow-auto">{tabla}</div>
@@ -79,10 +79,14 @@ export function TablaDatos({
 }) {
   return (
     <table className="w-full text-left">
-      <thead className="text-suave">
+      <thead className="text-xs text-suave uppercase">
         <tr>
           {columnas.map((c, i) => (
-            <th key={c} scope="col" className={`py-1 font-bold ${i > 0 ? 'text-right' : ''}`}>
+            <th
+              key={c}
+              scope="col"
+              className={`py-2 font-medium tracking-wide ${i > 0 ? 'text-right' : ''}`}
+            >
               {c}
             </th>
           ))}
@@ -92,7 +96,7 @@ export function TablaDatos({
         {filas.map((f, i) => (
           <tr key={i}>
             {f.map((v, j) => (
-              <td key={j} className={`py-1 ${j > 0 ? 'text-right' : ''}`}>
+              <td key={j} className={`py-2 ${j > 0 ? 'text-right' : ''}`}>
                 {v}
               </td>
             ))}
@@ -128,8 +132,8 @@ export function TooltipPesos({
   const etiqueta = String(label ?? '')
   const extra = nota?.(etiqueta)
   return (
-    <div className="rounded-xl border border-borde bg-superficie px-3 py-2 text-sm text-texto shadow-lg">
-      <p className="mb-1 font-bold">{formatoEtiqueta ? formatoEtiqueta(etiqueta) : etiqueta}</p>
+    <div className="rounded-lg border border-borde bg-superficie px-3 py-2 text-sm text-texto shadow-alta">
+      <p className="mb-1 font-semibold">{formatoEtiqueta ? formatoEtiqueta(etiqueta) : etiqueta}</p>
       {extra ? (
         <p className="text-suave">{extra}</p>
       ) : (
@@ -144,7 +148,7 @@ export function TooltipPesos({
                 />
                 {p.name}
               </span>
-              <span className="font-bold cifras">
+              <span className="font-semibold cifras">
                 {formatearPesos(Number(p.value ?? 0), { sinCentavos: true })}
               </span>
             </li>
@@ -172,7 +176,7 @@ export function Variacion({
   const bueno = sube === subirEsBueno
   const clase = neutro ? 'text-suave' : bueno ? 'text-ok' : 'text-alerta-texto'
   return (
-    <span className={`text-sm font-bold ${clase}`}>
+    <span className={`text-sm font-semibold ${clase}`}>
       <span aria-hidden="true">{neutro ? '■' : sube ? '▲' : '▼'}</span> {formatearPorcentaje(valor)}{' '}
       <span className="font-normal text-suave">vs {contra}</span>
     </span>
@@ -189,9 +193,9 @@ export function Indicador({
   detalle?: ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-borde bg-superficie p-4">
-      <p className="text-sm text-suave">{etiqueta}</p>
-      <p className="text-2xl font-bold sm:text-3xl">{valor}</p>
+    <div className="flex flex-col gap-1 rounded-xl border border-borde bg-superficie p-4 shadow-tarjeta">
+      <p className="text-xs font-medium text-suave">{etiqueta}</p>
+      <p className="text-2xl font-semibold tracking-tight">{valor}</p>
       {detalle && <div>{detalle}</div>}
     </div>
   )

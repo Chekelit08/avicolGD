@@ -130,7 +130,7 @@ function FormularioPago({ hoy, mesInicial }: { hoy: string; mesInicial: string }
 
   return (
     <Tarjeta>
-      <h2 className="mb-3 font-bold">Registrar un pago</h2>
+      <h2 className="mb-3 font-semibold">Registrar un pago</h2>
       {activos.length === 0 && !empleados.isPending ? (
         <Vacio titulo="Todavía no hay empleados">Agregá uno abajo para registrarle pagos.</Vacio>
       ) : (
@@ -181,7 +181,7 @@ function FormularioPago({ hoy, mesInicial }: { hoy: string; mesInicial: string }
             name="medio_pago"
             render={({ field, fieldState }) => (
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-bold">Cómo se pagó</span>
+                <span className="text-sm font-semibold">Cómo se pagó</span>
                 <Segmentado
                   etiqueta="Cómo se pagó"
                   valor={field.value ?? null}
@@ -192,7 +192,9 @@ function FormularioPago({ hoy, mesInicial }: { hoy: string; mesInicial: string }
                   ]}
                 />
                 {fieldState.error && (
-                  <p className="text-sm font-bold text-alerta-texto">{fieldState.error.message}</p>
+                  <p className="text-sm font-semibold text-alerta-texto">
+                    {fieldState.error.message}
+                  </p>
                 )}
               </div>
             )}
@@ -200,7 +202,7 @@ function FormularioPago({ hoy, mesInicial }: { hoy: string; mesInicial: string }
           <AreaTexto etiqueta="Nota (opcional)" maxLength={300} {...register('nota')} />
           {crear.isError && <MensajeError>{mensajeDeError(crear.error)}</MensajeError>}
           {guardado && (
-            <p role="status" className="font-bold text-ok">
+            <p role="status" className="font-semibold text-ok">
               ✓ Guardado: {guardado}
             </p>
           )}
@@ -222,10 +224,10 @@ function ResumenMes({ periodo }: { periodo: string }) {
   return (
     <Tarjeta>
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-bold first-letter:uppercase">
+        <h2 className="font-semibold first-letter:uppercase">
           Costo de personal de {nombrePeriodo(periodo)}
         </h2>
-        <span className="text-3xl font-bold">{p(total)}</span>
+        <span className="text-3xl font-semibold">{p(total)}</span>
       </div>
       <TablaDatos
         columnas={['Empleado', 'Sueldo', 'Adelantos', 'Aguinaldo', 'Otros', 'Total']}
@@ -251,16 +253,16 @@ function PagosDelMes({ periodo }: { periodo: string }) {
   if (pagos.isError) return <MensajeError>{mensajeDeError(pagos.error)}</MensajeError>
   return (
     <section>
-      <h2 className="mb-2 font-bold">Pagos de este mes</h2>
+      <h2 className="mb-2 font-semibold">Pagos de este mes</h2>
       {pagos.data.length === 0 ? (
         <Vacio titulo="No hay pagos registrados para este mes" />
       ) : (
-        <ul className="divide-y divide-borde overflow-hidden rounded-2xl border border-borde bg-superficie">
+        <ul className="divide-y divide-borde overflow-hidden rounded-xl border border-borde bg-superficie shadow-tarjeta">
           {pagos.data.map((pg) => (
             <li key={pg.id} className="px-4 py-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <div>
-                  <p className="font-bold">
+                  <p className="font-semibold">
                     {nombreTipo(pg.tipo)} · {pg.empleado?.nombre}
                   </p>
                   <p className="text-sm text-suave">
@@ -269,12 +271,12 @@ function PagosDelMes({ periodo }: { periodo: string }) {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold cifras">{formatearPesos(pg.monto)}</span>
+                  <span className="text-lg font-semibold cifras">{formatearPesos(pg.monto)}</span>
                   {borrando !== pg.id && (
                     <button
                       type="button"
                       onClick={() => setBorrando(pg.id)}
-                      className="min-h-11 px-2 text-sm font-bold text-alerta-texto underline-offset-4 hover:underline"
+                      className="min-h-11 px-2 text-sm font-semibold text-alerta-texto underline-offset-4 hover:underline"
                     >
                       Borrar
                     </button>
@@ -283,7 +285,7 @@ function PagosDelMes({ periodo }: { periodo: string }) {
               </div>
               {borrando === pg.id && (
                 <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl bg-hundida p-3">
-                  <p className="flex-1 font-bold">
+                  <p className="flex-1 font-semibold">
                     ¿Borrar este pago? Queda registrado en la auditoría.
                   </p>
                   <Boton variante="secundario" onClick={() => setBorrando(null)}>
@@ -315,7 +317,7 @@ function Empleados() {
   return (
     <Tarjeta>
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="font-bold">Empleados</h2>
+        <h2 className="font-semibold">Empleados</h2>
         {!editando && (
           <Boton
             variante="secundario"
@@ -357,7 +359,7 @@ function Empleados() {
             maxLength={300}
           />
           {guardar.isError && (
-            <p className="font-bold text-alerta-texto">{mensajeDeError(guardar.error)}</p>
+            <p className="font-semibold text-alerta-texto">{mensajeDeError(guardar.error)}</p>
           )}
           <div className="flex gap-2">
             <Boton variante="secundario" onClick={() => setEditando(null)}>
@@ -377,7 +379,7 @@ function Empleados() {
         {(empleados.data ?? []).map((e) => (
           <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
             <div>
-              <p className={`font-bold ${e.activo ? '' : 'text-suave'}`}>
+              <p className={`font-semibold ${e.activo ? '' : 'text-suave'}`}>
                 {e.nombre}{' '}
                 {!e.activo && <span className="text-sm font-normal">(ya no trabaja)</span>}
               </p>
@@ -386,14 +388,14 @@ function Empleados() {
             <div className="flex gap-1">
               <button
                 type="button"
-                className="min-h-11 px-2 text-sm font-bold text-suave underline-offset-4 hover:underline"
+                className="min-h-11 px-2 text-sm font-semibold text-suave underline-offset-4 hover:underline"
                 onClick={() => setEditando(e)}
               >
                 Editar
               </button>
               <button
                 type="button"
-                className="min-h-11 px-2 text-sm font-bold text-suave underline-offset-4 hover:underline"
+                className="min-h-11 px-2 text-sm font-semibold text-suave underline-offset-4 hover:underline"
                 onClick={() => guardar.mutate({ ...e, activo: !e.activo })}
               >
                 {e.activo ? 'Dar de baja' : 'Reactivar'}

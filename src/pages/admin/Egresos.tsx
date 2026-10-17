@@ -89,7 +89,7 @@ function FormularioEgreso({ hoy }: { hoy: string }) {
 
   return (
     <Tarjeta>
-      <h2 className="mb-3 font-bold">Cargar un egreso</h2>
+      <h2 className="mb-3 font-semibold">Cargar un egreso</h2>
       <form onSubmit={guardar} noValidate className="flex flex-col gap-3">
         <Campo
           etiqueta="Fecha"
@@ -142,7 +142,7 @@ function FormularioEgreso({ hoy }: { hoy: string }) {
           name="medio_pago"
           render={({ field, fieldState }) => (
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-bold">Cómo se pagó</span>
+              <span className="text-sm font-semibold">Cómo se pagó</span>
               <Segmentado
                 etiqueta="Cómo se pagó"
                 valor={field.value ?? null}
@@ -153,14 +153,16 @@ function FormularioEgreso({ hoy }: { hoy: string }) {
                 ]}
               />
               {fieldState.error && (
-                <p className="text-sm font-bold text-alerta-texto">{fieldState.error.message}</p>
+                <p className="text-sm font-semibold text-alerta-texto">
+                  {fieldState.error.message}
+                </p>
               )}
             </div>
           )}
         />
         {crear.isError && <MensajeError>{mensajeDeError(crear.error)}</MensajeError>}
         {guardado && (
-          <p role="status" className="font-bold text-ok">
+          <p role="status" className="font-semibold text-ok">
             ✓ {guardado}
           </p>
         )}
@@ -179,14 +181,14 @@ function Categorias() {
   return (
     <Tarjeta>
       <details>
-        <summary className="min-h-11 cursor-pointer py-2 font-bold">Categorías</summary>
+        <summary className="min-h-11 cursor-pointer py-2 font-semibold">Categorías</summary>
         <ul className="mt-2 divide-y divide-borde">
           {(categorias.data ?? []).map((c) => (
             <li key={c.id} className="flex min-h-11 items-center justify-between gap-2">
               <span className={c.activa ? '' : 'text-suave line-through'}>{c.nombre}</span>
               <button
                 type="button"
-                className="min-h-11 px-2 text-sm font-bold text-suave underline-offset-4 hover:underline"
+                className="min-h-11 px-2 text-sm font-semibold text-suave underline-offset-4 hover:underline"
                 onClick={() => guardar.mutate({ id: c.id, nombre: c.nombre, activa: !c.activa })}
               >
                 {c.activa ? 'Ocultar' : 'Volver a usar'}
@@ -223,7 +225,7 @@ function Categorias() {
           </Boton>
         </form>
         {guardar.isError && (
-          <p className="mt-2 text-sm font-bold text-alerta-texto">
+          <p className="mt-2 text-sm font-semibold text-alerta-texto">
             {mensajeDeError(guardar.error)}
           </p>
         )}
@@ -287,7 +289,7 @@ function Listado({
 
       <p className="flex items-baseline justify-between gap-3 px-1">
         <span className="text-suave">Total del período (sin anulados)</span>
-        <span className="text-3xl font-bold">{formatearPesos(total)}</span>
+        <span className="text-3xl font-semibold">{formatearPesos(total)}</span>
       </p>
 
       {!filtro.categoriaId && !filtro.proveedor && (
@@ -299,7 +301,7 @@ function Listado({
 
       {egresos.isError && <MensajeError>{mensajeDeError(egresos.error)}</MensajeError>}
       <div className="flex items-center justify-between">
-        <h2 className="font-bold">Egresos</h2>
+        <h2 className="font-semibold">Egresos</h2>
         <label className="flex min-h-11 items-center gap-2 text-sm text-suave">
           <input
             type="checkbox"
@@ -315,12 +317,14 @@ function Listado({
       ) : filas.length === 0 ? (
         <Vacio titulo="No hay egresos en este período">Cargá el primero con el formulario.</Vacio>
       ) : (
-        <ul className="divide-y divide-borde overflow-hidden rounded-2xl border border-borde bg-superficie">
+        <ul className="divide-y divide-borde overflow-hidden rounded-xl border border-borde bg-superficie shadow-tarjeta">
           {filas.map((e) => (
             <li key={e.id} className={`px-4 py-3 ${e.anulado ? 'text-suave' : ''}`}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <div className="min-w-0">
-                  <p className={`font-bold ${e.anulado ? 'line-through' : ''}`}>{e.descripcion}</p>
+                  <p className={`font-semibold ${e.anulado ? 'line-through' : ''}`}>
+                    {e.descripcion}
+                  </p>
                   <p className="text-sm text-suave">
                     {fechaLarga(e.fecha)} · {e.categoria?.nombre}
                     {e.proveedor ? ` · ${e.proveedor}` : ''} ·{' '}
@@ -329,14 +333,16 @@ function Listado({
                   {e.anulado && <p className="text-sm">Anulado: {e.motivo_anulacion}</p>}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`text-lg font-bold cifras ${e.anulado ? 'line-through' : ''}`}>
+                  <span
+                    className={`text-lg font-semibold cifras ${e.anulado ? 'line-through' : ''}`}
+                  >
                     {formatearPesos(e.monto)}
                   </span>
                   {!e.anulado && anulando !== e.id && (
                     <button
                       type="button"
                       onClick={() => setAnulando(e.id)}
-                      className="min-h-11 px-2 text-sm font-bold text-alerta-texto underline-offset-4 hover:underline"
+                      className="min-h-11 px-2 text-sm font-semibold text-alerta-texto underline-offset-4 hover:underline"
                     >
                       Anular
                     </button>
@@ -365,7 +371,7 @@ function AnularEgreso({ id, alTerminar }: { id: string; alTerminar: () => void }
         maxLength={200}
       />
       {anular.isError && (
-        <p className="font-bold text-alerta-texto">{mensajeDeError(anular.error)}</p>
+        <p className="font-semibold text-alerta-texto">{mensajeDeError(anular.error)}</p>
       )}
       <div className="flex gap-2">
         <Boton variante="secundario" onClick={alTerminar}>

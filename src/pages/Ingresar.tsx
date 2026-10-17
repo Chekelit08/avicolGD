@@ -25,13 +25,21 @@ export function PantallaAcceso({
   children: React.ReactNode
 }) {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-4 py-10">
-      <div className="mb-6 rounded-2xl bg-white p-5">
-        <img src={logo} alt="Gonza — Carnicería, Chanchería, Avícola" className="mx-auto w-56" />
+    <main className="flex min-h-dvh flex-col items-center justify-center px-4 py-10">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <img
+            src={logo}
+            alt="Gonza — Carnicería, Chanchería, Avícola"
+            className="w-40 dark:rounded-xl dark:bg-white dark:p-3"
+          />
+          <h1 className="mt-6 text-2xl font-semibold tracking-tight">{titulo}</h1>
+          <p className="mt-1 text-sm text-suave">Avícola GD · Caja diaria</p>
+        </div>
+        <div className="rounded-xl border border-borde bg-superficie p-6 shadow-tarjeta">
+          {children}
+        </div>
       </div>
-      <h1 className="mb-1 text-center font-cartel text-4xl font-extrabold uppercase">Avícola GD</h1>
-      <p className="mb-6 text-center text-suave">{titulo}</p>
-      {children}
     </main>
   )
 }
@@ -65,7 +73,7 @@ export function Ingresar() {
   })
 
   return (
-    <PantallaAcceso titulo="Ingresá para abrir la caja">
+    <PantallaAcceso titulo="Ingresá a tu caja">
       <form onSubmit={ingresar} noValidate className="flex flex-col gap-4">
         {aviso && <p className="rounded-xl bg-hundida px-4 py-3 text-sm">{aviso}</p>}
         {error && <MensajeError>{error}</MensajeError>}
@@ -84,7 +92,12 @@ export function Ingresar() {
           error={formState.errors.clave?.message}
           {...register('clave')}
         />
-        <Boton type="submit" cargando={formState.isSubmitting} className="mt-2 h-14 text-lg">
+        <Boton
+          type="submit"
+          tamano="grande"
+          cargando={formState.isSubmitting}
+          className="mt-2 w-full"
+        >
           Ingresar
         </Boton>
         <Link

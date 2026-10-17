@@ -1,89 +1,171 @@
-import { NavLink, Outlet } from 'react-router'
-import { formatearDiaCorto } from '../../lib/formato'
+import {
+  BarChart3,
+  LogOut,
+  Menu,
+  Monitor,
+  Moon,
+  Receipt,
+  Search,
+  ShieldCheck,
+  Store,
+  Sun,
+  UserCog,
+  Users,
+  X,
+  type LucideIcon,
+} from 'lucide-react'
+import { useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router'
+import vaca from '../../assets/vaca.svg'
 import { useTema, type Tema } from '../../lib/tema'
 import { useSesion } from '../../sesion/Sesion'
-import { Cinta } from '../marca/Cinta'
 
-const SECCIONES_ADMIN = [
-  { a: '/', texto: 'Caja' },
-  { a: '/consulta', texto: 'Consulta' },
-  { a: '/panel', texto: 'Panel' },
-  { a: '/egresos', texto: 'Egresos' },
-  { a: '/personal', texto: 'Personal' },
-  { a: '/usuarios', texto: 'Usuarios' },
-  { a: '/auditoria', texto: 'Auditoría' },
+interface Seccion {
+  a: string
+  texto: string
+  Icono: LucideIcon
+  soloAdmin?: boolean
+}
+
+const SECCIONES: Seccion[] = [
+  { a: '/', texto: 'Caja', Icono: Store },
+  { a: '/consulta', texto: 'Consulta', Icono: Search, soloAdmin: true },
+  { a: '/panel', texto: 'Panel', Icono: BarChart3, soloAdmin: true },
+  { a: '/egresos', texto: 'Egresos', Icono: Receipt, soloAdmin: true },
+  { a: '/personal', texto: 'Personal', Icono: Users, soloAdmin: true },
+  { a: '/usuarios', texto: 'Usuarios', Icono: UserCog, soloAdmin: true },
+  { a: '/auditoria', texto: 'Auditoría', Icono: ShieldCheck, soloAdmin: true },
 ]
 
-export function Marco() {
-  const { perfil, esAdmin, cerrarSesion } = useSesion()
+const TEMAS: Record<Tema, { siguiente: Tema; texto: string; Icono: LucideIcon }> = {
+  sistema: { siguiente: 'claro', texto: 'Tema automático', Icono: Monitor },
+  claro: { siguiente: 'oscuro', texto: 'Tema claro', Icono: Sun },
+  oscuro: { siguiente: 'sistema', texto: 'Tema oscuro', Icono: Moon },
+}
+
+function Marca() {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="grid size-9 place-items-center rounded-[10px] bg-marca shadow-tarjeta">
+        <img src={vaca} alt="" className="w-6 invert" />
+      </span>
+      <span className="leading-tight">
+        <span className="block text-[15px] font-semibold tracking-tight">Avícola GD</span>
+        <span className="block text-xs text-suave">Carnicería · Avícola</span>
+      </span>
+    </div>
+  )
+}
+
+function Navegacion({ alElegir }: { alElegir?: () => void }) {
+  const { esAdmin } = useSesion()
+  return (
+    <nav aria-label="Secciones" className="flex flex-col gap-0.5">
+      {SECCIONES.filter((s) => esAdmin || !s.soloAdmin).map(({ a, texto, Icono }) => (
+        <NavLink
+          key={a}
+          to={a}
+          end={a === '/'}
+          onClick={alElegir}
+          className={({ isActive }) =>
+            `flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors ${
+              isActive
+                ? 'bg-marca-suave text-marca'
+                : 'text-suave hover:bg-hundida hover:text-texto'
+            }`
+          }
+        >
+          <Icono className="size-[18px]" aria-hidden="true" />
+          {texto}
+        </NavLink>
+      ))}
+    </nav>
+  )
+}
+
+function PieUsuario() {
+  const { perfil, cerrarSesion } = useSesion()
   const [tema, setTema] = useTema()
-  const siguiente: Record<Tema, Tema> = { sistema: 'claro', claro: 'oscuro', oscuro: 'sistema' }
-  const nombreTema: Record<Tema, string> = {
-    sistema: 'Automático',
-    claro: 'Claro',
-    oscuro: 'Oscuro',
-  }
+  const { siguiente, texto, Icono } = TEMAS[tema]
+  return (
+    <div className="flex flex-col gap-1 border-t border-borde pt-3">
+      <div className="px-3 pb-1">
+        <p className="truncate text-sm font-medium">{perfil?.nombre}</p>
+        <p className="text-xs text-suave">{perfil?.rol === 'admin' ? 'Administrador' : 'Cajero'}</p>
+      </div>
+      <button
+        type="button"
+        onClick={() => setTema(siguiente)}
+        className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-suave hover:bg-hundida hover:text-texto"
+      >
+        <Icono className="size-[18px]" aria-hidden="true" /> {texto}
+      </button>
+      <button
+        type="button"
+        onClick={() => void cerrarSesion()}
+        className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-suave hover:bg-hundida hover:text-texto"
+      >
+        <LogOut className="size-[18px]" aria-hidden="true" /> Cerrar sesión
+      </button>
+    </div>
+  )
+}
+
+export function Marco() {
+  const [menuAbierto, setMenuAbierto] = useState(false)
+  const ubicacion = useLocation()
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-6xl flex-col px-4 pb-10">
+    <div className="min-h-dvh lg:pl-60">
       <a
         href="#contenido"
-        className="sr-only rounded-lg bg-marca px-3 py-2 text-sobre-marca focus:not-sr-only focus:absolute focus:top-2 focus:left-2"
+        className="sr-only rounded-lg bg-marca px-3 py-2 text-sobre-marca focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50"
       >
         Ir al contenido
       </a>
-      <header className="pt-3">
-        <Cinta>
-          <div className="flex items-center justify-between gap-3">
-            <span className="font-cartel text-2xl font-extrabold tracking-wide uppercase">
-              Avícola GD
-            </span>
-            <span className="text-sm">{formatearDiaCorto(new Date())}</span>
-          </div>
-        </Cinta>
-        <div className="mt-2 flex items-center justify-between gap-3 px-1">
-          {esAdmin ? (
-            <nav aria-label="Secciones" className="-mx-1 flex gap-1 overflow-x-auto">
-              {SECCIONES_ADMIN.map((s) => (
-                <NavLink
-                  key={s.a}
-                  to={s.a}
-                  end={s.a === '/'}
-                  className={({ isActive }) =>
-                    `flex min-h-11 shrink-0 items-center rounded-lg px-3 text-sm font-bold ${isActive ? 'bg-marca text-sobre-marca' : 'text-suave hover:text-texto'}`
-                  }
-                >
-                  {s.texto}
-                </NavLink>
-              ))}
-            </nav>
-          ) : (
-            <span className="text-sm text-suave">Caja de hoy</span>
-          )}
-          <div className="flex shrink-0 items-center gap-2 text-sm">
-            <span className="hidden text-suave sm:inline">{perfil?.nombre}</span>
-            <button
-              type="button"
-              onClick={() => setTema(siguiente[tema])}
-              aria-label={`Tema: ${nombreTema[tema]}. Tocá para cambiar.`}
-              className="min-h-11 px-2 font-bold text-suave hover:text-texto"
-            >
-              <span aria-hidden="true">
-                {tema === 'oscuro' ? '☾' : tema === 'claro' ? '☀' : '◐'}
-              </span>
-              <span className="ml-1 hidden md:inline">{nombreTema[tema]}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => void cerrarSesion()}
-              className="min-h-11 px-2 font-bold text-suave underline-offset-4 hover:text-texto hover:underline"
-            >
-              Cerrar sesión
-            </button>
-          </div>
+
+      {/* Escritorio: barra lateral fija */}
+      <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col gap-6 border-r border-borde bg-superficie px-3 py-5 lg:flex">
+        <div className="px-2">
+          <Marca />
         </div>
+        <div className="flex-1 overflow-y-auto">
+          <Navegacion />
+        </div>
+        <PieUsuario />
+      </aside>
+
+      {/* Celular y tablet: barra superior con menú */}
+      <header className="sticky top-0 z-40 border-b border-borde bg-superficie/90 backdrop-blur lg:hidden">
+        <div className="flex h-14 items-center justify-between px-4">
+          <Marca />
+          <button
+            type="button"
+            onClick={() => setMenuAbierto((m) => !m)}
+            aria-expanded={menuAbierto}
+            aria-controls="menu-celular"
+            aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
+            className="grid size-11 place-items-center rounded-lg text-suave hover:bg-hundida"
+          >
+            {menuAbierto ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
+        {menuAbierto && (
+          <div
+            id="menu-celular"
+            className="flex animate-aparecer flex-col gap-3 border-t border-borde px-3 py-3"
+          >
+            <Navegacion alElegir={() => setMenuAbierto(false)} />
+            <PieUsuario />
+          </div>
+        )}
       </header>
-      <main id="contenido" className="mt-4 flex-1">
+
+      <main
+        id="contenido"
+        key={ubicacion.pathname}
+        className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
+      >
         <Outlet />
       </main>
     </div>

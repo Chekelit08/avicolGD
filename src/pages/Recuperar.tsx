@@ -41,7 +41,7 @@ export function Recuperar() {
             Si el email está registrado, te llega un link para elegir una contraseña nueva. Revisá
             también la carpeta de spam.
           </p>
-          <Link to="/ingresar" className="font-bold underline underline-offset-4">
+          <Link to="/ingresar" className="font-semibold underline underline-offset-4">
             Volver a ingresar
           </Link>
         </div>

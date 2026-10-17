@@ -31,9 +31,7 @@ const clienteConsultas = new QueryClient({
 function FaltaConfigurar() {
   return (
     <main className="mx-auto max-w-lg px-4 py-16">
-      <h1 className="mb-3 font-cartel text-4xl font-extrabold uppercase">
-        Falta configurar Supabase
-      </h1>
+      <h1 className="mb-3 text-2xl font-semibold tracking-tight">Falta configurar Supabase</h1>
       <p>
         Copiá <code>.env.example</code> como <code>.env.local</code>, completá la URL y la clave
         pública, y volvé a iniciar la app. Los pasos están en <code>docs/SUPABASE.md</code>.

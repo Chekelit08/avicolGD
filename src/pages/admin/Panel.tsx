@@ -128,7 +128,7 @@ export default function Panel() {
         />
         {rapido === 'otro' && (
           <div className="flex flex-wrap gap-2">
-            <label className="flex flex-col text-sm font-bold">
+            <label className="flex flex-col text-sm font-semibold">
               Desde
               <input
                 type="date"
@@ -137,10 +137,10 @@ export default function Panel() {
                 onChange={(e) =>
                   e.target.value && setPropio((r) => ({ ...r, desde: e.target.value }))
                 }
-                className="min-h-11 rounded-xl border border-borde bg-superficie px-2 font-normal"
+                className="min-h-11 rounded-xl border border-borde bg-superficie px-2 font-normal shadow-tarjeta"
               />
             </label>
-            <label className="flex flex-col text-sm font-bold">
+            <label className="flex flex-col text-sm font-semibold">
               Hasta
               <input
                 type="date"
@@ -150,7 +150,7 @@ export default function Panel() {
                 onChange={(e) =>
                   e.target.value && setPropio((r) => ({ ...r, hasta: e.target.value }))
                 }
-                className="min-h-11 rounded-xl border border-borde bg-superficie px-2 font-normal"
+                className="min-h-11 rounded-xl border border-borde bg-superficie px-2 font-normal shadow-tarjeta"
               />
             </label>
           </div>

@@ -85,7 +85,7 @@ export default function Consulta() {
             value={fecha}
             max={hoy}
             onChange={(e) => e.target.value && setFecha(e.target.value)}
-            className="min-h-11 rounded-xl border border-borde bg-superficie px-2"
+            className="min-h-11 rounded-xl border border-borde bg-superficie px-2 shadow-tarjeta"
           />
           <Boton
             variante="secundario"
@@ -98,7 +98,7 @@ export default function Consulta() {
           </Boton>
         </div>
       </div>
-      <h2 className="text-xl font-bold first-letter:uppercase">{per.titulo}</h2>
+      <h2 className="text-xl font-semibold first-letter:uppercase">{per.titulo}</h2>
       {tipo === 'dia' ? (
         <ConsultaDia fecha={fecha} />
       ) : (
@@ -128,7 +128,7 @@ function ConsultaDia({ fecha }: { fecha: string }) {
       <Tarjeta className="flex flex-col gap-4 self-start">
         <p className="text-sm">
           {j.estado === 'abierta' ? (
-            <span className="font-bold text-ok">● Día abierto</span>
+            <span className="font-semibold text-ok">● Día abierto</span>
           ) : (
             <span className="text-suave">
               Cerrado a las {j.cerrada_en ? formatearHora(new Date(j.cerrada_en)) : '—'}
@@ -144,11 +144,11 @@ function ConsultaDia({ fecha }: { fecha: string }) {
         {j.estado === 'cerrada' &&
           (confirmar ? (
             <div className="flex flex-col gap-3 rounded-xl bg-hundida p-3">
-              <p className="font-bold">
+              <p className="font-semibold">
                 ¿Reabrir este día? Queda registrado en la auditoría y se va a poder modificar.
               </p>
               {reabrir.isError && (
-                <p className="font-bold text-alerta-texto">{mensajeDeError(reabrir.error)}</p>
+                <p className="font-semibold text-alerta-texto">{mensajeDeError(reabrir.error)}</p>
               )}
               <div className="flex gap-2">
                 <Boton variante="secundario" onClick={() => setConfirmar(false)}>
@@ -168,7 +168,7 @@ function ConsultaDia({ fecha }: { fecha: string }) {
             </Boton>
           ))}
       </Tarjeta>
-      <div>
+      <Tarjeta sinRelleno className="self-start">
         {ventas.data ? (
           <ListaVentas
             ventas={ventas.data}
@@ -179,7 +179,7 @@ function ConsultaDia({ fecha }: { fecha: string }) {
         ) : (
           <Cargando />
         )}
-      </div>
+      </Tarjeta>
     </div>
   )
 }
@@ -241,7 +241,7 @@ function ConsultaPeriodo({ tipo, fecha }: { tipo: 'semana' | 'mes'; fecha: strin
         />
       </div>
       <Tarjeta>
-        <h3 className="mb-2 font-bold">Día por día</h3>
+        <h3 className="mb-2 font-semibold">Día por día</h3>
         <TablaDatos
           columnas={['Día', 'Efectivo', 'Digital', 'Total', 'Ventas']}
           filas={(dias.data ?? []).map((d) =>

@@ -43,7 +43,7 @@ export function ExportarMes({ fecha }: { fecha: string }) {
         </Boton>
       </div>
       {error && (
-        <p role="alert" className="font-bold text-alerta-texto">
+        <p role="alert" className="font-semibold text-alerta-texto">
           {error}
         </p>
       )}
