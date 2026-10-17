@@ -1,6 +1,6 @@
 -- Flujo del día y reglas de negocio de la caja.
 begin;
-select plan(25);
+select plan(26);
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "a0000000-0000-4000-8000-000000000003", "role": "authenticated"}';
@@ -79,6 +79,10 @@ select lives_ok(
 select is(
   (select diferencia_efectivo from public.jornadas where fecha = public.hoy_ar()),
   -500.00::numeric, 'la diferencia es contado − esperado'
+);
+select is(
+  (select total from public.resumen_jornada((select id from public.jornadas where fecha = public.hoy_ar()))),
+  20800.00::numeric, 'el cajero ve el resumen del día de hoy ya cerrado'
 );
 select throws_ok($$select public.registrar_venta(100, 'efectivo')$$, 'P0001', 'No hay un día abierto. Abrí el día para cargar ventas.', 'no se carga en un día cerrado');
 select throws_ok($$select public.abrir_jornada(0)$$, 'P0001', null, 'no se vuelve a abrir el día cerrado');

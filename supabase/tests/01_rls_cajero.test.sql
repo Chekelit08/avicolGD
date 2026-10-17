@@ -1,6 +1,6 @@
 -- Un cajero (cuenta Mostrador) NO puede ver egresos, sueldos, empleados, auditoría ni historial.
 begin;
-select plan(16);
+select plan(18);
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "a0000000-0000-4000-8000-000000000003", "role": "authenticated"}';
@@ -39,6 +39,17 @@ select throws_ok(
   $$select * from public.personal_del_mes(current_date)$$,
   '42501', null, 'el cajero no ve el costo de personal'
 );
+
+select is_empty(
+  $$select * from public.resumen_jornada((select id from public.jornadas order by fecha desc limit 1))$$,
+  'el cajero no puede pedir el resumen de un día anterior'
+);
+reset role;
+select is(
+  (select count(*)::int from public.resumen_jornada((select id from public.jornadas order by fecha desc limit 1))),
+  0, 'sin usuario tampoco hay resumen'
+);
+set local role authenticated;
 
 -- Intentar subirse de rol no tiene efecto (no hay política de update para él).
 update public.perfiles set rol = 'admin' where id = auth.uid();

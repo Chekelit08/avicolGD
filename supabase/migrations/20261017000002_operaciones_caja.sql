@@ -177,7 +177,8 @@ $$;
 
 -- -----------------------------------------------------------------------------
 -- Resumen de una jornada (lo calcula la base)
--- security invoker: respeta el RLS, así un cajero solo resume la jornada abierta.
+-- El admin resume cualquier día. Un cajero, solo el día abierto o el de hoy
+-- (para ver el resumen del día que acaba de cerrar), aunque ya no vea sus ventas.
 -- -----------------------------------------------------------------------------
 create function public.resumen_jornada(p_jornada_id uuid)
 returns table (
@@ -199,7 +200,7 @@ returns table (
 )
 language sql
 stable
-security invoker
+security definer
 set search_path = ''
 as $$
   select
@@ -221,6 +222,7 @@ as $$
   from public.jornadas j
   left join public.ventas v on v.jornada_id = j.id
   where j.id = p_jornada_id
+    and (public.es_admin() or (public.usuario_activo() and (j.estado = 'abierta' or j.fecha = public.hoy_ar())))
   group by j.id;
 $$;
 
