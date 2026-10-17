@@ -28,14 +28,14 @@ npm run db:tipos            # regenera src/lib/tipos-db.ts después de cambiar m
 
 En la nube de Claude Code: `PLAYWRIGHT_CHROMIUM=/opt/pw-browsers/chromium npm run test:e2e` y nunca `playwright install`. El edge-runtime local no confía en el certificado del proxy: por eso la función `usuarios` no tiene dependencias npm (usa `fetch`).
 
-Deploy: ver `docs/DESPLIEGUE.md` (`supabase db push`, `supabase functions deploy usuarios`, Cloudflare Pages con `npm run build` → `dist`).
+Proyecto en la nube: Supabase `anadbauxypifiplihpje` (São Paulo). Deploy: ver `docs/DESPLIEGUE.md` (`supabase db push`, `supabase functions deploy usuarios`, Cloudflare Pages con `npm run build` → `dist`).
 
 ## Reglas de negocio (no negociables)
 
 1. Una sola jornada abierta a la vez (índice único). Si quedó abierta una de un día anterior, hay que cerrarla antes de abrir otra o cargar ventas.
 2. Las ventas solo se cargan en la jornada abierta **de hoy** (`registrar_venta`). Una jornada cerrada queda bloqueada por trigger; solo un admin la reabre (`reabrir_jornada`, auditado).
 3. **Medio de pago: `efectivo` | `digital`**, sin más detalle. Igual en ventas, egresos y pagos a empleados.
-4. **El tipo se elige siempre**: los botones EFECTIVO y DIGITAL son los que guardan. No hay medio preseleccionado.
+4. **El tipo se elige siempre** y elegirlo guarda: con el teclado, **Enter = Efectivo** y **+ = Digital** (también el + del teclado numérico); Esc borra. Los botones Efectivo/Digital hacen lo mismo. No hay medio preseleccionado.
 5. Las ventas y los egresos no se borran, se anulan con motivo. Un cajero anula ventas de su cuenta con menos de 10 minutos; después, solo admin. Los pagos a empleados sí se pueden borrar (auditado).
 6. Importe > 0, entero en la carga (sin centavos), máximo $ 9.999.999. Arriba de `configuracion.tope_confirmacion` ($ 500.000) se pide confirmación. Validar en cliente (Zod) **y** en la base.
 7. Efectivo esperado = fondo inicial + ventas en efectivo no anuladas. Diferencia = contado − esperado.
@@ -52,8 +52,8 @@ Fuera de alcance: inventario/productos, facturación ARCA/AFIP, impresora fiscal
 - Montos: `numeric(12,2)` en la base, nunca float. En pantalla: `formatearPesos()` y la clase `cifras` (tabular-nums) en columnas.
 - Fechas en `America/Argentina/Buenos_Aires`: `fechaDeTrabajo()` en el cliente, `hoy_ar()` en la base. Fechas de trabajo como string `aaaa-mm-dd` (`src/lib/periodos.ts`).
 - Colores: solo tokens de `src/styles/app.css`. Efectivo = bordó y Digital = pizarra (botones); en gráficos `--grafico-*` (validados con la skill dataviz). Nunca hex sueltos en componentes.
-- Tipografías: `font-cartel` solo títulos/rótulos; `font-texto` para todo lo demás; `font-visor` (DSEG7) solo en el visor.
-- Táctil primero: objetivos ≥ 48 px (teclas de la caja: 64 px). Foco visible, contraste AA, `prefers-reduced-motion`.
+- Estilo limpio tipo Square / Mercado Pago / Stripe: Inter (`font-texto`), fondo gris claro, tarjetas blancas con borde fino y `shadow-tarjeta`, títulos `text-2xl font-semibold`, íconos de `lucide-react`. Componentes base en `src/components/ui/` (Boton, Campo, Tarjeta, Titulo, Aviso, Chip, Segmentado). El importe se carga con `CampoImporte` (`src/components/caja/`).
+- Escritorio con teclado primero (barra lateral en `lg`), y que ande en celular (menú arriba, `inputMode="numeric"`). Objetivos ≥ 44 px, foco visible, contraste AA, `prefers-reduced-motion`.
 - Sin `any`. Prettier: sin punto y coma, comillas simples, 100 columnas. Las páginas de admin se cargan con `lazy()`.
 - Migraciones versionadas en `supabase/migrations/`, RLS en todas las tablas, tests pgTAP para cada regla nueva.
 - Commits chicos en español. Decisiones importantes a `docs/DECISIONES.md`.

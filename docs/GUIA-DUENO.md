@@ -4,51 +4,58 @@ Una página para usar la app todos los días. No hace falta saber de computadora
 
 ## 1. Entrar
 
-Abrí la app (el ícono de la vaca en el celular o la compu del local). Escribí el email y la contraseña y tocá **Ingresar**.
+Abrí la app (el ícono de la vaca en la compu o el celular del local). Escribí el email y la contraseña y tocá **Ingresar**.
 La sesión queda abierta todo el día; se cierra sola si pasan 12 horas sin usarla.
 
-<img src="capturas/01-ingresar.png" alt="Pantalla para ingresar" width="260">
+<img src="capturas/01-ingresar.png" alt="Pantalla para ingresar" width="560">
 
 ## 2. Abrir el día (a la mañana)
 
-Si todavía no se abrió la caja, aparece **Abrir el día**. Si arrancás con plata para el cambio, escribila en _Fondo de caja_ (si no, dejalo vacío). Tocá **Abrir el día**.
+Si todavía no se abrió la caja, aparece **Abrir el día**. Si arrancás con plata para el cambio, escribila; si no, dejalo en 0. Apretá **Enter**.
 
-<img src="capturas/02-abrir-el-dia.png" alt="Abrir el día" width="260">
+<img src="capturas/02-abrir-el-dia.png" alt="Abrir el día" width="560">
 
-## 3. Cargar una venta
+## 3. Cargar una venta (con el teclado)
 
-1. Tipeá el importe en el teclado de la pantalla (la tecla **000** agrega tres ceros).
-2. Tocá **EFECTIVO** o **DIGITAL** (transferencia, tarjeta o Mercado Pago). **Ese toque guarda la venta.**
+El cursor ya está en el campo **Importe**: no hace falta hacer clic.
 
-Vas a ver "✓ Guardada" y el total de arriba sube. Si te equivocaste, tocá **Anular** al lado (tenés 10 minutos).
-Si una venta es muy grande (más de $ 500.000), la app te pregunta si está bien, por si sobran ceros.
+1. Escribí el importe con los números del teclado (por ejemplo `12500`).
+2. Apretá:
+   - **Enter** si pagó en **efectivo**.
+   - **+** si fue **digital** (transferencia, tarjeta o Mercado Pago).
 
-<img src="capturas/03-cargar-venta.png" alt="Cargar una venta" width="260">
+Eso guarda la venta. Aparece "✓ Venta guardada" abajo a la derecha, el total sube y el campo queda vacío para la siguiente.
+Si te equivocaste, tocá **Deshacer** en ese aviso, o **Anular** en la lista (tenés 10 minutos). **Esc** borra lo que escribiste.
+Si una venta es muy grande (más de $ 500.000), la app pregunta si está bien: **Enter** para guardar, **Esc** para corregir.
 
-**Si dice "Sin internet":** la venta **no** se guardó. El importe queda en el visor; cuando vuelva la conexión, tocá de nuevo Efectivo o Digital.
+<img src="capturas/03-cargar-venta.png" alt="Cargar una venta" width="560">
+
+**Si dice "Sin internet":** la venta **no** se guardó. El importe queda escrito; cuando vuelva la conexión, apretá Enter o + de nuevo.
+
+En el celular también anda: se abre el teclado numérico y tocás **Efectivo** o **Digital**.
 
 ## 4. Anular una venta
 
 En la lista de ventas, tocá **Anular**, elegí el motivo (por ejemplo, _Error de tipeo_) y confirmá. La venta no se borra: queda tachada y no suma.
 Pasados 10 minutos, solo un administrador puede anularla.
 
-<img src="capturas/04-anular.png" alt="Anular una venta" width="260">
+<img src="capturas/04-anular.png" alt="Anular una venta" width="560">
 
 ## 5. Cerrar el día (a la noche)
 
-1. Tocá **Cerrar el día →** (abajo de todo).
-2. Contá la plata de la caja (incluido el fondo inicial) y tipeala.
+1. Tocá **Cerrar el día** (arriba a la derecha).
+2. Contá la plata de la caja (incluido el fondo inicial), escribila y apretá **Enter**.
 3. La app te dice si **coincide**, si **sobra** o si **falta**. Si no coincide, escribí una nota.
-4. Tocá **Cerrar el día** y confirmá.
+4. Apretá **Enter** otra vez para confirmar (o tocá **Sí, cerrar el día**).
 
 Después de cerrar no se pueden cargar ni cambiar ventas de ese día. Si hay que corregir algo, un administrador puede **reabrirlo** (queda anotado).
 Si un día quedó sin cerrar, al otro día la app pide cerrarlo primero.
 
-<img src="capturas/05-cerrar-el-dia.png" alt="Cerrar el día" width="260">
+<img src="capturas/05-cerrar-el-dia.png" alt="Cerrar el día" width="560">
 
 ## 6. Para el dueño (administradores)
 
-Arriba aparecen más secciones:
+En la barra de la izquierda aparecen más secciones:
 
 - **Consulta:** cualquier día, semana o mes, comparado con el período anterior. En el mes está **Descargar PDF para el contador** y **Descargar Excel**.
 - **Panel:** gráficos de cómo viene el negocio (por día, por semana, efectivo vs. digital, días que más se vende, ingresos y gastos).

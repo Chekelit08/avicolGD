@@ -4,11 +4,9 @@ Marcá cada paso. Si alguno falla, frená y revisalo antes de seguir.
 
 ## Preparación (Ezequiel)
 
-- [ ] Proyecto Supabase creado en São Paulo, plan Free ([`SUPABASE.md`](SUPABASE.md)).
-- [ ] `npx supabase db push` sin errores.
-- [ ] `npx supabase functions deploy usuarios` sin errores.
+- [x] Proyecto Supabase creado en São Paulo, plan Free, con migraciones y función `usuarios` ([`DESPLIEGUE.md`](DESPLIEGUE.md)).
 - [ ] Auth: registro público **apagado**, contraseña mínima 10, Site URL y Redirect URL con la dirección de la app.
-- [ ] Primer admin creado con `scripts/crear-admin.mjs`.
+- [x] Primer admin creado (`ezeadenett@gmail.com`). Entrar y cambiar la contraseña temporal.
 - [ ] Cloudflare Pages publicado con `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` (la **pública**).
 - [ ] Revisado que la _service_role key_ **no** está en el repo, ni en Cloudflare, ni en ningún chat.
 - [ ] `.env.servidor` guardado solo en tu compu.

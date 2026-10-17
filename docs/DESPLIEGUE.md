@@ -2,40 +2,46 @@
 
 Base y login en **Supabase**, la app en **Cloudflare Pages**. Son unos 30 minutos la primera vez.
 
-## 1. Supabase
+## 1. Supabase (ya creado)
 
-1. Creá el proyecto siguiendo [`SUPABASE.md`](SUPABASE.md) (región São Paulo, plan Free).
-2. En tu compu, desde la carpeta del repo:
+El proyecto ya existe y tiene todas las tablas, reglas, funciones y la función `usuarios`:
 
-   ```bash
-   npx supabase login
-   npx supabase link --project-ref TU-PROJECT-REF   # está en la URL del panel
-   npx supabase db push                             # crea tablas, reglas (RLS) y funciones
-   npx supabase functions deploy usuarios           # función para crear cuentas desde la app
-   ```
+| Dato                                        | Valor                                                                             |
+| ------------------------------------------- | --------------------------------------------------------------------------------- |
+| Proyecto                                    | `avicola-gd` (ref `anadbauxypifiplihpje`), São Paulo, plan Free                   |
+| URL                                         | `https://anadbauxypifiplihpje.supabase.co`                                        |
+| Clave publicable (va en la app, es pública) | `sb_publishable_IjOSasVuQ2tvooFd727p3w_qyfmB1Eh`                                  |
+| Primer admin                                | `ezeadenett@gmail.com` (pide cambiar la contraseña temporal en el primer ingreso) |
 
-   `db push` **no** carga los datos de prueba (`seed.sql` es solo para desarrollo local).
+### Pasos manuales que faltan en el panel de Supabase (5 minutos)
 
-3. **Authentication → URL Configuration**
-   - _Site URL_: la dirección final de la app, por ejemplo `https://avicola-gd.pages.dev`
-   - _Redirect URLs_: la misma, seguida de `/nueva-clave` (para recuperar la contraseña)
-4. **Authentication → Sign In / Providers**
-   - _Allow new users to sign up_: **apagado** (las cuentas las crea un admin).
-   - Email: **prendido**. _Confirm email_ puede quedar prendido; las cuentas creadas desde la app ya vienen confirmadas.
-5. **Authentication → Passwords**: largo mínimo **10**.
-6. Crear el primer administrador (el dueño). Copiá la _service_role key_ de **Project Settings → API** en un archivo `.env.servidor` (git lo ignora; **nunca** lo subas ni lo compartas):
+1. **Authentication → Sign In / Providers**: apagá **Allow new users to sign up**. (Igual, una cuenta auto-registrada nace inactiva y no puede hacer nada.)
+2. **Authentication → Passwords**: largo mínimo **10**.
+3. Cuando tengas la dirección de Cloudflare: **Authentication → URL Configuration** → _Site URL_ = esa dirección y _Redirect URLs_ = la misma seguida de `/nueva-clave`.
 
-   ```bash
-   # .env.servidor
-   SUPABASE_URL=https://TU-PROYECTO.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=...
-   ```
+### Futuras migraciones
 
-   ```bash
-   node scripts/crear-admin.mjs "Gabriel" gabriel@ejemplo.com
-   ```
+Las migraciones se aplicaron con el conector de Supabase, que les puso otras versiones en el historial remoto. Antes del primer `db push` desde tu compu, alineá el historial una sola vez:
 
-   Después, todas las demás cuentas (incluida la compartida **Mostrador**, con rol cajero) se crean desde **Usuarios** en la app.
+```bash
+npx supabase login
+npx supabase link --project-ref anadbauxypifiplihpje
+npx supabase migration list                      # muestra las versiones remotas y locales
+npx supabase migration repair --status reverted <cada versión remota que no está en el repo>
+npx supabase migration repair --status applied 20261017000001 20261017000002 20261017000003 20261017000004 20261017000005 20261017000006 20261017000007
+npx supabase db push                             # desde acá, solo aplica migraciones nuevas
+```
+
+### Si alguna vez hay que crearlo de cero
+
+```bash
+npx supabase link --project-ref TU-PROJECT-REF
+npx supabase db push
+npx supabase functions deploy usuarios
+node scripts/crear-admin.mjs "Nombre" email@ejemplo.com   # con .env.servidor (ver BACKUP.md)
+```
+
+`db push` **no** carga los datos de prueba (`seed.sql` es solo para desarrollo local).
 
 ## 2. Cloudflare Pages
 
@@ -45,8 +51,8 @@ Base y login en **Supabase**, la app en **Cloudflare Pages**. Son unos 30 minuto
    - _Build command_: `npm run build`
    - _Build output directory_: `dist`
    - _Variables de entorno_ (Production y Preview):
-     - `VITE_SUPABASE_URL` = `https://TU-PROYECTO.supabase.co`
-     - `VITE_SUPABASE_ANON_KEY` = la clave **pública** (anon / publishable)
+     - `VITE_SUPABASE_URL` = `https://anadbauxypifiplihpje.supabase.co`
+     - `VITE_SUPABASE_ANON_KEY` = `sb_publishable_IjOSasVuQ2tvooFd727p3w_qyfmB1Eh` (la **pública**)
      - `NODE_VERSION` = `22`
 3. **Save and Deploy.** Cada push a la rama principal publica solo.
 

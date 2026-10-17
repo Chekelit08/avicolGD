@@ -134,3 +134,25 @@ El teclado de la caja carga pesos enteros. Los egresos y pagos aceptan centavos 
 ### Seguridad del sitio
 
 `public/_headers` define una política de contenido que solo permite conectarse a `*.supabase.co`, y bloquea iframes y permisos del navegador que no se usan. El tema se aplica con `public/tema.js` (no un script inline) para no aflojar la política.
+
+## Rediseño y base en la nube (17/10/2026)
+
+### Estética limpia en lugar de "mostrador de avícola"
+
+A Ezequiel no le gustó la estética del visor de balanza, el teclado de membrana y la cinta. Se reemplazó por un estilo de la familia de **Square POS, Mercado Pago (cobrar) y Stripe Dashboard**: fondo gris muy claro, tarjetas blancas con borde fino y sombra suave, **Inter** para todo, íconos `lucide-react` y barra lateral en escritorio. El bordó del logo queda como único color de marca (botón principal, Efectivo y ítem activo). Digital pasa a azul `#1F5FD1`. Los colores de gráficos validados con dataviz no cambian.
+
+### La venta se carga con el teclado físico
+
+Se eliminó el teclado numérico en pantalla. Un campo grande, siempre con el foco, acepta solo dígitos y los muestra con puntos de miles. **Enter = Efectivo**, **+ = Digital** (con una sola mano sobre el teclado numérico) y **Esc** borra. Elegir el tipo sigue siendo obligatorio y es lo que guarda. Mientras guarda, el campo queda en solo lectura (no deshabilitado) para no perder el foco ni duplicar ventas. El aviso de "Venta guardada" tiene **Deshacer**, que anula la venta con el motivo "Deshecha al cargar". El cierre del día usa el mismo campo: Enter para revisar y Enter para cerrar.
+
+### Escritorio primero
+
+La caja se usa en una compu o notebook con teclado. En celular sigue andando: menú arriba, teclado numérico del sistema y botones Efectivo/Digital grandes.
+
+### Base creada en Supabase
+
+Proyecto `avicola-gd` (ref `anadbauxypifiplihpje`, São Paulo, plan Free) en la organización "Eze Denett". Las migraciones se aplicaron con el conector de Supabase, con los mismos contenidos que `supabase/migrations/`. El linter de seguridad marcó funciones internas expuestas por la API: se les sacó el permiso (`20261017000006_permisos.sql`). Lo que queda marcado son las operaciones de la app, que validan rol y reglas por dentro.
+
+### Auto-registro inofensivo
+
+Si el registro público quedara prendido por error, la cuenta nace **inactiva**: solo se activa cuando el servidor le asigna un rol en `app_metadata`, cosa que el usuario no puede hacer (`20261017000007_registro_seguro.sql`, con test).
