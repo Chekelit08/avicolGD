@@ -80,3 +80,57 @@ El plan gratuito no cobra por ancho de banda, deploya desde GitHub y el fallback
 
 - ESLint 9 (no 10) porque `eslint-plugin-jsx-a11y` todavía no soporta 10.
 - El template de Vite trae oxlint; lo reemplacé por ESLint + Prettier, como pide el brief.
+
+## Fases 1 a 4 (17/10/2026)
+
+### Las escrituras de la caja pasan por funciones SQL
+
+`abrir_jornada`, `registrar_venta`, `anular_venta`, `cerrar_jornada` y `reabrir_jornada` son `security definer` y validan todas las reglas. Las tablas `jornadas` y `ventas` no tienen políticas de insert/update/delete: no se pueden tocar directo desde la app. Además hay triggers que bloquean modificar ventas de días cerrados, editar importes y borrar ventas, aunque lo intente alguien con acceso a la base.
+
+### El cajero ve el resumen del día que acaba de cerrar
+
+`resumen_jornada` deja al cajero resumir el día abierto o el de hoy (aunque ya no vea sus ventas por RLS). Los días anteriores son solo para admins.
+
+### Las ventas se cargan solo en el día abierto de hoy
+
+Si quedó abierto un día anterior, `registrar_venta` lo rechaza y la app pide cerrarlo. Así las ventas de hoy nunca se mezclan con las de ayer.
+
+### Comparaciones justas en períodos en curso
+
+El mes (o la semana) que todavía no terminó se compara contra los mismos días del período anterior (1 al 17 contra 1 al 17), no contra el mes completo.
+
+### Personal se cuenta por fecha de pago en la ganancia
+
+En "Ingresos vs egresos" el personal entra el mes en que se pagó (lo que salió de caja). En la pantalla Personal, por el mes al que corresponde (período).
+
+### Gestión de usuarios con una Edge Function sin dependencias
+
+Crear cuentas y cambiar contraseñas necesita la clave de servicio, así que lo hace la función `usuarios`, que primero verifica que quien llama sea admin activo. Usa `fetch` directo a las APIs de Auth y REST (sin `supabase-js`): arranca más rápido y no depende de bajar paquetes de npm. Desactivar un usuario lo marca inactivo (RLS lo bloquea) **y** lo banea en Auth para que no pueda ni iniciar sesión.
+
+### Alta de cuentas con contraseña temporal
+
+El admin crea la cuenta con una clave temporal fácil de dictar ("pollo-asado-4821"). En el primer ingreso la app obliga a cambiarla. No se usan invitaciones por email: el plan gratuito limita los emails y en el local es más simple dictar la clave.
+
+### Rol desde app_metadata
+
+El rol inicial viene de `app_metadata` (solo lo escribe el servidor), nunca de `user_metadata` (lo puede cambiar el usuario). Como Auth escribe `app_metadata` después del insert, un trigger lo sincroniza al perfil sin dejar ruido en la auditoría.
+
+### Paleta de gráficos para ingresos, egresos y personal
+
+Verde azulado `#13976A`, naranja `#D95926` y violeta `#6250D6` (oscuro: `#199E70`, `#E0652F`, `#9085E9`), validados con la skill dataviz. Distintos de Efectivo/Digital para que cada color signifique siempre lo mismo.
+
+### Cada gráfico tiene su tabla
+
+"Ver los datos" abajo de cada gráfico muestra los números, para leerlos sin depender del color ni del mouse.
+
+### PWA: caché de la app, nunca de los datos
+
+El service worker guarda HTML, JS, CSS y fuentes para que abra rápido con mala señal. Las llamadas a Supabase son `NetworkOnly`: si no hay internet, la venta falla y se avisa; nunca se "guarda" en el celular para mandar después (podría duplicarse o perderse sin que nadie se entere). Lo de exportar (PDF/Excel) no se precarga.
+
+### Sin centavos en el visor, pero sí en la base y en los egresos
+
+El teclado de la caja carga pesos enteros. Los egresos y pagos aceptan centavos ("12.500,50").
+
+### Seguridad del sitio
+
+`public/_headers` define una política de contenido que solo permite conectarse a `*.supabase.co`, y bloquea iframes y permisos del navegador que no se usan. El tema se aplica con `public/tema.js` (no un script inline) para no aflojar la política.
