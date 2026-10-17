@@ -39,10 +39,10 @@ select gen_random_uuid(), id, id::text,
 from auth.users
 where email like '%@avicola.test';
 
-insert into public.perfiles (id, nombre, rol) values
-  ('a0000000-0000-4000-8000-000000000001', 'Gabriel', 'admin'),
-  ('a0000000-0000-4000-8000-000000000002', 'Ezequiel', 'admin'),
-  ('a0000000-0000-4000-8000-000000000003', 'Mostrador', 'cajero');
+insert into public.perfiles (id, nombre, email, rol) values
+  ('a0000000-0000-4000-8000-000000000001', 'Gabriel', 'gabriel@avicola.test', 'admin'),
+  ('a0000000-0000-4000-8000-000000000002', 'Ezequiel', 'ezequiel@avicola.test', 'admin'),
+  ('a0000000-0000-4000-8000-000000000003', 'Mostrador', 'mostrador@avicola.test', 'cajero');
 
 -- Jornadas: últimos 60 días, sin domingos y sin hoy.
 -- Se cargan ya cerradas (la base no admite dos abiertas); el arqueo se completa más abajo.
