@@ -120,7 +120,7 @@ select d::date,
        (select id from public.categorias_egreso where nombre = 'Mercadería'),
        case when extract(isodow from d) = 2 then 'Pollo y menudencias' else 'Media res y cerdo' end,
        case when extract(isodow from d) = 2 then 'Granja Don Luis' else 'Frigorífico Sur' end,
-       round((case when extract(isodow from d) = 2 then 900000 else 1600000 end) * (0.85 + random() * 0.3) / 1000) * 1000,
+       round((case when extract(isodow from d) = 2 then 700000 else 1200000 end) * (0.85 + random() * 0.3) / 1000) * 1000,
        case when random() < 0.5 then 'efectivo'::public.medio_pago else 'digital'::public.medio_pago end,
        'a0000000-0000-4000-8000-000000000001'
 from generate_series(public.hoy_ar() - 60, public.hoy_ar() - 1, interval '1 day') d
