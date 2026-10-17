@@ -14,7 +14,11 @@ export default defineConfig({
   },
   projects: [
     // El flujo de caja cambia la base: corre una sola vez, en celular (el caso real del mostrador).
-    { name: 'celular', use: { ...devices['Pixel 5'], launchOptions: { executablePath } } },
+    {
+      name: 'celular',
+      testIgnore: /admin\.spec/,
+      use: { ...devices['Pixel 5'], launchOptions: { executablePath } },
+    },
     {
       name: 'escritorio',
       testIgnore: /caja\.spec/,
@@ -24,7 +28,8 @@ export default defineConfig({
   webServer: {
     command: 'npm run build && npx vite preview --port 4173 --strictPort',
     url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI,
+    // Siempre compila de nuevo: así nunca se prueba contra un build viejo.
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 })
