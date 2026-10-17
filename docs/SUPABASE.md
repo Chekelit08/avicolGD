@@ -19,17 +19,10 @@ Son unos 10 minutos. No hace falta tarjeta.
    ```
 5. **Authentication → Sign In / Providers → Email**: desactivá "Allow new users to sign up". Las cuentas las crea el admin desde la app.
 6. **Authentication → Policies (Password)**: largo mínimo 10.
-7. Vincular la CLI (lo hacemos juntos en la Fase 1, cuando haya migraciones):
-   ```bash
-   npx supabase login
-   npx supabase link --project-ref TU-PROJECT-REF
-   npx supabase db push
-   ```
+7. Seguí con [`DESPLIEGUE.md`](DESPLIEGUE.md): aplicar las migraciones, publicar la función `usuarios` y crear el primer administrador.
 
 ## Cosas a tener en cuenta del plan gratuito
 
 - **Pausa por inactividad:** Supabase pausa los proyectos gratuitos que pasan cerca de una semana sin actividad. Con el uso diario del local no debería pasar, pero en vacaciones sí. Se reactiva a mano desde el panel.
-- **Backups:** el plan gratis no garantiza backups que puedas descargar. En la Fase 4 hay un script de exportación; hasta entonces, no hay datos reales que perder.
+- **Backups:** el plan gratis no garantiza backups que puedas descargar. Usá `scripts/backup.mjs` (ver [`BACKUP.md`](BACKUP.md)).
 - Los límites (tamaño de base, usuarios, ancho de banda) cambian. Revisalos en <https://supabase.com/pricing> antes de la puesta en marcha.
-
-Si preferís, puedo crear el proyecto yo con el conector de Supabase de esta sesión. Decímelo y en qué organización.
