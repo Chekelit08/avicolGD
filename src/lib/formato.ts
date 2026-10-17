@@ -52,3 +52,20 @@ export function formatearDiaCorto(fecha: Date): string {
 export function fechaDeTrabajo(fecha: Date): string {
   return format(enArgentina(fecha), 'yyyy-MM-dd')
 }
+
+const compacto = new Intl.NumberFormat('es-AR', { notation: 'compact', maximumFractionDigits: 1 })
+
+/** `$ 1,2 M`, `$ 850 mil`. Para ejes y tarjetas chicas. */
+export function formatearPesosCompacto(monto: number): string {
+  return `$ ${compacto.format(monto)}`
+}
+
+/** `+6,2 %` / `−3,0 %`. */
+export function formatearPorcentaje(valor: number, { conSigno = true } = {}): string {
+  const texto = new Intl.NumberFormat('es-AR', {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 1,
+  }).format(Math.abs(valor))
+  const signo = !conSigno || valor === 0 ? '' : valor > 0 ? '+' : '−'
+  return `${signo}${texto} %`
+}

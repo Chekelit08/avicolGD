@@ -44,3 +44,16 @@ describe('fechas en hora argentina', () => {
     expect(formatearDiaCorto(new Date('2026-10-17T15:00:00Z'))).toBe('sáb 17/10')
   })
 })
+
+describe('formatos compactos', () => {
+  it('abrevia montos grandes', async () => {
+    const { formatearPesosCompacto } = await import('./formato')
+    expect(formatearPesosCompacto(1_200_000)).toMatch(/^\$ 1,2\sM$/)
+  })
+  it('porcentajes con signo', async () => {
+    const { formatearPorcentaje } = await import('./formato')
+    expect(formatearPorcentaje(6.25)).toBe('+6,3 %')
+    expect(formatearPorcentaje(-3)).toBe('−3,0 %')
+    expect(formatearPorcentaje(0)).toBe('0,0 %')
+  })
+})

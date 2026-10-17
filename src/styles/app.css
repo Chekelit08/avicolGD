@@ -55,6 +55,11 @@
   /* Series de gráficos (validadas con dataviz: CVD ΔE ≥ 19, contraste ≥ 3:1) */
   --grafico-efectivo: #a3352a;
   --grafico-digital: #2b7bb5;
+  /* Ingresos / egresos / personal (validadas: CVD ΔE ≥ 9,8) */
+  --grafico-ingresos: #13976a;
+  --grafico-egresos: #d95926;
+  --grafico-personal: #6250d6;
+  --grafico-grilla: #ece8e7;
 
   /* Visor de balanza: igual en ambos modos */
   --visor: #1a0c0b;
@@ -83,6 +88,10 @@
     --tecla-sombra: #140807;
     --grafico-efectivo: #c9503f;
     --grafico-digital: #3d8bc4;
+    --grafico-ingresos: #199e70;
+    --grafico-egresos: #e0652f;
+    --grafico-personal: #9085e9;
+    --grafico-grilla: #4c2a27;
     color-scheme: dark;
   }
 }
@@ -106,6 +115,10 @@
   --tecla-sombra: #140807;
   --grafico-efectivo: #c9503f;
   --grafico-digital: #3d8bc4;
+  --grafico-ingresos: #199e70;
+  --grafico-egresos: #e0652f;
+  --grafico-personal: #9085e9;
+  --grafico-grilla: #4c2a27;
   color-scheme: dark;
 }
 
@@ -134,6 +147,9 @@
   --color-fosforo: var(--fosforo);
   --color-grafico-efectivo: var(--grafico-efectivo);
   --color-grafico-digital: var(--grafico-digital);
+  --color-grafico-ingresos: var(--grafico-ingresos);
+  --color-grafico-egresos: var(--grafico-egresos);
+  --color-grafico-personal: var(--grafico-personal);
 
   --font-cartel: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
   --font-texto: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
