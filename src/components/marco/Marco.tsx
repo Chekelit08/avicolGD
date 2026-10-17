@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router'
 import { formatearDiaCorto } from '../../lib/formato'
+import { useTema, type Tema } from '../../lib/tema'
 import { useSesion } from '../../sesion/Sesion'
 import { Cinta } from '../marca/Cinta'
 
@@ -15,6 +16,13 @@ const SECCIONES_ADMIN = [
 
 export function Marco() {
   const { perfil, esAdmin, cerrarSesion } = useSesion()
+  const [tema, setTema] = useTema()
+  const siguiente: Record<Tema, Tema> = { sistema: 'claro', claro: 'oscuro', oscuro: 'sistema' }
+  const nombreTema: Record<Tema, string> = {
+    sistema: 'Automático',
+    claro: 'Claro',
+    oscuro: 'Oscuro',
+  }
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-6xl flex-col px-4 pb-10">
@@ -54,6 +62,17 @@ export function Marco() {
           )}
           <div className="flex shrink-0 items-center gap-2 text-sm">
             <span className="hidden text-suave sm:inline">{perfil?.nombre}</span>
+            <button
+              type="button"
+              onClick={() => setTema(siguiente[tema])}
+              aria-label={`Tema: ${nombreTema[tema]}. Tocá para cambiar.`}
+              className="min-h-11 px-2 font-bold text-suave hover:text-texto"
+            >
+              <span aria-hidden="true">
+                {tema === 'oscuro' ? '☾' : tema === 'claro' ? '☀' : '◐'}
+              </span>
+              <span className="ml-1 hidden md:inline">{nombreTema[tema]}</span>
+            </button>
             <button
               type="button"
               onClick={() => void cerrarSesion()}

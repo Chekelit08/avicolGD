@@ -6,6 +6,7 @@ import { Visor } from '../components/caja/Visor'
 import { Cinta } from '../components/marca/Cinta'
 import { formatearDiaCorto, formatearPesos } from '../lib/formato'
 import { aplicarTecla, teclaDesdeTeclado, type Tecla } from '../lib/importe'
+import { useTema } from '../lib/tema'
 
 /**
  * Página de muestra de la Fase 0: tokens, tipografías y el bloque de carga de la caja.
@@ -20,18 +21,6 @@ const PALETA = [
   { nombre: 'Fósforo', hex: '#7CF5C8', uso: 'Solo el visor' },
   { nombre: 'Alerta', hex: '#D9432B', uso: 'Errores y Cerrar el día' },
 ]
-
-type Tema = 'sistema' | 'claro' | 'oscuro'
-
-function useTema(): [Tema, (t: Tema) => void] {
-  const [tema, setTema] = useState<Tema>('sistema')
-  useEffect(() => {
-    const raiz = document.documentElement
-    if (tema === 'sistema') raiz.removeAttribute('data-tema')
-    else raiz.setAttribute('data-tema', tema)
-  }, [tema])
-  return [tema, setTema]
-}
 
 export function Estilo() {
   const [importe, setImporte] = useState(0)
