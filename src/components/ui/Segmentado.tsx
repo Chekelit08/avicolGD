@@ -11,12 +11,12 @@ export function Segmentado<T extends string>({
   onCambio: (v: T) => void
 }) {
   return (
-    <fieldset className="flex flex-wrap rounded-xl border border-borde bg-superficie p-1">
+    <fieldset className="inline-flex flex-wrap gap-0.5 rounded-[10px] bg-hundida p-1">
       <legend className="sr-only">{etiqueta}</legend>
       {opciones.map((o) => (
         <label
           key={o.valor}
-          className="flex min-h-10 cursor-pointer items-center rounded-lg px-3 text-sm font-bold has-checked:bg-marca has-checked:text-sobre-marca has-focus-visible:outline-2 has-focus-visible:outline-foco"
+          className="flex min-h-9 cursor-pointer items-center rounded-lg px-3 text-sm font-medium text-suave transition-colors hover:text-texto has-checked:bg-superficie has-checked:text-texto has-checked:shadow-tarjeta has-focus-visible:outline-2 has-focus-visible:outline-foco"
         >
           <input
             type="radio"

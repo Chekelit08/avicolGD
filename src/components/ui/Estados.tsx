@@ -1,62 +1,141 @@
+import { AlertCircle, CheckCircle2, Info, Loader2 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 export function Cargando({ texto = 'Cargando…' }: { texto?: string }) {
   return (
-    <div role="status" className="flex items-center justify-center gap-3 py-12 text-suave">
-      <span
-        className="size-5 animate-spin rounded-full border-2 border-borde border-t-marca"
-        aria-hidden="true"
-      />
+    <div role="status" className="flex items-center justify-center gap-2 py-12 text-sm text-suave">
+      <Loader2 className="size-4 animate-spin" aria-hidden="true" />
       {texto}
+    </div>
+  )
+}
+
+type TonoAviso = 'error' | 'ok' | 'info' | 'aviso'
+
+const TONOS: Record<TonoAviso, { clase: string; Icono: typeof Info }> = {
+  error: { clase: 'border-alerta/30 bg-alerta-suave text-alerta-texto', Icono: AlertCircle },
+  ok: { clase: 'border-ok/30 bg-ok-suave text-ok', Icono: CheckCircle2 },
+  info: { clase: 'border-borde bg-hundida text-texto', Icono: Info },
+  aviso: { clase: 'border-aviso/30 bg-aviso-suave text-aviso', Icono: AlertCircle },
+}
+
+/** Mensaje en línea con ícono. El color siempre va acompañado de texto. */
+export function Aviso({
+  tono = 'info',
+  children,
+  accion,
+}: {
+  tono?: TonoAviso
+  children: ReactNode
+  accion?: ReactNode
+}) {
+  const { clase, Icono } = TONOS[tono]
+  return (
+    <div
+      role={tono === 'error' ? 'alert' : 'status'}
+      className={`flex flex-wrap items-start gap-3 rounded-xl border px-4 py-3 text-sm ${clase}`}
+    >
+      <Icono className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      <div className="min-w-0 flex-1 font-medium">{children}</div>
+      {accion}
     </div>
   )
 }
 
 export function MensajeError({ children, accion }: { children: ReactNode; accion?: ReactNode }) {
   return (
-    <div
-      role="alert"
-      className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-alerta px-4 py-3 font-bold text-white"
-    >
-      <span>{children}</span>
-      {accion}
-    </div>
+    <Aviso tono="error" accion={accion}>
+      {children}
+    </Aviso>
   )
 }
 
 export function Vacio({ titulo, children }: { titulo: string; children?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-borde px-4 py-8 text-center">
-      <p className="font-bold">{titulo}</p>
-      {children && <div className="mt-1 text-suave">{children}</div>}
+    <div className="rounded-xl border border-dashed border-borde-fuerte px-4 py-10 text-center">
+      <p className="font-semibold">{titulo}</p>
+      {children && <div className="mt-1 text-sm text-suave">{children}</div>}
     </div>
   )
 }
 
-export function Tarjeta({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function Tarjeta({
+  children,
+  className = '',
+  titulo,
+  accion,
+  sinRelleno = false,
+}: {
+  children: ReactNode
+  className?: string
+  titulo?: ReactNode
+  accion?: ReactNode
+  /** Para listas que llegan hasta el borde de la tarjeta. */
+  sinRelleno?: boolean
+}) {
   return (
-    <div className={`rounded-2xl border border-borde bg-superficie p-4 ${className}`}>
+    <section
+      className={`rounded-xl border border-borde bg-superficie shadow-tarjeta ${sinRelleno ? 'overflow-hidden' : 'p-5'} ${className}`}
+    >
+      {(titulo || accion) && (
+        <div className="mb-4 flex items-center justify-between gap-3">
+          {titulo && <h2 className="text-[15px] font-semibold">{titulo}</h2>}
+          {accion}
+        </div>
+      )}
       {children}
-    </div>
+    </section>
   )
 }
 
-export function Titulo({ children, accion }: { children: ReactNode; accion?: ReactNode }) {
+/** Encabezado de página: título a la izquierda, acciones a la derecha. */
+export function Titulo({
+  children,
+  subtitulo,
+  accion,
+}: {
+  children: ReactNode
+  subtitulo?: ReactNode
+  accion?: ReactNode
+}) {
   return (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-      <h1 className="font-cartel text-4xl font-extrabold uppercase">{children}</h1>
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{children}</h1>
+        {subtitulo && <p className="mt-1 text-sm text-suave">{subtitulo}</p>}
+      </div>
       {accion}
     </div>
+  )
+}
+
+type TonoChip = 'neutro' | 'ok' | 'aviso' | 'error' | 'marca'
+
+const CHIPS: Record<TonoChip, string> = {
+  neutro: 'bg-hundida text-suave',
+  ok: 'bg-ok-suave text-ok',
+  aviso: 'bg-aviso-suave text-aviso',
+  error: 'bg-alerta-suave text-alerta-texto',
+  marca: 'bg-marca-suave text-marca',
+}
+
+export function Chip({ tono = 'neutro', children }: { tono?: TonoChip; children: ReactNode }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${CHIPS[tono]}`}
+    >
+      {children}
+    </span>
   )
 }
 
 /** Medio de pago con su color, siempre con texto (nunca solo color). */
 export function EtiquetaMedio({ medio }: { medio: 'efectivo' | 'digital' }) {
   return (
-    <span className="inline-flex items-center gap-1.5">
+    <span className="inline-flex items-center gap-1.5 text-sm">
       <span
         aria-hidden="true"
-        className={`inline-block size-2.5 rounded-full ${medio === 'efectivo' ? 'bg-grafico-efectivo' : 'bg-grafico-digital'}`}
+        className={`inline-block size-2 rounded-full ${medio === 'efectivo' ? 'bg-grafico-efectivo' : 'bg-grafico-digital'}`}
       />
       {medio === 'efectivo' ? 'Efectivo' : 'Digital'}
     </span>

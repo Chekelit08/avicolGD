@@ -13,7 +13,7 @@ interface Base {
 }
 
 const estiloControl =
-  'border-borde bg-superficie text-texto min-h-12 w-full rounded-xl border px-3 text-base aria-invalid:border-alerta'
+  'min-h-11 w-full rounded-[10px] border border-borde-fuerte bg-superficie px-3 text-[15px] text-texto shadow-tarjeta placeholder:text-suave/70 focus:border-foco focus:outline-none focus:ring-3 focus:ring-foco/20 aria-invalid:border-alerta'
 
 function Envoltura({
   id,
@@ -24,7 +24,7 @@ function Envoltura({
 }: Base & { id: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-bold">
+      <label htmlFor={id} className="text-sm font-medium">
         {etiqueta}
       </label>
       {children}
@@ -34,7 +34,7 @@ function Envoltura({
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="text-sm font-bold text-alerta-texto">
+        <p id={`${id}-error`} className="text-sm font-medium text-alerta-texto">
           {error}
         </p>
       )}
