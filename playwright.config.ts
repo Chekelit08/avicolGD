@@ -8,6 +8,8 @@ export default defineConfig({
   testDir: 'e2e',
   globalSetup: './e2e/preparar.ts',
   workers: 1,
+  // Margen para máquinas lentas (gráficos y build en el mismo equipo).
+  expect: { timeout: 10_000 },
   use: {
     baseURL: 'http://localhost:4173',
     launchOptions: { executablePath },

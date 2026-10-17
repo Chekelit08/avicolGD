@@ -48,7 +48,12 @@ function mensajeAuth(json: unknown): string {
 async function auditar(actor: string, accion: string, registro: string, despues: unknown) {
   await llamar('/rest/v1/rpc/registrar_auditoria_servicio', {
     method: 'POST',
-    body: JSON.stringify({ p_actor: actor, p_accion: accion, p_registro: registro, p_despues: despues }),
+    body: JSON.stringify({
+      p_actor: actor,
+      p_accion: accion,
+      p_registro: registro,
+      p_despues: despues,
+    }),
   })
 }
 
@@ -88,7 +93,8 @@ Deno.serve(async (req) => {
       const rol = cuerpo.rol === 'admin' ? 'admin' : 'cajero'
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return error('Escribí un email válido.')
       if (nombre.length < 1 || nombre.length > 80) return error('Escribí el nombre.')
-      if (clave.length < 10) return error('La contraseña temporal tiene que tener al menos 10 caracteres.')
+      if (clave.length < 10)
+        return error('La contraseña temporal tiene que tener al menos 10 caracteres.')
 
       const creado = await llamar('/auth/v1/admin/users', {
         method: 'POST',
@@ -111,7 +117,8 @@ Deno.serve(async (req) => {
 
     case 'restablecer_clave': {
       if (!usuarioId) return error('Falta el usuario.')
-      if (clave.length < 10) return error('La contraseña temporal tiene que tener al menos 10 caracteres.')
+      if (clave.length < 10)
+        return error('La contraseña temporal tiene que tener al menos 10 caracteres.')
       const r = await llamar(`/auth/v1/admin/users/${usuarioId}`, {
         method: 'PUT',
         body: JSON.stringify({ password: clave }),
