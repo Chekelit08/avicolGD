@@ -353,6 +353,7 @@ export type Database = {
           activo: boolean
           created_at: string
           debe_cambiar_clave: boolean
+          email: string | null
           id: string
           nombre: string
           rol: Database['public']['Enums']['rol_usuario']
@@ -363,6 +364,7 @@ export type Database = {
           activo?: boolean
           created_at?: string
           debe_cambiar_clave?: boolean
+          email?: string | null
           id: string
           nombre: string
           rol?: Database['public']['Enums']['rol_usuario']
@@ -372,6 +374,7 @@ export type Database = {
           activo?: boolean
           created_at?: string
           debe_cambiar_clave?: boolean
+          email?: string | null
           id?: string
           nombre?: string
           rol?: Database['public']['Enums']['rol_usuario']
@@ -614,6 +617,10 @@ export type Database = {
           p_registro: string
           p_tabla: string
         }
+        Returns: undefined
+      }
+      registrar_auditoria_servicio: {
+        Args: { p_accion: string; p_actor: string; p_despues: Json; p_registro: string }
         Returns: undefined
       }
       registrar_venta: {
