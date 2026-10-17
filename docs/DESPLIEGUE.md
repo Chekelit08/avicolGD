@@ -17,7 +17,7 @@ El proyecto ya existe y tiene todas las tablas, reglas, funciones y la función 
 
 1. **Authentication → Sign In / Providers**: apagá **Allow new users to sign up**. (Igual, una cuenta auto-registrada nace inactiva y no puede hacer nada.)
 2. **Authentication → Passwords**: largo mínimo **10**.
-3. Cuando tengas la dirección de Cloudflare: **Authentication → URL Configuration** → _Site URL_ = esa dirección y _Redirect URLs_ = la misma seguida de `/nueva-clave`.
+3. **Authentication → URL Configuration** → _Site URL_ = `https://avicola-gd.netlify.app` y _Redirect URLs_ = `https://avicola-gd.netlify.app/nueva-clave` (para que funcione "Me olvidé la contraseña").
 
 ### Futuras migraciones
 
