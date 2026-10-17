@@ -138,6 +138,22 @@
   --font-cartel: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
   --font-texto: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
   --font-visor: 'DSEG7 Classic', ui-monospace, monospace;
+
+  --animate-aparecer: aparecer 220ms ease-out;
+  --animate-subir: subir 380ms ease-out;
+
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @keyframes subir {
+    from {
+      opacity: 0.35;
+      transform: translateY(8px);
+    }
+  }
 }
 
 @layer base {

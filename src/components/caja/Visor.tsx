@@ -20,15 +20,15 @@ function segmentosEncendidos(importe: number): string {
   return texto
 }
 
-export function Visor({ importe }: { importe: number }) {
+export function Visor({ importe, etiqueta = 'Importe' }: { importe: number; etiqueta?: string }) {
   return (
     <div className="rounded-2xl border-2 border-visor-borde bg-visor px-4 pt-2 pb-3 shadow-[inset_0_4px_14px_rgb(0_0_0/0.6)]">
       <div className="text-xs font-bold tracking-[0.2em] text-fosforo/70" aria-hidden="true">
-        IMPORTE
+        {etiqueta.toUpperCase()}
       </div>
       <output
         aria-live="off"
-        aria-label={`Importe: ${formatearPesos(importe, { sinCentavos: true })}`}
+        aria-label={`${etiqueta}: ${formatearPesos(importe, { sinCentavos: true })}`}
         className="flex items-baseline justify-end gap-3"
       >
         <span className="text-3xl font-bold text-fosforo" aria-hidden="true">
