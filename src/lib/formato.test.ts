@@ -57,3 +57,12 @@ describe('formatos compactos', () => {
     expect(formatearPorcentaje(0)).toBe('0,0 %')
   })
 })
+
+describe('cantidadVentas', () => {
+  it('singular y plural', async () => {
+    const { cantidadVentas } = await import('./formato')
+    expect(cantidadVentas(1)).toBe('1 venta')
+    expect(cantidadVentas(0)).toBe('0 ventas')
+    expect(cantidadVentas(3)).toBe('3 ventas')
+  })
+})

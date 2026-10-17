@@ -24,11 +24,11 @@ export function PanelAnular({
 
   return (
     <div
-      className="flex flex-col gap-3 rounded-xl bg-hundida p-3"
+      className="flex flex-col gap-3 rounded-xl border border-borde bg-hundida p-4"
       role="group"
       aria-label={`Anular venta de ${formatearPesos(venta.importe, { sinCentavos: true })}`}
     >
-      <p className="font-bold">
+      <p className="text-sm font-semibold">
         ¿Por qué anulás esta venta de {formatearPesos(venta.importe, { sinCentavos: true })}?
       </p>
       <div className="flex flex-wrap gap-2">
@@ -38,33 +38,34 @@ export function PanelAnular({
             type="button"
             onClick={() => setMotivo(m)}
             aria-pressed={motivo === m}
-            className="min-h-11 rounded-full border border-borde bg-superficie px-3 text-sm aria-pressed:bg-marca aria-pressed:text-sobre-marca"
+            className="min-h-9 rounded-full border border-borde-fuerte bg-superficie px-3 text-sm font-medium hover:bg-hundida aria-pressed:border-marca aria-pressed:bg-marca aria-pressed:text-sobre-marca"
           >
             {m}
           </button>
         ))}
       </div>
-      <label className="flex flex-col gap-1 text-sm font-bold">
+      <label className="flex flex-col gap-1 text-sm font-medium">
         Motivo
         <input
           value={motivo}
           onChange={(e) => setMotivo(e.target.value)}
           maxLength={200}
-          className="min-h-12 rounded-xl border border-borde bg-superficie px-3 font-normal"
+          className="min-h-11 rounded-[10px] border border-borde-fuerte bg-superficie px-3 font-normal focus:border-foco focus:ring-3 focus:ring-foco/20 focus:outline-none"
           placeholder="Ej.: error de tipeo"
         />
       </label>
       {anular.error && (
-        <p role="alert" className="font-bold text-alerta-texto">
+        <p role="alert" className="text-sm font-medium text-alerta-texto">
           {mensajeDeError(anular.error)}
         </p>
       )}
       <div className="flex gap-2">
-        <Boton variante="secundario" onClick={alTerminar}>
+        <Boton variante="secundario" tamano="chico" onClick={alTerminar}>
           No anular
         </Boton>
         <Boton
           variante="peligro"
+          tamano="chico"
           disabled={motivo.trim().length < 3}
           cargando={anular.isPending}
           onClick={() =>

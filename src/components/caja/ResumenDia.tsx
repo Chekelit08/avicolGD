@@ -1,11 +1,12 @@
 import type { ResumenJornada } from '../../datos/caja'
-import { formatearPesos } from '../../lib/formato'
+import { cantidadVentas, formatearPesos } from '../../lib/formato'
+import { Chip } from '../ui/Estados'
 
 function Fila({ etiqueta, valor, fuerte }: { etiqueta: string; valor: string; fuerte?: boolean }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 py-1.5">
+    <div className="flex items-baseline justify-between gap-3 py-2 text-sm">
       <dt className="text-suave">{etiqueta}</dt>
-      <dd className={`cifras ${fuerte ? 'text-xl font-bold' : 'font-bold'}`}>{valor}</dd>
+      <dd className={`cifras ${fuerte ? 'text-base font-semibold' : 'font-medium'}`}>{valor}</dd>
     </div>
   )
 }
@@ -17,11 +18,11 @@ export function ResumenDia({ resumen }: { resumen: ResumenJornada }) {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-sm text-suave">Total del día</p>
-        <p className="text-4xl font-bold cifras">{p(resumen.total)}</p>
+        <p className="text-xs font-medium text-suave">Total del día</p>
+        <p className="mt-1 text-3xl font-semibold tracking-tight cifras">{p(resumen.total)}</p>
       </div>
 
-      <div aria-hidden="true" className="flex h-3 gap-0.5 overflow-hidden rounded-full bg-hundida">
+      <div aria-hidden="true" className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-hundida">
         <div
           className="bg-grafico-efectivo"
           style={{ width: `${(resumen.total_efectivo / totalBarra) * 100}%` }}
@@ -34,11 +35,11 @@ export function ResumenDia({ resumen }: { resumen: ResumenJornada }) {
 
       <dl className="divide-y divide-borde">
         <Fila
-          etiqueta={`Efectivo (${resumen.cantidad_efectivo} ventas)`}
+          etiqueta={`Efectivo (${cantidadVentas(resumen.cantidad_efectivo)})`}
           valor={p(resumen.total_efectivo)}
         />
         <Fila
-          etiqueta={`Digital (${resumen.cantidad_digital} ventas)`}
+          etiqueta={`Digital (${cantidadVentas(resumen.cantidad_digital)})`}
           valor={p(resumen.total_digital)}
         />
         <Fila etiqueta="Cantidad de ventas" valor={String(resumen.cantidad_ventas)} />
@@ -58,14 +59,17 @@ export function ResumenDia({ resumen }: { resumen: ResumenJornada }) {
 }
 
 /** Diferencia de caja con color + ícono + texto (nunca solo color). */
-export function Diferencia({ monto }: { monto: number }) {
-  if (monto === 0) {
-    return <p className="text-lg font-bold text-ok">✓ La caja coincide</p>
-  }
-  const sobra = monto > 0
-  return (
-    <p className={`text-lg font-bold ${sobra ? 'text-aviso' : 'text-alerta-texto'}`}>
-      {sobra ? '▲ Sobran' : '▼ Faltan'} {formatearPesos(Math.abs(monto))}
-    </p>
-  )
+export function Diferencia({ monto, grande = false }: { monto: number; grande?: boolean }) {
+  const texto =
+    monto === 0
+      ? '✓ La caja coincide'
+      : `${monto > 0 ? '▲ Sobran' : '▼ Faltan'} ${formatearPesos(Math.abs(monto))}`
+  const tono = monto === 0 ? 'ok' : monto > 0 ? 'aviso' : 'error'
+  if (!grande) return <Chip tono={tono}>{texto}</Chip>
+  const clase = {
+    ok: 'bg-ok-suave text-ok',
+    aviso: 'bg-aviso-suave text-aviso',
+    error: 'bg-alerta-suave text-alerta-texto',
+  }[tono]
+  return <p className={`rounded-xl px-4 py-3 text-lg font-semibold ${clase}`}>{texto}</p>
 }

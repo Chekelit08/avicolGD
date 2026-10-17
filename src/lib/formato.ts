@@ -69,3 +69,8 @@ export function formatearPorcentaje(valor: number, { conSigno = true } = {}): st
   const signo = !conSigno || valor === 0 ? '' : valor > 0 ? '+' : '−'
   return `${signo}${texto} %`
 }
+
+/** "1 venta", "3 ventas". */
+export function cantidadVentas(n: number): string {
+  return `${n} ${n === 1 ? 'venta' : 'ventas'}`
+}

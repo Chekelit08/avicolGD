@@ -1,32 +1,51 @@
 import { describe, expect, it } from 'vitest'
-import { aplicarTecla, IMPORTE_MAXIMO, teclaDesdeTeclado } from './importe'
+import {
+  accionDeTecla,
+  formatearImporteEnCurso,
+  IMPORTE_MAXIMO,
+  normalizarImporte,
+} from './importe'
 
-describe('aplicarTecla', () => {
-  it('agrega dígitos a la derecha', () => {
-    expect(aplicarTecla(0, '1')).toBe(1)
-    expect(aplicarTecla(12, '5')).toBe(125)
+describe('normalizarImporte', () => {
+  it('se queda con los dígitos', () => {
+    expect(normalizarImporte('12500')).toBe(12500)
+    expect(normalizarImporte('12.500')).toBe(12500)
+    expect(normalizarImporte('$ 8.300')).toBe(8300)
   })
-  it('la tecla 000 multiplica por mil', () => {
-    expect(aplicarTecla(12, '000')).toBe(12000)
+  it('vacío o ceros es 0', () => {
+    expect(normalizarImporte('')).toBe(0)
+    expect(normalizarImporte('000')).toBe(0)
+    expect(normalizarImporte('abc')).toBe(0)
   })
-  it('un cero inicial no suma nada', () => {
-    expect(aplicarTecla(0, '0')).toBe(0)
-    expect(aplicarTecla(0, '000')).toBe(0)
+  it('ignora ceros adelante', () => {
+    expect(normalizarImporte('0012')).toBe(12)
   })
-  it('borrar saca el último dígito', () => {
-    expect(aplicarTecla(12500, 'borrar')).toBe(1250)
-    expect(aplicarTecla(0, 'borrar')).toBe(0)
-  })
-  it('no pasa del máximo del visor', () => {
-    expect(aplicarTecla(IMPORTE_MAXIMO, '9')).toBe(IMPORTE_MAXIMO)
-    expect(aplicarTecla(12345, '000')).toBe(12345)
+  it('corta en 7 dígitos', () => {
+    expect(normalizarImporte('123456789')).toBe(1234567)
+    expect(normalizarImporte('99999999')).toBe(IMPORTE_MAXIMO)
   })
 })
 
-describe('teclaDesdeTeclado', () => {
-  it('reconoce dígitos y borrar', () => {
-    expect(teclaDesdeTeclado('7')).toBe('7')
-    expect(teclaDesdeTeclado('Backspace')).toBe('borrar')
-    expect(teclaDesdeTeclado('a')).toBeNull()
+describe('formatearImporteEnCurso', () => {
+  it('pone puntos de miles', () => {
+    expect(formatearImporteEnCurso(1234567)).toBe('1.234.567')
+    expect(formatearImporteEnCurso(500)).toBe('500')
+  })
+  it('0 se muestra vacío', () => {
+    expect(formatearImporteEnCurso(0)).toBe('')
+  })
+})
+
+describe('accionDeTecla', () => {
+  it('Enter guarda en efectivo, + en digital', () => {
+    expect(accionDeTecla({ key: 'Enter' })).toBe('efectivo')
+    expect(accionDeTecla({ key: 'Enter', code: 'NumpadEnter' })).toBe('efectivo')
+    expect(accionDeTecla({ key: '+', code: 'NumpadAdd' })).toBe('digital')
+    expect(accionDeTecla({ key: '+', code: 'Equal' })).toBe('digital')
+  })
+  it('Esc borra y el resto no hace nada', () => {
+    expect(accionDeTecla({ key: 'Escape' })).toBe('borrar')
+    expect(accionDeTecla({ key: '5' })).toBeNull()
+    expect(accionDeTecla({ key: 'e' })).toBeNull()
   })
 })
