@@ -1,0 +1,189 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { fechaDeTrabajo } from '../lib/formato'
+import { supabase } from '../lib/supabase'
+import type { Database } from '../lib/tipos-db'
+
+type Tablas = Database['public']['Tables']
+export type Jornada = Tablas['jornadas']['Row']
+export type Venta = Tablas['ventas']['Row']
+export type MedioPago = Database['public']['Enums']['medio_pago']
+export type ResumenJornada = Database['public']['Functions']['resumen_jornada']['Returns'][number]
+
+/** Lanza el error de Supabase para que TanStack Query lo maneje. */
+export function exigir<R extends { data: unknown; error: unknown }>(
+  respuesta: R,
+): NonNullable<R['data']> {
+  if (respuesta.error) throw respuesta.error
+  if (respuesta.data === null || respuesta.data === undefined)
+    throw new Error('La base no devolvió datos.')
+  return respuesta.data as NonNullable<R['data']>
+}
+
+/** Igual que exigir, pero acepta que no haya resultado (maybeSingle). */
+export function exigirOpcional<R extends { data: unknown; error: unknown }>(
+  respuesta: R,
+): R['data'] {
+  if (respuesta.error) throw respuesta.error
+  return respuesta.data
+}
+
+export const claves = {
+  jornadaActual: ['jornada-actual'] as const,
+  jornadaPorFecha: (fecha: string) => ['jornada', fecha] as const,
+  resumen: (id: string) => ['resumen-jornada', id] as const,
+  ventas: (id: string) => ['ventas', id] as const,
+  configuracion: ['configuracion'] as const,
+}
+
+export interface EstadoDelDia {
+  hoy: string
+  /** La jornada abierta, sea de hoy o de un día anterior que quedó sin cerrar. */
+  abierta: Jornada | null
+  /** La jornada de hoy, si existe (abierta o cerrada). */
+  deHoy: Jornada | null
+}
+
+export function useEstadoDelDia() {
+  return useQuery({
+    queryKey: claves.jornadaActual,
+    queryFn: async (): Promise<EstadoDelDia> => {
+      const hoy = fechaDeTrabajo(new Date())
+      const jornadas = exigir(
+        await supabase()
+          .from('jornadas')
+          .select('*')
+          .or(`estado.eq.abierta,fecha.eq.${hoy}`)
+          .order('fecha', { ascending: false }),
+      )
+      return {
+        hoy,
+        abierta: jornadas.find((j) => j.estado === 'abierta') ?? null,
+        deHoy: jornadas.find((j) => j.fecha === hoy) ?? null,
+      }
+    },
+    refetchInterval: 60_000,
+  })
+}
+
+export function useJornadaPorFecha(fecha: string, habilitado = true) {
+  return useQuery({
+    queryKey: claves.jornadaPorFecha(fecha),
+    enabled: habilitado,
+    queryFn: async () =>
+      exigirOpcional(
+        await supabase().from('jornadas').select('*').eq('fecha', fecha).maybeSingle(),
+      ),
+  })
+}
+
+export function useResumenJornada(jornadaId: string | undefined) {
+  return useQuery({
+    queryKey: claves.resumen(jornadaId ?? ''),
+    enabled: Boolean(jornadaId),
+    queryFn: async () => {
+      const filas = exigir(
+        await supabase().rpc('resumen_jornada', { p_jornada_id: jornadaId ?? '' }),
+      )
+      return filas[0] ?? null
+    },
+  })
+}
+
+export function useVentasDeJornada(jornadaId: string | undefined) {
+  return useQuery({
+    queryKey: claves.ventas(jornadaId ?? ''),
+    enabled: Boolean(jornadaId),
+    queryFn: async () =>
+      exigir(
+        await supabase()
+          .from('ventas')
+          .select('*')
+          .eq('jornada_id', jornadaId ?? '')
+          .order('registrada_en', { ascending: false }),
+      ),
+  })
+}
+
+export function useConfiguracion() {
+  return useQuery({
+    queryKey: claves.configuracion,
+    staleTime: 5 * 60_000,
+    queryFn: async () =>
+      exigir(await supabase().from('configuracion').select('*').limit(1).single()),
+  })
+}
+
+function useInvalidarCaja() {
+  const qc = useQueryClient()
+  return () =>
+    Promise.all([
+      qc.invalidateQueries({ queryKey: claves.jornadaActual }),
+      qc.invalidateQueries({ queryKey: ['jornada'] }),
+      qc.invalidateQueries({ queryKey: ['resumen-jornada'] }),
+      qc.invalidateQueries({ queryKey: ['ventas'] }),
+      qc.invalidateQueries({ queryKey: ['reportes'] }),
+    ])
+}
+
+export function useAbrirDia() {
+  const invalidar = useInvalidarCaja()
+  return useMutation({
+    mutationFn: async (fondoInicial: number) =>
+      exigir(await supabase().rpc('abrir_jornada', { p_fondo_inicial: fondoInicial })),
+    // Sin await: la pantalla responde ya; los datos se refrescan atrás.
+    onSuccess: () => void invalidar(),
+  })
+}
+
+export function useRegistrarVenta() {
+  const invalidar = useInvalidarCaja()
+  return useMutation({
+    // Sin reintentos: si no hay red, la persona tiene que saber que NO se guardó.
+    retry: false,
+    mutationFn: async (venta: { importe: number; medio: MedioPago }) =>
+      exigir(
+        await supabase().rpc('registrar_venta', {
+          p_importe: venta.importe,
+          p_medio_pago: venta.medio,
+        }),
+      ),
+    // Sin await: la pantalla responde ya; los datos se refrescan atrás.
+    onSuccess: () => void invalidar(),
+  })
+}
+
+export function useAnularVenta() {
+  const invalidar = useInvalidarCaja()
+  return useMutation({
+    mutationFn: async ({ id, motivo }: { id: string; motivo: string }) =>
+      exigir(await supabase().rpc('anular_venta', { p_venta_id: id, p_motivo: motivo })),
+    // Sin await: la pantalla responde ya; los datos se refrescan atrás.
+    onSuccess: () => void invalidar(),
+  })
+}
+
+export function useCerrarDia() {
+  const invalidar = useInvalidarCaja()
+  return useMutation({
+    mutationFn: async (datos: { jornadaId: string; contado: number; nota: string }) =>
+      exigir(
+        await supabase().rpc('cerrar_jornada', {
+          p_jornada_id: datos.jornadaId,
+          p_efectivo_contado: datos.contado,
+          p_nota: datos.nota,
+        }),
+      ),
+    // Sin await: la pantalla responde ya; los datos se refrescan atrás.
+    onSuccess: () => void invalidar(),
+  })
+}
+
+export function useReabrirDia() {
+  const invalidar = useInvalidarCaja()
+  return useMutation({
+    mutationFn: async (jornadaId: string) =>
+      exigir(await supabase().rpc('reabrir_jornada', { p_jornada_id: jornadaId })),
+    // Sin await: la pantalla responde ya; los datos se refrescan atrás.
+    onSuccess: () => void invalidar(),
+  })
+}
