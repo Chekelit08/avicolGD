@@ -1,0 +1,9 @@
+# Netlify (alternativa a Cloudflare Pages). Las variables VITE_* se cargan en el panel de Netlify.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # El Chromium de Playwright no hace falta para compilar.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
