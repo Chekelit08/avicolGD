@@ -1,0 +1,173 @@
+@import 'tailwindcss';
+
+/* Modo oscuro: sigue al sistema, salvo que la persona elija uno (data-tema en <html>). */
+@custom-variant dark {
+  &:where([data-tema='oscuro'], [data-tema='oscuro'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-tema='claro']), :root:not([data-tema='claro']) *) {
+      @slot;
+    }
+  }
+}
+
+@font-face {
+  font-family: 'DSEG7 Classic';
+  src: url('../fonts/DSEG7Classic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+/*
+ * Paleta de marca (medida del logo Gonza) y derivados.
+ * Ver docs/DECISIONES.md → "Paleta". En los componentes usá estos tokens, nunca hex sueltos.
+ */
+:root {
+  --bordo: #511611;
+  --tinta: #261110;
+  --azulejo: #faf9f9;
+  --pizarra: #2e4a5a;
+  --fosforo: #7cf5c8;
+  --alerta: #d9432b;
+
+  /* Semánticos, modo claro */
+  --fondo: var(--azulejo);
+  --superficie: #ffffff;
+  --superficie-hundida: #efeceb;
+  --texto: var(--tinta);
+  --texto-suave: #5e4b49;
+  --borde: #ddd6d5;
+  --marca: var(--bordo);
+  --sobre-marca: var(--azulejo);
+  --efectivo: var(--bordo);
+  --digital: var(--pizarra);
+  --sobre-medio: #ffffff;
+  --alerta-texto: #b3311c;
+  --ok: #2e7d4f;
+  --aviso: #8f5e08;
+  --foco: #2b7bb5;
+  --tecla: #ffffff;
+  --tecla-borde: #cfc6c4;
+  --tecla-sombra: #b9adab;
+
+  /* Series de gráficos (validadas con dataviz: CVD ΔE ≥ 19, contraste ≥ 3:1) */
+  --grafico-efectivo: #a3352a;
+  --grafico-digital: #2b7bb5;
+
+  /* Visor de balanza: igual en ambos modos */
+  --visor: #1a0c0b;
+  --visor-borde: #0d0605;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    --fondo: var(--tinta);
+    --superficie: #341a18;
+    --superficie-hundida: #1d0d0c;
+    --texto: var(--azulejo);
+    --texto-suave: #c8b5b2;
+    --borde: #4c2a27;
+    --marca: #8a2a1f;
+    --efectivo: #8a2a1f;
+    --digital: #2e5f7d;
+    --alerta-texto: #ff8a73;
+    --ok: #5fc48a;
+    --aviso: #f0b34a;
+    --foco: #7cc4f5;
+    --tecla: #422220;
+    --tecla-borde: #5a3330;
+    --tecla-sombra: #140807;
+    --grafico-efectivo: #c9503f;
+    --grafico-digital: #3d8bc4;
+    color-scheme: dark;
+  }
+}
+
+:root[data-tema='oscuro'] {
+  --fondo: var(--tinta);
+  --superficie: #341a18;
+  --superficie-hundida: #1d0d0c;
+  --texto: var(--azulejo);
+  --texto-suave: #c8b5b2;
+  --borde: #4c2a27;
+  --marca: #8a2a1f;
+  --efectivo: #8a2a1f;
+  --digital: #2e5f7d;
+  --alerta-texto: #ff8a73;
+  --ok: #5fc48a;
+  --aviso: #f0b34a;
+  --foco: #7cc4f5;
+  --tecla: #422220;
+  --tecla-borde: #5a3330;
+  --tecla-sombra: #140807;
+  --grafico-efectivo: #c9503f;
+  --grafico-digital: #3d8bc4;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-hundida: var(--superficie-hundida);
+  --color-texto: var(--texto);
+  --color-suave: var(--texto-suave);
+  --color-borde: var(--borde);
+  --color-marca: var(--marca);
+  --color-sobre-marca: var(--sobre-marca);
+  --color-efectivo: var(--efectivo);
+  --color-digital: var(--digital);
+  --color-sobre-medio: var(--sobre-medio);
+  --color-alerta: var(--alerta);
+  --color-alerta-texto: var(--alerta-texto);
+  --color-ok: var(--ok);
+  --color-aviso: var(--aviso);
+  --color-foco: var(--foco);
+  --color-tecla: var(--tecla);
+  --color-tecla-borde: var(--tecla-borde);
+  --color-tecla-sombra: var(--tecla-sombra);
+  --color-visor: var(--visor);
+  --color-visor-borde: var(--visor-borde);
+  --color-fosforo: var(--fosforo);
+  --color-grafico-efectivo: var(--grafico-efectivo);
+  --color-grafico-digital: var(--grafico-digital);
+
+  --font-cartel: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --font-texto: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --font-visor: 'DSEG7 Classic', ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: var(--font-texto);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--fondo);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--foco);
+    outline-offset: 2px;
+  }
+}
+
+@utility cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
