@@ -53,6 +53,11 @@ describe('calcularArqueo', () => {
   it('marca sobrante', () => {
     expect(calcularArqueo(0, 1000, 1200).estado).toBe('sobra')
   })
+  it('descuenta lo que se sacó de la caja', () => {
+    const a = calcularArqueo(10_000, 250_000, 230_000, 30_000)
+    expect(a.esperado).toBe(230_000)
+    expect(a.estado).toBe('coincide')
+  })
   it('no arrastra errores de coma flotante', () => {
     expect(calcularArqueo(0.1, 0.2, 0.3).diferencia).toBe(0)
   })

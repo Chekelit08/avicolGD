@@ -136,6 +136,7 @@ export type Database = {
           motivo_anulacion: string | null
           proveedor: string | null
           registrado_por: string
+          salida_caja_id: string | null
           updated_at: string
         }
         ComputedFields: never
@@ -153,6 +154,7 @@ export type Database = {
           motivo_anulacion?: string | null
           proveedor?: string | null
           registrado_por?: string
+          salida_caja_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -169,6 +171,7 @@ export type Database = {
           motivo_anulacion?: string | null
           proveedor?: string | null
           registrado_por?: string
+          salida_caja_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -191,6 +194,13 @@ export type Database = {
             columns: ['registrado_por']
             isOneToOne: false
             referencedRelation: 'perfiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'egresos_salida_caja_id_fkey'
+            columns: ['salida_caja_id']
+            isOneToOne: true
+            referencedRelation: 'salidas_caja'
             referencedColumns: ['id']
           },
         ]
@@ -382,6 +392,77 @@ export type Database = {
         }
         Relationships: []
       }
+      salidas_caja: {
+        Row: {
+          anulada: boolean
+          anulada_en: string | null
+          anulada_por: string | null
+          created_at: string
+          detalle: string | null
+          id: string
+          importe: number
+          jornada_id: string
+          motivo: Database['public']['Enums']['motivo_salida']
+          motivo_anulacion: string | null
+          registrada_en: string
+          registrada_por: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          anulada?: boolean
+          anulada_en?: string | null
+          anulada_por?: string | null
+          created_at?: string
+          detalle?: string | null
+          id?: string
+          importe: number
+          jornada_id: string
+          motivo: Database['public']['Enums']['motivo_salida']
+          motivo_anulacion?: string | null
+          registrada_en?: string
+          registrada_por: string
+          updated_at?: string
+        }
+        Update: {
+          anulada?: boolean
+          anulada_en?: string | null
+          anulada_por?: string | null
+          created_at?: string
+          detalle?: string | null
+          id?: string
+          importe?: number
+          jornada_id?: string
+          motivo?: Database['public']['Enums']['motivo_salida']
+          motivo_anulacion?: string | null
+          registrada_en?: string
+          registrada_por?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'salidas_caja_anulada_por_fkey'
+            columns: ['anulada_por']
+            isOneToOne: false
+            referencedRelation: 'perfiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'salidas_caja_jornada_id_fkey'
+            columns: ['jornada_id']
+            isOneToOne: false
+            referencedRelation: 'jornadas'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'salidas_caja_registrada_por_fkey'
+            columns: ['registrada_por']
+            isOneToOne: false
+            referencedRelation: 'perfiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       ventas: {
         Row: {
           anulada: boolean
@@ -479,6 +560,30 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      anular_salida: {
+        Args: { p_motivo: string; p_salida_id: string }
+        Returns: {
+          anulada: boolean
+          anulada_en: string | null
+          anulada_por: string | null
+          created_at: string
+          detalle: string | null
+          id: string
+          importe: number
+          jornada_id: string
+          motivo: Database['public']['Enums']['motivo_salida']
+          motivo_anulacion: string | null
+          registrada_en: string
+          registrada_por: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'salidas_caja'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       anular_venta: {
         Args: { p_motivo: string; p_venta_id: string }
         Returns: {
@@ -526,6 +631,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      efectivo_esperado: { Args: { p_jornada_id: string }; Returns: number }
       egresos_por_categoria: {
         Args: { p_desde: string; p_hasta: string }
         Returns: {
@@ -623,6 +729,34 @@ export type Database = {
         Args: { p_accion: string; p_actor: string; p_despues: Json; p_registro: string }
         Returns: undefined
       }
+      registrar_salida: {
+        Args: {
+          p_detalle?: string
+          p_importe: number
+          p_motivo: Database['public']['Enums']['motivo_salida']
+        }
+        Returns: {
+          anulada: boolean
+          anulada_en: string | null
+          anulada_por: string | null
+          created_at: string
+          detalle: string | null
+          id: string
+          importe: number
+          jornada_id: string
+          motivo: Database['public']['Enums']['motivo_salida']
+          motivo_anulacion: string | null
+          registrada_en: string
+          registrada_por: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'salidas_caja'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       registrar_venta: {
         Args: { p_importe: number; p_medio_pago: Database['public']['Enums']['medio_pago'] }
         Returns: {
@@ -652,6 +786,7 @@ export type Database = {
           cantidad_anuladas: number
           cantidad_digital: number
           cantidad_efectivo: number
+          cantidad_salidas: number
           cantidad_ventas: number
           diferencia_efectivo: number
           efectivo_contado: number
@@ -664,6 +799,7 @@ export type Database = {
           total: number
           total_digital: number
           total_efectivo: number
+          total_salidas: number
         }[]
       }
       resumen_periodo: {
@@ -697,6 +833,7 @@ export type Database = {
     Enums: {
       estado_jornada: 'abierta' | 'cerrada'
       medio_pago: 'efectivo' | 'digital'
+      motivo_salida: 'proveedor' | 'retiro' | 'gasto' | 'otro'
       rol_usuario: 'cajero' | 'admin'
       tipo_pago_empleado: 'sueldo' | 'adelanto' | 'aguinaldo' | 'otro'
     }
@@ -815,6 +952,7 @@ export const Constants = {
     Enums: {
       estado_jornada: ['abierta', 'cerrada'],
       medio_pago: ['efectivo', 'digital'],
+      motivo_salida: ['proveedor', 'retiro', 'gasto', 'otro'],
       rol_usuario: ['cajero', 'admin'],
       tipo_pago_empleado: ['sueldo', 'adelanto', 'aguinaldo', 'otro'],
     },

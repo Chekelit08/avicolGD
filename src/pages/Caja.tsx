@@ -1,10 +1,12 @@
-import { ArrowRight, LockKeyhole, RotateCcw, WifiOff } from 'lucide-react'
+import { ArrowRight, HandCoins, LockKeyhole, RotateCcw, WifiOff } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { CampoImporte } from '../components/caja/CampoImporte'
 import { CargaVenta } from '../components/caja/CargaVenta'
+import { ListaSalidas } from '../components/caja/ListaSalidas'
 import { ListaVentas } from '../components/caja/ListaVentas'
 import { ResumenDia } from '../components/caja/ResumenDia'
+import { SacarEfectivo } from '../components/caja/SacarEfectivo'
 import { Boton } from '../components/ui/Boton'
 import { Aviso, Cargando, Chip, MensajeError, Tarjeta, Titulo } from '../components/ui/Estados'
 import {
@@ -12,6 +14,7 @@ import {
   useEstadoDelDia,
   useReabrirDia,
   useResumenJornada,
+  useSalidasDeJornada,
   useVentasDeJornada,
   type Jornada,
   type ResumenJornada,
@@ -235,15 +238,25 @@ function IndicadoresDelDia({ r }: { r: ResumenJornada | null | undefined }) {
 function DiaAbierto({ jornada }: { jornada: Jornada }) {
   const resumen = useResumenJornada(jornada.id)
   const ventas = useVentasDeJornada(jornada.id)
+  const salidas = useSalidasDeJornada(jornada.id)
   const [resaltada, setResaltada] = useState<string | null>(null)
+  const [sacando, setSacando] = useState(false)
 
   return (
     <div>
       <Titulo
         subtitulo={<span className="first-letter:uppercase">{diaSemanaCorto(jornada.fecha)}</span>}
         accion={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Chip tono="ok">● Día abierto</Chip>
+            <button
+              type="button"
+              onClick={() => setSacando(true)}
+              aria-keyshortcuts="-"
+              className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-borde-fuerte bg-superficie px-4 text-[15px] font-semibold shadow-tarjeta hover:bg-hundida"
+            >
+              <HandCoins className="size-4" aria-hidden="true" /> Sacar efectivo
+            </button>
             <Link
               to="/cerrar"
               className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-borde-fuerte bg-superficie px-4 text-[15px] font-semibold shadow-tarjeta hover:bg-hundida"
@@ -257,7 +270,14 @@ function DiaAbierto({ jornada }: { jornada: Jornada }) {
       </Titulo>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,30rem)_1fr]">
         <Tarjeta className="self-start p-6">
-          <CargaVenta onGuardada={(v) => setResaltada(v.id)} />
+          {sacando ? (
+            <SacarEfectivo alTerminar={() => setSacando(false)} />
+          ) : (
+            <CargaVenta
+              onGuardada={(v) => setResaltada(v.id)}
+              onSacarEfectivo={() => setSacando(true)}
+            />
+          )}
         </Tarjeta>
         <div className="flex min-w-0 flex-col gap-4">
           <IndicadoresDelDia r={resumen.data} />
@@ -272,6 +292,11 @@ function DiaAbierto({ jornada }: { jornada: Jornada }) {
               <Cargando />
             )}
           </Tarjeta>
+          {salidas.data && salidas.data.length > 0 && (
+            <Tarjeta sinRelleno>
+              <ListaSalidas salidas={salidas.data} editable />
+            </Tarjeta>
+          )}
         </div>
       </div>
     </div>

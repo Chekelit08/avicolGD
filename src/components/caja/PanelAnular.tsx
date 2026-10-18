@@ -1,38 +1,40 @@
 import { useState } from 'react'
-import { useAnularVenta } from '../../datos/caja'
+import { useAnularSalida, useAnularVenta } from '../../datos/caja'
 import { mensajeDeError } from '../../lib/errores'
 import { formatearPesos } from '../../lib/formato'
 import { Boton } from '../ui/Boton'
 
-const MOTIVOS_RAPIDOS = [
-  'Error de tipeo',
-  'Se cargó dos veces',
-  'Tipo de pago equivocado',
-  'El cliente devolvió',
-]
+const MOTIVOS_RAPIDOS = {
+  venta: ['Error de tipeo', 'Se cargó dos veces', 'Tipo de pago equivocado', 'El cliente devolvió'],
+  salida: ['Error de tipeo', 'Se cargó dos veces', 'Volvió la plata a la caja'],
+}
 
 /** Anular con motivo obligatorio. Inline, sin modal, para no frenar el mostrador. */
 export function PanelAnular({
   venta,
   alTerminar,
+  tipo = 'venta',
 }: {
   venta: { id: string; importe: number }
   alTerminar: () => void
+  tipo?: 'venta' | 'salida'
 }) {
   const [motivo, setMotivo] = useState('')
-  const anular = useAnularVenta()
+  const anularVenta = useAnularVenta()
+  const anularSalida = useAnularSalida()
+  const anular = tipo === 'venta' ? anularVenta : anularSalida
 
   return (
     <div
       className="flex flex-col gap-3 rounded-xl border border-borde bg-hundida p-4"
       role="group"
-      aria-label={`Anular venta de ${formatearPesos(venta.importe, { sinCentavos: true })}`}
+      aria-label={`Anular ${tipo} de ${formatearPesos(venta.importe, { sinCentavos: true })}`}
     >
       <p className="text-sm font-semibold">
-        ¿Por qué anulás esta venta de {formatearPesos(venta.importe, { sinCentavos: true })}?
+        ¿Por qué anulás esta {tipo} de {formatearPesos(venta.importe, { sinCentavos: true })}?
       </p>
       <div className="flex flex-wrap gap-2">
-        {MOTIVOS_RAPIDOS.map((m) => (
+        {MOTIVOS_RAPIDOS[tipo].map((m) => (
           <button
             key={m}
             type="button"
@@ -72,7 +74,7 @@ export function PanelAnular({
             anular.mutate({ id: venta.id, motivo: motivo.trim() }, { onSuccess: alTerminar })
           }
         >
-          Anular venta
+          Anular {tipo}
         </Boton>
       </div>
     </div>

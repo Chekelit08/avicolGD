@@ -338,7 +338,10 @@ function Listado({
                   >
                     {formatearPesos(e.monto)}
                   </span>
-                  {!e.anulado && anulando !== e.id && (
+                  {!e.anulado && e.salida_caja_id && (
+                    <span className="text-xs text-suave">Se anula desde la caja</span>
+                  )}
+                  {!e.anulado && !e.salida_caja_id && anulando !== e.id && (
                     <button
                       type="button"
                       onClick={() => setAnulando(e.id)}

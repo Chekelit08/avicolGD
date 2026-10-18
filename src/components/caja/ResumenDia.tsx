@@ -48,6 +48,12 @@ export function ResumenDia({ resumen }: { resumen: ResumenJornada }) {
           <Fila etiqueta="Ventas anuladas (no suman)" valor={String(resumen.cantidad_anuladas)} />
         )}
         <Fila etiqueta="Fondo de caja inicial" valor={p(resumen.fondo_inicial)} />
+        {resumen.cantidad_salidas > 0 && (
+          <Fila
+            etiqueta={`Salidas de caja (${resumen.cantidad_salidas})`}
+            valor={`− ${p(resumen.total_salidas)}`}
+          />
+        )}
         <Fila etiqueta="Efectivo esperado en caja" valor={p(resumen.efectivo_esperado)} fuerte />
         {resumen.efectivo_contado !== null && (
           <Fila etiqueta="Efectivo contado" valor={p(resumen.efectivo_contado)} />

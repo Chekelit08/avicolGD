@@ -29,6 +29,13 @@ export function necesitaConfirmacion(importe: number, tope: number): boolean {
   return importe > tope
 }
 
+export const NOMBRE_MOTIVO_SALIDA = {
+  proveedor: 'Pago a proveedor',
+  retiro: 'Retiro del dueño',
+  gasto: 'Gasto del local',
+  otro: 'Otro',
+} as const satisfies Record<'proveedor' | 'retiro' | 'gasto' | 'otro', string>
+
 export type EstadoArqueo = 'coincide' | 'sobra' | 'falta'
 
 export interface Arqueo {
@@ -38,13 +45,17 @@ export interface Arqueo {
   estado: EstadoArqueo
 }
 
-/** Efectivo esperado = fondo inicial + ventas en efectivo. Diferencia = contado − esperado. */
+/**
+ * Efectivo esperado = fondo inicial + ventas en efectivo − salidas de caja.
+ * Diferencia = contado − esperado.
+ */
 export function calcularArqueo(
   fondoInicial: number,
   ventasEfectivo: number,
   contado: number,
+  salidas = 0,
 ): Arqueo {
-  const esperado = redondear(fondoInicial + ventasEfectivo)
+  const esperado = redondear(fondoInicial + ventasEfectivo - salidas)
   const diferencia = redondear(contado - esperado)
   return {
     esperado,

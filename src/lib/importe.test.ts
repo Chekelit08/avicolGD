@@ -43,6 +43,10 @@ describe('accionDeTecla', () => {
     expect(accionDeTecla({ key: '+', code: 'NumpadAdd' })).toBe('digital')
     expect(accionDeTecla({ key: '+', code: 'Equal' })).toBe('digital')
   })
+  it('− abre "Sacar efectivo"', () => {
+    expect(accionDeTecla({ key: '-', code: 'NumpadSubtract' })).toBe('salida')
+    expect(accionDeTecla({ key: '-', code: 'Minus' })).toBe('salida')
+  })
   it('Esc borra y el resto no hace nada', () => {
     expect(accionDeTecla({ key: 'Escape' })).toBe('borrar')
     expect(accionDeTecla({ key: '5' })).toBeNull()

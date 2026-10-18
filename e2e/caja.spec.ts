@@ -49,11 +49,24 @@ test('flujo del día: ingresar, abrir, cargar 3 ventas con el teclado, cerrar y 
   await importe.press('Escape')
   await expect(importe).toHaveValue('')
 
+  // Pagarle al proveedor con plata de la caja: tecla −, importe, motivo y Enter
+  await importe.press('-')
+  const salida = page.getByLabel('Importe que sale')
+  await expect(salida).toBeFocused()
+  await salida.fill('2000')
+  await page.getByRole('button', { name: 'Pago a proveedor' }).click()
+  await page.getByLabel(/Proveedor/).fill('Pollos Don Juan')
+  await page.getByLabel(/Proveedor/).press('Enter')
+  await expect(page.getByRole('heading', { name: 'Salidas de caja' })).toBeVisible()
+  await expect(page.getByText('− $ 2.000')).toBeVisible()
+  await expect(importe).toBeFocused()
+
   // Cerrar el día con un faltante de $ 500: Enter para revisar, Enter para cerrar
   await page.getByRole('link', { name: 'Cerrar el día' }).click()
-  await expect(page.getByText('$ 26.500,00').first()).toBeVisible() // esperado = 10.000 + 16.500
+  // esperado = 10.000 + 16.500 − 2.000
+  await expect(page.getByText('$ 24.500,00').first()).toBeVisible()
   const contado = page.getByLabel('Efectivo contado')
-  await contado.fill('26000')
+  await contado.fill('24000')
   await expect(page.getByText(/Faltan \$\s500,00/)).toBeVisible()
   await contado.press('Enter')
   await expect(

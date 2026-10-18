@@ -35,10 +35,10 @@ Proyecto en la nube: Supabase `anadbauxypifiplihpje` (São Paulo). Deploy: ver `
 1. Una sola jornada abierta a la vez (índice único). Si quedó abierta una de un día anterior, hay que cerrarla antes de abrir otra o cargar ventas.
 2. Las ventas solo se cargan en la jornada abierta **de hoy** (`registrar_venta`). Una jornada cerrada queda bloqueada por trigger; solo un admin la reabre (`reabrir_jornada`, auditado).
 3. **Medio de pago: `efectivo` | `digital`**, sin más detalle. Igual en ventas, egresos y pagos a empleados.
-4. **El tipo se elige siempre** y elegirlo guarda: con el teclado, **Enter = Efectivo** y **+ = Digital** (también el + del teclado numérico); Esc borra. Los botones Efectivo/Digital hacen lo mismo. No hay medio preseleccionado.
+4. **El tipo se elige siempre** y elegirlo guarda: con el teclado, **Enter = Efectivo** y **+ = Digital** (también el + del teclado numérico); **−** abre "Sacar efectivo"; Esc borra. Los botones Efectivo/Digital hacen lo mismo. No hay medio preseleccionado.
 5. Las ventas y los egresos no se borran, se anulan con motivo. Un cajero anula ventas de su cuenta con menos de 10 minutos; después, solo admin. Los pagos a empleados sí se pueden borrar (auditado).
 6. Importe > 0, entero en la carga (sin centavos), máximo $ 9.999.999. Arriba de `configuracion.tope_confirmacion` ($ 500.000) se pide confirmación. Validar en cliente (Zod) **y** en la base.
-7. Efectivo esperado = fondo inicial + ventas en efectivo no anuladas. Diferencia = contado − esperado.
+7. Efectivo esperado = fondo inicial + ventas en efectivo no anuladas − salidas de caja no anuladas (`efectivo_esperado()`). Diferencia = contado − esperado.
 8. Cada registro guarda quién y cuándo. Los totales los calcula la base (funciones SQL en `20261017000003_reportes.sql` y `…04`).
 9. Roles: `cajero` (cuenta compartida "Mostrador") y `admin` (cuentas personales). Permisos con RLS; el cajero no ve egresos, sueldos, historial ni usuarios. Siempre queda al menos un admin activo.
 10. Auditoría: solo se agrega (trigger bloquea update/delete). Se llena con triggers.

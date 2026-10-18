@@ -16,15 +16,16 @@ export function formatearImporteEnCurso(importe: number): string {
   return importe > 0 ? new Intl.NumberFormat('es-AR').format(importe) : ''
 }
 
-export type AccionTecla = 'efectivo' | 'digital' | 'borrar' | null
+export type AccionTecla = 'efectivo' | 'digital' | 'salida' | 'borrar' | null
 
 /**
  * Teclas de la caja: Enter = Efectivo, + = Digital (también el + del teclado numérico),
- * Esc = borrar. Sirven con una sola mano sobre el teclado numérico.
+ * − = sacar efectivo, Esc = borrar. Sirven con una sola mano sobre el teclado numérico.
  */
 export function accionDeTecla(e: { key: string; code?: string }): AccionTecla {
   if (e.key === 'Enter' || e.code === 'NumpadEnter') return 'efectivo'
   if (e.key === '+' || e.code === 'NumpadAdd') return 'digital'
+  if (e.key === '-' || e.code === 'NumpadSubtract') return 'salida'
   if (e.key === 'Escape') return 'borrar'
   return null
 }

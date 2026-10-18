@@ -9,6 +9,7 @@ import {
 } from '../../datos/caja'
 import { necesitaConfirmacion } from '../../lib/caja'
 import { mensajeDeError } from '../../lib/errores'
+import type { AccionTecla } from '../../lib/importe'
 import { formatearPesos } from '../../lib/formato'
 import { Boton } from '../ui/Boton'
 import { Aviso } from '../ui/Estados'
@@ -29,7 +30,14 @@ function Tecla({ children }: { children: string }) {
  * Enter la guarda en efectivo, + la guarda digital. Los botones hacen lo mismo con el mouse.
  * Si falla (por ejemplo, sin internet), el importe queda en el campo para reintentar.
  */
-export function CargaVenta({ onGuardada }: { onGuardada?: (venta: Venta) => void }) {
+export function CargaVenta({
+  onGuardada,
+  onSacarEfectivo,
+}: {
+  onGuardada?: (venta: Venta) => void
+  /** Tecla − : pasar a "Sacar efectivo". */
+  onSacarEfectivo?: () => void
+}) {
   const [importe, setImporte] = useState(0)
   const [porConfirmar, setPorConfirmar] = useState<MedioPago | null>(null)
   const [ultima, setUltima] = useState<Venta | null>(null)
@@ -72,7 +80,11 @@ export function CargaVenta({ onGuardada }: { onGuardada?: (venta: Venta) => void
     )
   }
 
-  const alAccion = (accion: 'efectivo' | 'digital' | 'borrar') => {
+  const alAccion = (accion: Exclude<AccionTecla, null>) => {
+    if (accion === 'salida') {
+      if (!porConfirmar) onSacarEfectivo?.()
+      return
+    }
     if (accion === 'borrar') {
       // Esc con la confirmación abierta = "Corregir": vuelve al importe sin borrarlo.
       if (porConfirmar) {
@@ -185,7 +197,8 @@ export function CargaVenta({ onGuardada }: { onGuardada?: (venta: Venta) => void
       <p id="ayuda-teclas" className="text-sm text-suave">
         Tipeá el importe y apretá <strong className="text-texto">Enter</strong> si pagó en efectivo
         o <strong className="text-texto">+</strong> si fue digital (transferencia, tarjeta o Mercado
-        Pago). <strong className="text-texto">Esc</strong> borra.
+        Pago). <strong className="text-texto">Esc</strong> borra y{' '}
+        <strong className="text-texto">−</strong> saca efectivo de la caja.
       </p>
 
       {aviso && <Aviso tono="aviso">{aviso}</Aviso>}

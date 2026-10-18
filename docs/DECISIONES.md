@@ -156,3 +156,11 @@ Proyecto `avicola-gd` (ref `anadbauxypifiplihpje`, São Paulo, plan Free) en la 
 ### Auto-registro inofensivo
 
 Si el registro público quedara prendido por error, la cuenta nace **inactiva**: solo se activa cuando el servidor le asigna un rol en `app_metadata`, cosa que el usuario no puede hacer (`20261017000007_registro_seguro.sql`, con test).
+
+## Mejoras para que la caja trabaje sola (18/10/2026)
+
+### Salidas de efectivo desde la caja
+
+**Decisión:** con el día abierto se puede **sacar efectivo** (tecla **−** o el botón "Sacar efectivo"): importe + motivo (pago a proveedor, retiro del dueño, gasto del local, otro). Se restan del efectivo esperado (regla 7 actualizada, `efectivo_esperado()`).
+**Por qué:** en un local de barrio se le paga al proveedor del pollo con la plata del cajón. Sin esto el arqueo daba "faltan" todos los días y la diferencia dejaba de significar algo.
+**Detalles:** el pago a proveedor y el gasto del local también crean un **egreso** (categoría Mercadería u Otros) para que el dueño no lo cargue dos veces; ese egreso solo se anula desde la caja (`egresos.salida_caja_id`). El retiro del dueño no es un gasto: solo sale de la caja. Las salidas siguen las mismas reglas que las ventas: no se borran, se anulan con motivo (el cajero, las suyas de menos de 10 minutos) y quedan en la auditoría.

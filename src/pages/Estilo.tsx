@@ -65,7 +65,7 @@ export function Estilo() {
               etiqueta="Importe"
               importe={importe}
               onCambio={setImporte}
-              onAccion={(a) => (a === 'borrar' ? setImporte(0) : guardar(a))}
+              onAccion={(a) => (a === 'borrar' ? setImporte(0) : a !== 'salida' && guardar(a))}
             />
             <div className="grid grid-cols-2 gap-3">
               <button

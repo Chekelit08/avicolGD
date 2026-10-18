@@ -6,6 +6,8 @@ import type { Database } from '../lib/tipos-db'
 type Tablas = Database['public']['Tables']
 export type Jornada = Tablas['jornadas']['Row']
 export type Venta = Tablas['ventas']['Row']
+export type Salida = Tablas['salidas_caja']['Row']
+export type MotivoSalida = Database['public']['Enums']['motivo_salida']
 export type MedioPago = Database['public']['Enums']['medio_pago']
 export type ResumenJornada = Database['public']['Functions']['resumen_jornada']['Returns'][number]
 
@@ -32,6 +34,7 @@ export const claves = {
   jornadaPorFecha: (fecha: string) => ['jornada', fecha] as const,
   resumen: (id: string) => ['resumen-jornada', id] as const,
   ventas: (id: string) => ['ventas', id] as const,
+  salidas: (id: string) => ['salidas', id] as const,
   configuracion: ['configuracion'] as const,
 }
 
@@ -104,6 +107,21 @@ export function useVentasDeJornada(jornadaId: string | undefined) {
   })
 }
 
+export function useSalidasDeJornada(jornadaId: string | undefined) {
+  return useQuery({
+    queryKey: claves.salidas(jornadaId ?? ''),
+    enabled: Boolean(jornadaId),
+    queryFn: async () =>
+      exigir(
+        await supabase()
+          .from('salidas_caja')
+          .select('*')
+          .eq('jornada_id', jornadaId ?? '')
+          .order('registrada_en', { ascending: false }),
+      ),
+  })
+}
+
 export function useConfiguracion() {
   return useQuery({
     queryKey: claves.configuracion,
@@ -121,6 +139,7 @@ function useInvalidarCaja() {
       qc.invalidateQueries({ queryKey: ['jornada'] }),
       qc.invalidateQueries({ queryKey: ['resumen-jornada'] }),
       qc.invalidateQueries({ queryKey: ['ventas'] }),
+      qc.invalidateQueries({ queryKey: ['salidas'] }),
       qc.invalidateQueries({ queryKey: ['reportes'] }),
     ])
 }
@@ -184,6 +203,31 @@ export function useReabrirDia() {
     mutationFn: async (jornadaId: string) =>
       exigir(await supabase().rpc('reabrir_jornada', { p_jornada_id: jornadaId })),
     // Sin await: la pantalla responde ya; los datos se refrescan atrás.
+    onSuccess: () => void invalidar(),
+  })
+}
+
+export function useRegistrarSalida() {
+  const invalidar = useInvalidarCaja()
+  return useMutation({
+    retry: false,
+    mutationFn: async (salida: { importe: number; motivo: MotivoSalida; detalle: string }) =>
+      exigir(
+        await supabase().rpc('registrar_salida', {
+          p_importe: salida.importe,
+          p_motivo: salida.motivo,
+          p_detalle: salida.detalle,
+        }),
+      ),
+    onSuccess: () => void invalidar(),
+  })
+}
+
+export function useAnularSalida() {
+  const invalidar = useInvalidarCaja()
+  return useMutation({
+    mutationFn: async ({ id, motivo }: { id: string; motivo: string }) =>
+      exigir(await supabase().rpc('anular_salida', { p_salida_id: id, p_motivo: motivo })),
     onSuccess: () => void invalidar(),
   })
 }

@@ -8,6 +8,7 @@ import { AreaTexto } from '../components/ui/Campo'
 import { Aviso, Cargando, MensajeError, Tarjeta, Titulo } from '../components/ui/Estados'
 import { useCerrarDia, useEstadoDelDia, useResumenJornada, type Jornada } from '../datos/caja'
 import { calcularArqueo } from '../lib/caja'
+import type { AccionTecla } from '../lib/importe'
 import { mensajeDeError } from '../lib/errores'
 import { formatearFecha, formatearPesos } from '../lib/formato'
 
@@ -41,12 +42,17 @@ function FormularioCierre({
   if (resumen.isError || !resumen.data)
     return <MensajeError>{mensajeDeError(resumen.error)}</MensajeError>
 
-  const arqueo = calcularArqueo(resumen.data.fondo_inicial, resumen.data.total_efectivo, contado)
+  const arqueo = calcularArqueo(
+    resumen.data.fondo_inicial,
+    resumen.data.total_efectivo,
+    contado,
+    resumen.data.total_salidas,
+  )
   const fecha = formatearFecha(new Date(`${jornada.fecha}T12:00:00-03:00`))
   const confirmarCierre = () =>
     cerrar.mutate({ jornadaId: jornada.id, contado, nota }, { onSuccess: alCerrar })
 
-  const alAccion = (accion: 'efectivo' | 'digital' | 'borrar') => {
+  const alAccion = (accion: Exclude<AccionTecla, null>) => {
     if (accion === 'borrar') {
       if (confirmando) setConfirmando(false)
       else {

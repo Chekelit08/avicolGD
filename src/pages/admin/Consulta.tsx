@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ListaSalidas } from '../../components/caja/ListaSalidas'
 import { ListaVentas } from '../../components/caja/ListaVentas'
 import { ExportarMes } from '../../components/ExportarMes'
 import { Diferencia, ResumenDia } from '../../components/caja/ResumenDia'
@@ -11,6 +12,7 @@ import {
   useJornadaPorFecha,
   useReabrirDia,
   useResumenJornada,
+  useSalidasDeJornada,
   useVentasDeJornada,
 } from '../../datos/caja'
 import { useFacturacionPorDia, useResumenPeriodo } from '../../datos/reportes'
@@ -112,6 +114,7 @@ function ConsultaDia({ fecha }: { fecha: string }) {
   const jornada = useJornadaPorFecha(fecha)
   const resumen = useResumenJornada(jornada.data?.id)
   const ventas = useVentasDeJornada(jornada.data?.id)
+  const salidas = useSalidasDeJornada(jornada.data?.id)
   const reabrir = useReabrirDia()
   const [confirmar, setConfirmar] = useState(false)
 
@@ -168,18 +171,25 @@ function ConsultaDia({ fecha }: { fecha: string }) {
             </Boton>
           ))}
       </Tarjeta>
-      <Tarjeta sinRelleno className="self-start">
-        {ventas.data ? (
-          <ListaVentas
-            ventas={ventas.data}
-            editable={j.estado === 'abierta'}
-            limite={25}
-            titulo="Ventas del día"
-          />
-        ) : (
-          <Cargando />
+      <div className="flex min-w-0 flex-col gap-4 self-start">
+        <Tarjeta sinRelleno>
+          {ventas.data ? (
+            <ListaVentas
+              ventas={ventas.data}
+              editable={j.estado === 'abierta'}
+              limite={25}
+              titulo="Ventas del día"
+            />
+          ) : (
+            <Cargando />
+          )}
+        </Tarjeta>
+        {salidas.data && salidas.data.length > 0 && (
+          <Tarjeta sinRelleno>
+            <ListaSalidas salidas={salidas.data} editable={j.estado === 'abierta'} />
+          </Tarjeta>
         )}
-      </Tarjeta>
+      </div>
     </div>
   )
 }
