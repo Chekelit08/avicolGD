@@ -6,6 +6,7 @@ import {
   Moon,
   Receipt,
   Search,
+  Settings,
   ShieldCheck,
   Store,
   Sun,
@@ -35,6 +36,7 @@ const SECCIONES: Seccion[] = [
   { a: '/personal', texto: 'Personal', Icono: Users, soloAdmin: true },
   { a: '/usuarios', texto: 'Usuarios', Icono: UserCog, soloAdmin: true },
   { a: '/auditoria', texto: 'Auditoría', Icono: ShieldCheck, soloAdmin: true },
+  { a: '/ajustes', texto: 'Ajustes', Icono: Settings, soloAdmin: true },
 ]
 
 const TEMAS: Record<Tema, { siguiente: Tema; texto: string; Icono: LucideIcon }> = {

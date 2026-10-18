@@ -4,10 +4,22 @@ import { execFileSync } from 'node:child_process'
  * Deja la base local lista para el flujo: sin jornada de hoy ni abiertas.
  * Requiere `npx supabase start` + `npx supabase db reset` (usuarios y datos de prueba del seed).
  */
+const URL_DB = process.env.E2E_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+
+/** Corre SQL en la base local de pruebas (por ejemplo, simular un cobro de Mercado Pago). */
+export function sql(consulta: string) {
+  execFileSync('psql', [URL_DB, '-q', '-v', 'ON_ERROR_STOP=1', '-c', consulta], {
+    stdio: 'inherit',
+  })
+}
+
 export default function preparar() {
-  const url = process.env.E2E_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+  const url = URL_DB
   const sql = `
     set session_replication_role = replica;
+    delete from public.cobros_mp;
+    delete from public.egresos where salida_caja_id in (select s.id from public.salidas_caja s join public.jornadas j on j.id = s.jornada_id where j.fecha >= public.hoy_ar() or j.estado = 'abierta');
+    delete from public.salidas_caja where jornada_id in (select id from public.jornadas where fecha >= public.hoy_ar() or estado = 'abierta');
     delete from public.ventas where jornada_id in (select id from public.jornadas where fecha >= public.hoy_ar() or estado = 'abierta');
     delete from public.jornadas where fecha >= public.hoy_ar() or estado = 'abierta';
     set session_replication_role = origin;

@@ -130,14 +130,21 @@ export function Chip({ tono = 'neutro', children }: { tono?: TonoChip; children:
 }
 
 /** Medio de pago con su color, siempre con texto (nunca solo color). */
-export function EtiquetaMedio({ medio }: { medio: 'efectivo' | 'digital' }) {
+export function EtiquetaMedio({
+  medio,
+  mercadoPago = false,
+}: {
+  medio: 'efectivo' | 'digital'
+  /** Digital que entró solo desde Mercado Pago. */
+  mercadoPago?: boolean
+}) {
   return (
     <span className="inline-flex items-center gap-1.5 text-sm">
       <span
         aria-hidden="true"
         className={`inline-block size-2 rounded-full ${medio === 'efectivo' ? 'bg-grafico-efectivo' : 'bg-grafico-digital'}`}
       />
-      {medio === 'efectivo' ? 'Efectivo' : 'Digital'}
+      {medio === 'efectivo' ? 'Efectivo' : mercadoPago ? 'Mercado Pago' : 'Digital'}
     </span>
   )
 }

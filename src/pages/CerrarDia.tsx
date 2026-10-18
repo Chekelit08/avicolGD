@@ -1,6 +1,7 @@
 import { ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router'
+import { MandarResumen } from '../components/caja/MandarResumen'
 import { Diferencia, ResumenDia } from '../components/caja/ResumenDia'
 import { CampoImporte } from '../components/caja/CampoImporte'
 import { Boton } from '../components/ui/Boton'
@@ -167,6 +168,7 @@ function DiaCerradoOk({ jornada }: { jornada: Jornada }) {
         {jornada.diferencia_efectivo !== null && (
           <Diferencia monto={jornada.diferencia_efectivo} grande />
         )}
+        <MandarResumen jornada={jornada} />
         <Link
           to="/"
           className="inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-marca font-semibold text-sobre-marca shadow-tarjeta hover:bg-marca-hover"

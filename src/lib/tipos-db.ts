@@ -96,28 +96,101 @@ export type Database = {
         }
         Relationships: []
       }
+      cobros_mp: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          estado: Database['public']['Enums']['estado_cobro_mp']
+          id: string
+          id_mp: string
+          importe: number
+          motivo_descarte: string | null
+          pagado_en: string
+          pagador: string | null
+          resuelto_en: string | null
+          resuelto_por: string | null
+          tipo: string | null
+          updated_at: string
+          venta_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          estado?: Database['public']['Enums']['estado_cobro_mp']
+          id?: string
+          id_mp: string
+          importe: number
+          motivo_descarte?: string | null
+          pagado_en: string
+          pagador?: string | null
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          tipo?: string | null
+          updated_at?: string
+          venta_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          estado?: Database['public']['Enums']['estado_cobro_mp']
+          id?: string
+          id_mp?: string
+          importe?: number
+          motivo_descarte?: string | null
+          pagado_en?: string
+          pagador?: string | null
+          resuelto_en?: string | null
+          resuelto_por?: string | null
+          tipo?: string | null
+          updated_at?: string
+          venta_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'cobros_mp_resuelto_por_fkey'
+            columns: ['resuelto_por']
+            isOneToOne: false
+            referencedRelation: 'perfiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'cobros_mp_venta_id_fkey'
+            columns: ['venta_id']
+            isOneToOne: true
+            referencedRelation: 'ventas'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       configuracion: {
         Row: {
           created_at: string
           id: string
+          mp_automatico: boolean
           tope_confirmacion: number
           unica: boolean
           updated_at: string
+          whatsapp_dueno: string | null
         }
         ComputedFields: never
         Insert: {
           created_at?: string
           id?: string
+          mp_automatico?: boolean
           tope_confirmacion?: number
           unica?: boolean
           updated_at?: string
+          whatsapp_dueno?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          mp_automatico?: boolean
           tope_confirmacion?: number
           unica?: boolean
           updated_at?: string
+          whatsapp_dueno?: string | null
         }
         Relationships: []
       }
@@ -474,8 +547,9 @@ export type Database = {
           jornada_id: string
           medio_pago: Database['public']['Enums']['medio_pago']
           motivo_anulacion: string | null
+          origen: Database['public']['Enums']['origen_venta']
           registrada_en: string
-          registrada_por: string
+          registrada_por: string | null
           updated_at: string
         }
         ComputedFields: never
@@ -489,8 +563,9 @@ export type Database = {
           jornada_id: string
           medio_pago: Database['public']['Enums']['medio_pago']
           motivo_anulacion?: string | null
+          origen?: Database['public']['Enums']['origen_venta']
           registrada_en?: string
-          registrada_por: string
+          registrada_por?: string | null
           updated_at?: string
         }
         Update: {
@@ -503,8 +578,9 @@ export type Database = {
           jornada_id?: string
           medio_pago?: Database['public']['Enums']['medio_pago']
           motivo_anulacion?: string | null
+          origen?: Database['public']['Enums']['origen_venta']
           registrada_en?: string
-          registrada_por?: string
+          registrada_por?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -596,8 +672,9 @@ export type Database = {
           jornada_id: string
           medio_pago: Database['public']['Enums']['medio_pago']
           motivo_anulacion: string | null
+          origen: Database['public']['Enums']['origen_venta']
           registrada_en: string
-          registrada_por: string
+          registrada_por: string | null
           updated_at: string
         }
         SetofOptions: {
@@ -607,6 +684,8 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      barrer_mercadopago: { Args: Record<PropertyKey, never>; Returns: undefined }
+      cargar_cobro_en_caja: { Args: { p_cobro_id: string }; Returns: boolean }
       cerrar_jornada: {
         Args: { p_efectivo_contado: number; p_jornada_id: string; p_nota?: string }
         Returns: {
@@ -667,6 +746,15 @@ export type Database = {
         }[]
       }
       hoy_ar: { Args: Record<PropertyKey, never>; Returns: string }
+      hoy_contra_semana_pasada: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          hoy: number
+          hubo_caja_semana_pasada: boolean
+          semana_pasada_a_esta_hora: number
+          semana_pasada_total: number
+        }[]
+      }
       ingresos_egresos_mensual: {
         Args: { p_desde: string; p_hasta: string }
         Returns: {
@@ -729,6 +817,38 @@ export type Database = {
         Args: { p_accion: string; p_actor: string; p_despues: Json; p_registro: string }
         Returns: undefined
       }
+      registrar_cobro_mp: {
+        Args: {
+          p_descripcion?: string
+          p_id_mp: string
+          p_importe: number
+          p_pagado_en: string
+          p_pagador?: string
+          p_tipo?: string
+        }
+        Returns: {
+          created_at: string
+          descripcion: string | null
+          estado: Database['public']['Enums']['estado_cobro_mp']
+          id: string
+          id_mp: string
+          importe: number
+          motivo_descarte: string | null
+          pagado_en: string
+          pagador: string | null
+          resuelto_en: string | null
+          resuelto_por: string | null
+          tipo: string | null
+          updated_at: string
+          venta_id: string | null
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'cobros_mp'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       registrar_salida: {
         Args: {
           p_detalle?: string
@@ -769,13 +889,39 @@ export type Database = {
           jornada_id: string
           medio_pago: Database['public']['Enums']['medio_pago']
           motivo_anulacion: string | null
+          origen: Database['public']['Enums']['origen_venta']
           registrada_en: string
-          registrada_por: string
+          registrada_por: string | null
           updated_at: string
         }
         SetofOptions: {
           from: '*'
           to: 'ventas'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      resolver_cobro_mp: {
+        Args: { p_cargar: boolean; p_cobro_id: string; p_motivo?: string }
+        Returns: {
+          created_at: string
+          descripcion: string | null
+          estado: Database['public']['Enums']['estado_cobro_mp']
+          id: string
+          id_mp: string
+          importe: number
+          motivo_descarte: string | null
+          pagado_en: string
+          pagador: string | null
+          resuelto_en: string | null
+          resuelto_por: string | null
+          tipo: string | null
+          updated_at: string
+          venta_id: string | null
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'cobros_mp'
           isOneToOne: true
           isSetofReturn: false
         }
@@ -786,6 +932,7 @@ export type Database = {
           cantidad_anuladas: number
           cantidad_digital: number
           cantidad_efectivo: number
+          cantidad_mercadopago: number
           cantidad_salidas: number
           cantidad_ventas: number
           diferencia_efectivo: number
@@ -799,6 +946,7 @@ export type Database = {
           total: number
           total_digital: number
           total_efectivo: number
+          total_mercadopago: number
           total_salidas: number
         }[]
       }
@@ -820,6 +968,7 @@ export type Database = {
         }[]
       }
       usuario_activo: { Args: Record<PropertyKey, never>; Returns: boolean }
+      venta_para_cobro: { Args: { p_importe: number; p_jornada_id: string }; Returns: string }
       ventas_por_dia_semana: {
         Args: { p_desde: string; p_hasta: string }
         Returns: {
@@ -829,11 +978,22 @@ export type Database = {
           total: number
         }[]
       }
+      ventas_por_hora: {
+        Args: { p_desde: string; p_hasta: string }
+        Returns: {
+          dias_trabajados: number
+          hora: number
+          promedio_cantidad: number
+          promedio_total: number
+        }[]
+      }
     }
     Enums: {
+      estado_cobro_mp: 'pendiente' | 'cargado' | 'descartado'
       estado_jornada: 'abierta' | 'cerrada'
       medio_pago: 'efectivo' | 'digital'
       motivo_salida: 'proveedor' | 'retiro' | 'gasto' | 'otro'
+      origen_venta: 'manual' | 'mercadopago'
       rol_usuario: 'cajero' | 'admin'
       tipo_pago_empleado: 'sueldo' | 'adelanto' | 'aguinaldo' | 'otro'
     }
@@ -950,9 +1110,11 @@ export const Constants = {
   },
   public: {
     Enums: {
+      estado_cobro_mp: ['pendiente', 'cargado', 'descartado'],
       estado_jornada: ['abierta', 'cerrada'],
       medio_pago: ['efectivo', 'digital'],
       motivo_salida: ['proveedor', 'retiro', 'gasto', 'otro'],
+      origen_venta: ['manual', 'mercadopago'],
       rol_usuario: ['cajero', 'admin'],
       tipo_pago_empleado: ['sueldo', 'adelanto', 'aguinaldo', 'otro'],
     },

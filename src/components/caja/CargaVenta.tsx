@@ -7,15 +7,19 @@ import {
   type MedioPago,
   type Venta,
 } from '../../datos/caja'
-import { necesitaConfirmacion } from '../../lib/caja'
+import { cobroMpParecido, necesitaConfirmacion } from '../../lib/caja'
 import { mensajeDeError } from '../../lib/errores'
 import type { AccionTecla } from '../../lib/importe'
-import { formatearPesos } from '../../lib/formato'
+import { formatearHora, formatearPesos } from '../../lib/formato'
 import { Boton } from '../ui/Boton'
 import { Aviso } from '../ui/Estados'
 import { CampoImporte } from './CampoImporte'
 
 const NOMBRE_MEDIO: Record<MedioPago, string> = { efectivo: 'Efectivo', digital: 'Digital' }
+
+/** Antes de guardar: un importe alto, o un digital que ya entró solo por Mercado Pago. */
+type Confirmacion =
+  { medio: MedioPago; razon: 'alto' } | { medio: 'digital'; razon: 'mp'; cobro: Venta }
 
 function Tecla({ children }: { children: string }) {
   return (
@@ -31,15 +35,18 @@ function Tecla({ children }: { children: string }) {
  * Si falla (por ejemplo, sin internet), el importe queda en el campo para reintentar.
  */
 export function CargaVenta({
+  ventasDelDia = [],
   onGuardada,
   onSacarEfectivo,
 }: {
+  /** Para avisar si un digital ya entró solo por Mercado Pago. */
+  ventasDelDia?: Venta[]
   onGuardada?: (venta: Venta) => void
   /** Tecla − : pasar a "Sacar efectivo". */
   onSacarEfectivo?: () => void
 }) {
   const [importe, setImporte] = useState(0)
-  const [porConfirmar, setPorConfirmar] = useState<MedioPago | null>(null)
+  const [porConfirmar, setPorConfirmar] = useState<Confirmacion | null>(null)
   const [ultima, setUltima] = useState<Venta | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const registrar = useRegistrarVenta()
@@ -57,8 +64,15 @@ export function CargaVenta({
       setAviso('Escribí el importe y apretá Enter (efectivo) o + (digital).')
       return
     }
+    if (!confirmado && medio === 'digital') {
+      const cobro = cobroMpParecido(ventasDelDia, importe)
+      if (cobro) {
+        setPorConfirmar({ medio, razon: 'mp', cobro })
+        return
+      }
+    }
     if (!confirmado && necesitaConfirmacion(importe, tope)) {
-      setPorConfirmar(medio)
+      setPorConfirmar({ medio, razon: 'alto' })
       return
     }
     setPorConfirmar(null)
@@ -87,7 +101,9 @@ export function CargaVenta({
     }
     if (accion === 'borrar') {
       // Esc con la confirmación abierta = "Corregir": vuelve al importe sin borrarlo.
+      // Si ya había entrado por Mercado Pago, "No" descarta el importe.
       if (porConfirmar) {
+        if (porConfirmar.razon === 'mp') setImporte(0)
         setPorConfirmar(null)
         return
       }
@@ -99,7 +115,7 @@ export function CargaVenta({
     }
     // Con la confirmación abierta, Enter confirma (sea cual sea el tipo elegido antes).
     if (porConfirmar) {
-      if (accion === 'efectivo') guardar(porConfirmar, true)
+      if (accion === 'efectivo') guardar(porConfirmar.medio, true)
       return
     }
     guardar(accion)
@@ -148,20 +164,31 @@ export function CargaVenta({
           aria-labelledby="titulo-confirmar"
           className="flex flex-col gap-3 rounded-xl border border-aviso/40 bg-aviso-suave p-4"
         >
-          <p id="titulo-confirmar" className="font-semibold text-texto">
-            ¿{formatearPesos(importe, { sinCentavos: true })} en{' '}
-            {NOMBRE_MEDIO[porConfirmar].toLowerCase()}? Es un importe alto: revisá los ceros.
-          </p>
+          {porConfirmar.razon === 'mp' ? (
+            <p id="titulo-confirmar" className="font-semibold text-texto">
+              Ya entraron {formatearPesos(importe, { sinCentavos: true })} solos por Mercado Pago a
+              las {formatearHora(new Date(porConfirmar.cobro.registrada_en))}. ¿Es otra venta?
+            </p>
+          ) : (
+            <p id="titulo-confirmar" className="font-semibold text-texto">
+              ¿{formatearPesos(importe, { sinCentavos: true })} en{' '}
+              {NOMBRE_MEDIO[porConfirmar.medio].toLowerCase()}? Es un importe alto: revisá los
+              ceros.
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
-            <Boton onClick={() => guardar(porConfirmar, true)}>Sí, guardar · Enter</Boton>
+            <Boton onClick={() => guardar(porConfirmar.medio, true)}>
+              {porConfirmar.razon === 'mp' ? 'Sí, es otra · Enter' : 'Sí, guardar · Enter'}
+            </Boton>
             <Boton
               variante="secundario"
               onClick={() => {
+                if (porConfirmar.razon === 'mp') setImporte(0)
                 setPorConfirmar(null)
                 enfocar()
               }}
             >
-              Corregir · Esc
+              {porConfirmar.razon === 'mp' ? 'No, ya está · Esc' : 'Corregir · Esc'}
             </Boton>
           </div>
         </div>

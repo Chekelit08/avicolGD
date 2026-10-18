@@ -164,3 +164,20 @@ Si el registro público quedara prendido por error, la cuenta nace **inactiva**:
 **Decisión:** con el día abierto se puede **sacar efectivo** (tecla **−** o el botón "Sacar efectivo"): importe + motivo (pago a proveedor, retiro del dueño, gasto del local, otro). Se restan del efectivo esperado (regla 7 actualizada, `efectivo_esperado()`).
 **Por qué:** en un local de barrio se le paga al proveedor del pollo con la plata del cajón. Sin esto el arqueo daba "faltan" todos los días y la diferencia dejaba de significar algo.
 **Detalles:** el pago a proveedor y el gasto del local también crean un **egreso** (categoría Mercadería u Otros) para que el dueño no lo cargue dos veces; ese egreso solo se anula desde la caja (`egresos.salida_caja_id`). El retiro del dueño no es un gasto: solo sale de la caja. Las salidas siguen las mismas reglas que las ventas: no se borran, se anulan con motivo (el cajero, las suyas de menos de 10 minutos) y quedan en la auditoría.
+
+### Cobros de Mercado Pago que entran solos
+
+**Decisión:** una Edge Function `mercadopago` recibe el webhook de Mercado Pago (tópico `payment`, firma `x-signature` verificada con HMAC-SHA256), pide el pago a la API y llama a `registrar_cobro_mp`. Esa función solo la puede ejecutar la clave de servicio y es idempotente por el id de MP. Si el día de hoy está abierto, el cobro entra como venta **digital** con `origen = 'mercadopago'` y sin `registrada_por`. Si no, queda **pendiente** y entra solo al abrir el día. Los de días cerrados los resuelve el admin en **Ajustes**. Además, pg_cron barre cada 5 minutos las últimas 3 horas por si se pierde un aviso.
+**Por qué:** es lo más automático posible sin cambiar nada en el mostrador. El barrido cubre los avisos perdidos.
+**Doble carga:** si el cajero ya tipeó un digital del mismo importe en los últimos 15 minutos, el cobro se **asocia** a esa venta en vez de crear otra. Si el cobro llegó primero y el cajero tipea el mismo importe con +, la app pregunta ("¿Es otra venta?"; Enter = sí, Esc = no).
+**Límites:** Mercado Pago informa los cobros con sus productos (QR, link, Point). Las transferencias de bancos al CVU no siempre aparecen en la API: se prueba al conectar y, si no aparecen, se siguen tipeando. Las devoluciones no anulan la venta solas.
+**Seguridad:** el Access Token, la clave del webhook y el secreto del barrido viven solo en Supabase (secretos de la función y Vault). El cajero no ve `cobros_mp` ni puede anular ventas de Mercado Pago.
+
+### Resumen del cierre por WhatsApp
+
+**Decisión:** al cerrar el día hay un botón que abre `wa.me` con el resumen escrito, dirigido al número del dueño si está cargado en **Ajustes** (`configuracion.whatsapp_dueno`).
+**Por qué:** cero configuración, cero costo y nada de APIs de WhatsApp Business. El dueño se entera del día sin abrir la app.
+
+### Ajustes
+
+Una pantalla de admin para lo configurable: Mercado Pago (estado, carga automática, pendientes), el WhatsApp del dueño y el tope de confirmación de importes altos.

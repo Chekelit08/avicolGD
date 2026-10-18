@@ -41,7 +41,22 @@ Pasados 10 minutos, solo un administrador puede anularla.
 
 <img src="capturas/04-anular.png" alt="Anular una venta" width="560">
 
-## 5. Cerrar el día (a la noche)
+## 5. Pagarle al proveedor o sacar plata de la caja
+
+Si sacás plata del cajón con el día abierto (al proveedor del pollo, para vos, para comprar bolsas), anotalo así el cierre da bien:
+
+1. Apretá **−** (la tecla de restar) o tocá **Sacar efectivo**.
+2. Escribí cuánto sacaste y elegí para qué: **Pago a proveedor**, **Retiro del dueño**, **Gasto del local** u **Otro**.
+3. Apretá **Enter**.
+
+Esa plata se descuenta de lo que tiene que haber en la caja. El pago a proveedor y el gasto del local quedan también en **Egresos**, así no hay que cargarlos dos veces.
+
+## 6. Cobros de Mercado Pago (entran solos)
+
+Si Mercado Pago está conectado (ver [MERCADO-PAGO.md](MERCADO-PAGO.md)), lo que te pagan con el QR o al alias de Mercado Pago aparece solo en la caja, con un aviso verde: **"Entraron $ 8.000 por Mercado Pago"**. **No hace falta tipearlo.**
+Si lo tipeás igual con **+**, la app te pregunta si es otra venta: **Enter** = sí, es otra; **Esc** = no, ya estaba.
+
+## 7. Cerrar el día (a la noche)
 
 1. Tocá **Cerrar el día** (arriba a la derecha).
 2. Contá la plata de la caja (incluido el fondo inicial), escribila y apretá **Enter**.
@@ -50,19 +65,21 @@ Pasados 10 minutos, solo un administrador puede anularla.
 
 Después de cerrar no se pueden cargar ni cambiar ventas de ese día. Si hay que corregir algo, un administrador puede **reabrirlo** (queda anotado).
 Si un día quedó sin cerrar, al otro día la app pide cerrarlo primero.
+Cuando cerrás, aparece **Mandar resumen por WhatsApp**: abre WhatsApp con el resumen del día escrito (total, efectivo, digital, Mercado Pago, salidas y si la caja dio bien), listo para mandar.
 
 <img src="capturas/05-cerrar-el-dia.png" alt="Cerrar el día" width="560">
 
-## 6. Para el dueño (administradores)
+## 8. Para el dueño (administradores)
 
 En la barra de la izquierda aparecen más secciones:
 
 - **Consulta:** cualquier día, semana o mes, comparado con el período anterior. En el mes está **Descargar PDF para el contador** y **Descargar Excel**.
-- **Panel:** gráficos de cómo viene el negocio (por día, por semana, efectivo vs. digital, días que más se vende, ingresos y gastos).
+- **Panel:** gráficos de cómo viene el negocio (por día, por semana, efectivo vs. digital, días y horas en que más se vende, ingresos y gastos) y cómo va hoy contra el mismo día de la semana pasada.
 - **Egresos:** cargar lo que se paga (alquiler, mercadería, luz, impuestos). Se anulan con motivo, no se borran.
 - **Personal:** empleados, sueldos, adelantos y aguinaldos, y cuánto cuesta el personal por mes.
 - **Usuarios:** crear cuentas, cambiar contraseñas, desactivar a quien ya no trabaja.
 - **Auditoría:** quién anuló, cerró, reabrió o cambió algo, y cuándo.
+- **Ajustes:** la conexión con Mercado Pago (y los cobros para revisar), el WhatsApp al que se manda el resumen y el importe a partir del cual la caja pide confirmación.
 
 <img src="capturas/06-panel.png" alt="Panel con gráficos" width="560">
 

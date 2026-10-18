@@ -79,10 +79,14 @@ export function useJornadaPorFecha(fecha: string, habilitado = true) {
   })
 }
 
-export function useResumenJornada(jornadaId: string | undefined) {
+/** En la caja abierta se refresca solo, para que aparezcan los cobros de Mercado Pago. */
+const REFRESCO_CAJA = 20_000
+
+export function useResumenJornada(jornadaId: string | undefined, { vivo = false } = {}) {
   return useQuery({
     queryKey: claves.resumen(jornadaId ?? ''),
     enabled: Boolean(jornadaId),
+    refetchInterval: vivo ? REFRESCO_CAJA : false,
     queryFn: async () => {
       const filas = exigir(
         await supabase().rpc('resumen_jornada', { p_jornada_id: jornadaId ?? '' }),
@@ -92,10 +96,11 @@ export function useResumenJornada(jornadaId: string | undefined) {
   })
 }
 
-export function useVentasDeJornada(jornadaId: string | undefined) {
+export function useVentasDeJornada(jornadaId: string | undefined, { vivo = false } = {}) {
   return useQuery({
     queryKey: claves.ventas(jornadaId ?? ''),
     enabled: Boolean(jornadaId),
+    refetchInterval: vivo ? REFRESCO_CAJA : false,
     queryFn: async () =>
       exigir(
         await supabase()

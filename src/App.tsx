@@ -20,6 +20,7 @@ const Egresos = lazy(() => import('./pages/admin/Egresos'))
 const Personal = lazy(() => import('./pages/admin/Personal'))
 const Usuarios = lazy(() => import('./pages/admin/Usuarios'))
 const Auditoria = lazy(() => import('./pages/admin/Auditoria'))
+const Ajustes = lazy(() => import('./pages/admin/Ajustes'))
 
 const clienteConsultas = new QueryClient({
   defaultOptions: {
@@ -73,6 +74,7 @@ export function App() {
                     <Route path="personal" element={<Personal />} />
                     <Route path="usuarios" element={<Usuarios />} />
                     <Route path="auditoria" element={<Auditoria />} />
+                    <Route path="ajustes" element={<Ajustes />} />
                   </Route>
                 </Route>
               </Route>

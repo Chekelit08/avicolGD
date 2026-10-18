@@ -64,11 +64,11 @@ export function ListaVentas({
                 <span className="w-11 text-sm text-suave cifras">
                   {formatearHora(new Date(v.registrada_en))}
                 </span>
-                <span className="w-24">
+                <span className="w-28">
                   {v.anulada ? (
                     <Chip tono="error">Anulada</Chip>
                   ) : (
-                    <EtiquetaMedio medio={v.medio_pago} />
+                    <EtiquetaMedio medio={v.medio_pago} mercadoPago={v.origen === 'mercadopago'} />
                   )}
                 </span>
                 <span

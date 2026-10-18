@@ -14,6 +14,8 @@ export type Perfil = Tablas['perfiles']['Row']
 export type RegistroAuditoria = Tablas['auditoria']['Row']
 export type TipoPago = Database['public']['Enums']['tipo_pago_empleado']
 export type Rol = Database['public']['Enums']['rol_usuario']
+export type CobroMp = Tablas['cobros_mp']['Row']
+export type Configuracion = Tablas['configuracion']['Row']
 
 function useInvalidar(...claves: string[][]) {
   const qc = useQueryClient()
@@ -245,8 +247,12 @@ type AccionUsuarios =
   | { accion: 'bloquear'; usuario_id: string; bloqueado: boolean }
 
 /** Llama a la Edge Function `usuarios`. Los errores vienen ya escritos para mostrar. */
-export async function llamarUsuarios(cuerpo: AccionUsuarios): Promise<unknown> {
-  const { data, error } = await supabase().functions.invoke('usuarios', { body: cuerpo })
+export function llamarUsuarios(cuerpo: AccionUsuarios): Promise<unknown> {
+  return llamarFuncion('usuarios', cuerpo)
+}
+
+async function llamarFuncion(nombre: string, cuerpo: object): Promise<unknown> {
+  const { data, error } = await supabase().functions.invoke(nombre, { body: cuerpo })
   if (error) {
     const contexto = (error as { context?: Response }).context
     let mensaje = 'No pudimos completar la acción. Probá de nuevo.'
@@ -294,5 +300,73 @@ export function useAuditoria(accion: string, limite: number) {
       if (accion) consulta = consulta.eq('accion', accion)
       return exigir(await consulta)
     },
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Mercado Pago y ajustes
+// ---------------------------------------------------------------------------
+
+export interface EstadoMp {
+  configurado: boolean
+  cuenta?: string
+}
+
+export function useEstadoMp() {
+  return useQuery({
+    queryKey: ['mercadopago', 'estado'],
+    staleTime: 5 * 60_000,
+    retry: false,
+    queryFn: async () => (await llamarFuncion('mercadopago', { accion: 'estado' })) as EstadoMp,
+  })
+}
+
+export function useBuscarCobrosMp() {
+  const invalidar = useInvalidar(['mercadopago'], ['ventas'], ['resumen-jornada'])
+  return useMutation({
+    mutationFn: async () =>
+      (await llamarFuncion('mercadopago', { accion: 'barrer' })) as EstadoMp & {
+        revisados?: number
+        nuevos?: number
+      },
+    onSuccess: invalidar,
+  })
+}
+
+export function useCobrosMp() {
+  return useQuery({
+    queryKey: ['mercadopago', 'cobros'],
+    queryFn: async () =>
+      exigir(
+        await supabase()
+          .from('cobros_mp')
+          .select('*')
+          .order('pagado_en', { ascending: false })
+          .limit(50),
+      ),
+  })
+}
+
+export function useResolverCobroMp() {
+  const invalidar = useInvalidar(['mercadopago'], ['ventas'], ['resumen-jornada'])
+  return useMutation({
+    mutationFn: async (r: { id: string; cargar: boolean; motivo?: string }) =>
+      exigir(
+        await supabase().rpc('resolver_cobro_mp', {
+          p_cobro_id: r.id,
+          p_cargar: r.cargar,
+          p_motivo: r.motivo,
+        }),
+      ),
+    onSuccess: invalidar,
+  })
+}
+
+export function useActualizarConfiguracion() {
+  const invalidar = useInvalidar(['configuracion'])
+  return useMutation({
+    mutationFn: async ({ id, ...cambios }: Partial<Configuracion> & { id: string }) =>
+      exigir(await supabase().from('configuracion').update(cambios).eq('id', id).select().single()),
+    onSuccess: invalidar,
   })
 }

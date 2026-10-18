@@ -37,3 +37,18 @@ test('personal y auditoría cargan', async ({ page }) => {
   await page.getByRole('link', { name: 'Auditoría' }).click()
   await expect(page.getByRole('heading', { name: 'Auditoría' })).toBeVisible()
 })
+
+test('en Ajustes se guarda el WhatsApp del dueño y se ve Mercado Pago', async ({ page }) => {
+  await page.getByRole('link', { name: 'Ajustes' }).click()
+  await expect(page.getByRole('heading', { name: 'Mercado Pago' })).toBeVisible()
+  await expect(page.getByText('Cargar solos los cobros en la caja')).toBeVisible()
+  const numero = page.getByLabel('WhatsApp del dueño')
+  await numero.fill('11 15 2233')
+  await expect(
+    page.getByText('Escribí el número con característica, sin el 0 ni el 15.'),
+  ).toBeVisible()
+  await numero.fill('11 2233 4455')
+  await expect(page.getByText('Se manda a +5491122334455')).toBeVisible()
+  await page.getByRole('button', { name: 'Guardar número' }).click()
+  await expect(page.getByRole('button', { name: 'Guardar número' })).toBeDisabled()
+})
