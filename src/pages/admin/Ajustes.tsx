@@ -72,21 +72,22 @@ function MercadoPago({ config }: { config: Configuracion }) {
         </Aviso>
       )}
 
-      <label className="flex min-h-11 items-start gap-3 text-sm">
-        <input
-          type="checkbox"
-          className="mt-0.5 size-5 accent-marca"
-          checked={config.mp_automatico}
-          disabled={actualizar.isPending}
-          onChange={(e) => actualizar.mutate({ id: config.id, mp_automatico: e.target.checked })}
-        />
-        <span>
-          <span className="font-medium">Cargar solos los cobros en la caja</span>
-          <span className="block text-suave">
-            Si lo apagás, los cobros quedan acá abajo y los cargás vos.
-          </span>
-        </span>
-      </label>
+      <div className="flex flex-col gap-1 text-sm">
+        <label className="flex min-h-11 items-center gap-3 font-medium">
+          <input
+            type="checkbox"
+            className="size-5 accent-marca"
+            aria-describedby="ayuda-automatico"
+            checked={config.mp_automatico}
+            disabled={actualizar.isPending}
+            onChange={(e) => actualizar.mutate({ id: config.id, mp_automatico: e.target.checked })}
+          />
+          Cargar solos los cobros en la caja
+        </label>
+        <p id="ayuda-automatico" className="pl-8 text-suave">
+          Si lo apagás, los cobros quedan acá abajo y los cargás vos.
+        </p>
+      </div>
 
       {estado.data?.configurado && (
         <div className="flex flex-wrap items-center gap-3">
