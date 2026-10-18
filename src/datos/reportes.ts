@@ -12,6 +12,8 @@ export type VentasDiaSemana = Funciones['ventas_por_dia_semana']['Returns'][numb
 export type IngresosEgresosMes = Funciones['ingresos_egresos_mensual']['Returns'][number]
 export type EgresosCategoria = Funciones['egresos_por_categoria']['Returns'][number]
 export type PersonalMes = Funciones['personal_del_mes']['Returns'][number]
+export type VentasPorHora = Funciones['ventas_por_hora']['Returns'][number]
+export type HoyContraSemanaPasada = Funciones['hoy_contra_semana_pasada']['Returns'][number]
 
 const opciones = { placeholderData: keepPreviousData, staleTime: 60_000 }
 
@@ -101,5 +103,28 @@ export function usePersonalDelMes(periodo: string) {
     ...opciones,
     queryKey: ['reportes', 'personal', periodo],
     queryFn: async () => exigir(await supabase().rpc('personal_del_mes', { p_periodo: periodo })),
+  })
+}
+
+export function useVentasPorHora(rango: Rango) {
+  return useQuery({
+    ...opciones,
+    queryKey: ['reportes', 'por-hora', rango.desde, rango.hasta],
+    queryFn: async () =>
+      exigir(
+        await supabase().rpc('ventas_por_hora', { p_desde: rango.desde, p_hasta: rango.hasta }),
+      ),
+  })
+}
+
+/** Hoy contra el mismo día de la semana pasada a la misma hora. Se refresca cada minuto. */
+export function useHoyContraSemanaPasada() {
+  return useQuery({
+    queryKey: ['reportes', 'hoy-vs-semana-pasada'],
+    refetchInterval: 60_000,
+    queryFn: async () => {
+      const filas = exigir(await supabase().rpc('hoy_contra_semana_pasada'))
+      return filas[0] ?? null
+    },
   })
 }

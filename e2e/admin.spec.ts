@@ -26,6 +26,8 @@ test('el panel muestra indicadores y gráficos con su tabla', async ({ page }) =
   await page.getByRole('link', { name: 'Panel' }).click()
   await expect(page.getByRole('heading', { name: 'Facturación por día' })).toBeVisible()
   await expect(page.getByText('Ticket promedio')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Horas pico' })).toBeVisible()
+  await expect(page.getByText('Hoy vas')).toBeVisible()
   await page.getByText('Ver los datos').first().click()
   await expect(page.getByRole('columnheader', { name: 'Efectivo' }).first()).toBeVisible()
 })

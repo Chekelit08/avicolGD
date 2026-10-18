@@ -181,3 +181,8 @@ Si el registro público quedara prendido por error, la cuenta nace **inactiva**:
 ### Ajustes
 
 Una pantalla de admin para lo configurable: Mercado Pago (estado, carga automática, pendientes), el WhatsApp del dueño y el tope de confirmación de importes altos.
+
+### Panel: hoy contra la semana pasada y horas pico
+
+- **Hoy vas $ X** contra el mismo día de la semana pasada **hasta la misma hora** (`hoy_contra_semana_pasada`). Comparar contra el día completo haría que cualquier mañana se vea mal.
+- **Horas pico** (`ventas_por_hora`): promedio vendido por hora de los días trabajados del período. Es una sola serie, con el verde de "ingresos" ya validado, y tiene tabla en "Ver los datos". Se muestran solo las horas con ventas reales, así una venta suelta de madrugada no estira el gráfico.

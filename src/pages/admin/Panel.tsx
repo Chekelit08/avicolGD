@@ -5,6 +5,7 @@ import {
   GraficoDiasSemana,
   GraficoFacturacionAgrupada,
   GraficoFacturacionDiaria,
+  GraficoHoras,
   GraficoIngresosEgresos,
 } from '../../components/graficos/Graficos'
 import { Indicador, Variacion } from '../../components/graficos/Piezas'
@@ -13,10 +14,13 @@ import { Segmentado } from '../../components/ui/Segmentado'
 import {
   useFacturacionAgrupada,
   useFacturacionPorDia,
+  useHoyContraSemanaPasada,
   useIngresosEgresos,
   useResumenPeriodo,
   useVentasPorDiaSemana,
+  useVentasPorHora,
 } from '../../datos/reportes'
+import type { HoyContraSemanaPasada as HoyVs } from '../../datos/reportes'
 import { variacion } from '../../lib/caja'
 import { mensajeDeError } from '../../lib/errores'
 import { fechaDeTrabajo, formatearPesos } from '../../lib/formato'
@@ -57,8 +61,10 @@ export default function Panel() {
   const agrupada = useFacturacionAgrupada(rango, unidad)
   const diasSemana = useVentasPorDiaSemana(rango)
   const ingresosEgresos = useIngresosEgresos(rangoMeses)
+  const porHora = useVentasPorHora(rango)
+  const hoyVs = useHoyContraSemanaPasada()
 
-  const error = [resumenMes, porDia, agrupada, diasSemana, ingresosEgresos].find(
+  const error = [resumenMes, porDia, agrupada, diasSemana, ingresosEgresos, porHora].find(
     (q) => q.isError,
   )?.error
   const rm = resumenMes.data
@@ -69,6 +75,8 @@ export default function Panel() {
     <div className="flex flex-col gap-4">
       <Titulo>Panel</Titulo>
       {error ? <MensajeError>{mensajeDeError(error)}</MensajeError> : null}
+
+      {hoyVs.data && <HoyContraSemanaPasada datos={hoyVs.data} />}
 
       <h2 className="sr-only">Este mes</h2>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -183,10 +191,39 @@ export default function Panel() {
           <GraficoDiasSemana datos={diasSemana.data ?? []} cargando={diasSemana.isFetching} />
         </div>
       </div>
+      <GraficoHoras datos={porHora.data ?? []} cargando={porHora.isFetching} />
       <GraficoIngresosEgresos
         datos={ingresosEgresos.data ?? []}
         cargando={ingresosEgresos.isFetching}
       />
+    </div>
+  )
+}
+
+/** "Hoy vas $ X; el sábado pasado a esta hora iban $ Y" — comparación justa, a la misma hora. */
+function HoyContraSemanaPasada({ datos }: { datos: HoyVs }) {
+  const p = (n: number) => formatearPesos(n, { sinCentavos: true })
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 rounded-xl border border-borde bg-superficie px-5 py-4 shadow-tarjeta">
+      <p>
+        <span className="text-sm text-suave">Hoy vas </span>
+        <span className="text-2xl font-semibold tracking-tight cifras">{p(datos.hoy)}</span>
+      </p>
+      {datos.hubo_caja_semana_pasada ? (
+        <>
+          <Variacion
+            valor={variacion(datos.hoy, datos.semana_pasada_a_esta_hora)}
+            contra="el mismo día de la semana pasada a esta hora"
+          />
+          <p className="text-sm text-suave">
+            Ese día a esta hora iban{' '}
+            <span className="cifras">{p(datos.semana_pasada_a_esta_hora)}</span> y cerró en{' '}
+            <span className="cifras">{p(datos.semana_pasada_total)}</span>.
+          </p>
+        </>
+      ) : (
+        <p className="text-sm text-suave">El mismo día de la semana pasada no hubo caja.</p>
+      )}
     </div>
   )
 }

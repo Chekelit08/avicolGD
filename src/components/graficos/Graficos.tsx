@@ -17,6 +17,7 @@ import type {
   FacturacionDia,
   IngresosEgresosMes,
   VentasDiaSemana,
+  VentasPorHora,
 } from '../../datos/reportes'
 import { formatearPesos, formatearPesosCompacto, formatearPorcentaje } from '../../lib/formato'
 import { diaSemanaCorto, fechaCorta, nombreMes, NOMBRES_DIA_SEMANA } from '../../lib/periodos'
@@ -287,6 +288,60 @@ export function GraficoDiasSemana({
               fontSize={12}
             />
           </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </TarjetaGrafico>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// ¿A qué hora se vende más? (para saber cuándo reforzar el mostrador)
+// ---------------------------------------------------------------------------
+export function GraficoHoras({ datos, cargando }: { datos: VentasPorHora[]; cargando?: boolean }) {
+  // Solo de la primera a la última hora con ventas de verdad (una venta suelta a la
+  // madrugada no estira el gráfico): el local no abre de noche.
+  const maximo = Math.max(0, ...datos.map((d) => d.promedio_total))
+  const conVentas = datos.filter((d) => d.promedio_total > maximo * 0.02).map((d) => d.hora)
+  const filas = datos
+    .filter((d) => d.hora >= Math.min(...conVentas) && d.hora <= Math.max(...conVentas))
+    .map((d) => ({ ...d, nombre: `${String(d.hora).padStart(2, '0')} h` }))
+  const pico = filas.reduce<(typeof filas)[number] | null>(
+    (m, f) => (!m || f.promedio_total > m.promedio_total ? f : m),
+    null,
+  )
+  return (
+    <TarjetaGrafico
+      titulo="Horas pico"
+      subtitulo={
+        pico
+          ? `Promedio por día trabajado. La hora más fuerte es de ${pico.hora} a ${pico.hora + 1} h.`
+          : 'Promedio por día trabajado'
+      }
+      cargando={cargando}
+      tabla={
+        <TablaDatos
+          columnas={['Hora', 'Promedio vendido', 'Ventas promedio']}
+          filas={filas.map((f) => [
+            f.nombre,
+            p(f.promedio_total),
+            f.promedio_cantidad.toLocaleString('es-AR'),
+          ])}
+        />
+      }
+    >
+      <ResponsiveContainer width="100%" height={ALTO}>
+        <BarChart data={filas} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barCategoryGap={2}>
+          <CartesianGrid vertical={false} stroke={COLORES.grilla} />
+          <XAxis dataKey="nombre" {...EJE} minTickGap={8} />
+          <YAxis tickFormatter={formatearPesosCompacto} {...EJE} axisLine={false} width={64} />
+          <Tooltip cursor={{ fill: COLORES.grilla, opacity: 0.6 }} content={<TooltipPesos />} />
+          <Bar
+            dataKey="promedio_total"
+            name="Promedio vendido"
+            fill={COLORES.ingresos}
+            maxBarSize={BARRA_MAX}
+            radius={PUNTA}
+          />
         </BarChart>
       </ResponsiveContainer>
     </TarjetaGrafico>

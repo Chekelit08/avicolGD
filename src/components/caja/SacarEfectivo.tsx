@@ -91,8 +91,10 @@ export function SacarEfectivo({ alTerminar }: { alTerminar: () => void }) {
       </fieldset>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
-        {motivo === 'proveedor' ? 'Proveedor' : 'Detalle'}{' '}
-        {motivo !== 'otro' && <span className="font-normal text-suave">(opcional)</span>}
+        <span>
+          {motivo === 'proveedor' ? 'Proveedor' : 'Detalle'}{' '}
+          {motivo !== 'otro' && <span className="font-normal text-suave">(opcional)</span>}
+        </span>
         <input
           value={detalle}
           onChange={(e) => setDetalle(e.target.value)}
