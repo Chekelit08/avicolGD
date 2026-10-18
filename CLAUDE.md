@@ -5,7 +5,7 @@ App web para reemplazar el cuaderno de caja de una carnicería-avícola de barri
 ## Stack (todo en planes gratuitos)
 
 - React 19 + TypeScript (estricto) + Vite 8, Tailwind CSS 4, React Router, TanStack Query, React Hook Form + Zod, Recharts, date-fns + `@date-fns/tz`, vite-plugin-pwa.
-- Supabase: Postgres + Auth + RLS + una Edge Function (`usuarios`). No hay servidor propio.
+- Supabase: Postgres + Auth + RLS + Edge Functions (`usuarios`, `mercadopago`) + pg_cron. No hay servidor propio.
 - Hosting: Cloudflare Pages (`public/_redirects`, `public/_headers`).
 - Exportar: jsPDF + jspdf-autotable, write-excel-file (se cargan con `import()` solo al usarlos).
 - Tests: Vitest (`src/**/*.test.ts`), pgTAP (`supabase/tests`), Playwright (`e2e/`).
@@ -43,7 +43,7 @@ Proyecto en la nube: Supabase `anadbauxypifiplihpje` (São Paulo). Deploy: ver `
 9. Roles: `cajero` (cuenta compartida "Mostrador") y `admin` (cuentas personales). Permisos con RLS; el cajero no ve egresos, sueldos, historial ni usuarios. Siempre queda al menos un admin activo.
 10. Auditoría: solo se agrega (trigger bloquea update/delete). Se llena con triggers.
 
-Fuera de alcance: inventario/productos, facturación ARCA/AFIP, impresora fiscal, API de Mercado Pago, apps nativas.
+Fuera de alcance: inventario/productos, facturación ARCA/AFIP, impresora fiscal, cobrar o devolver por la API de Mercado Pago (solo se **leen** los cobros recibidos, ver `docs/MERCADO-PAGO.md`), apps nativas.
 
 ## Convenciones
 

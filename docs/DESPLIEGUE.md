@@ -19,6 +19,15 @@ El proyecto ya existe y tiene todas las tablas, reglas, funciones y la función 
 2. **Authentication → Passwords**: largo mínimo **10**.
 3. **Authentication → URL Configuration** → _Site URL_ = `https://avicola-gd.netlify.app` y _Redirect URLs_ = `https://avicola-gd.netlify.app/nueva-clave` (para que funcione "Me olvidé la contraseña").
 
+### Pendiente de aplicar en la nube (mejoras del 18/10)
+
+Las migraciones `20261018000001_salidas_caja`, `…02_mercadopago` y `…03_resumen_y_horas`, y la función `mercadopago`, **todavía no están en el proyecto real**. Van en este orden y **antes** de publicar la app nueva: la app nueva usa tablas y funciones que hoy no existen.
+
+1. Aplicar las 3 migraciones (`npx supabase db push` después de alinear el historial, como se explica abajo, o pedírselo a Claude con el conector de Supabase).
+2. `npx supabase functions deploy mercadopago --no-verify-jwt`
+3. Publicar la app (`npm run build` → Netlify/Cloudflare).
+4. Para que entren los cobros: seguir [`MERCADO-PAGO.md`](MERCADO-PAGO.md).
+
 ### Futuras migraciones
 
 Las migraciones se aplicaron con el conector de Supabase, que les puso otras versiones en el historial remoto. Antes del primer `db push` desde tu compu, alineá el historial una sola vez:
@@ -29,6 +38,7 @@ npx supabase link --project-ref anadbauxypifiplihpje
 npx supabase migration list                      # muestra las versiones remotas y locales
 npx supabase migration repair --status reverted <cada versión remota que no está en el repo>
 npx supabase migration repair --status applied 20261017000001 20261017000002 20261017000003 20261017000004 20261017000005 20261017000006 20261017000007
+# (las 20261018… se aplican con el db push de abajo, si todavía no están)
 npx supabase db push                             # desde acá, solo aplica migraciones nuevas
 ```
 
@@ -38,6 +48,7 @@ npx supabase db push                             # desde acá, solo aplica migra
 npx supabase link --project-ref TU-PROJECT-REF
 npx supabase db push
 npx supabase functions deploy usuarios
+npx supabase functions deploy mercadopago --no-verify-jwt   # Mercado Pago llama sin sesión; la función verifica la firma
 node scripts/crear-admin.mjs "Nombre" email@ejemplo.com   # con .env.servidor (ver BACKUP.md)
 ```
 
