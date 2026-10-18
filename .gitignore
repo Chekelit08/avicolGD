@@ -39,3 +39,6 @@ supabase/.branches
 
 # Exportaciones de backup (tienen datos reales)
 backups/
+
+# Caché local del deploy de Netlify
+.netlify/
