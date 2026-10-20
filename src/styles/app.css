@@ -55,6 +55,11 @@
   --grafico-personal: #6250d6;
   --grafico-grilla: #ececef;
 
+  /* Manchas del fondo animado: tonos muy suaves de la marca. */
+  --mancha-1: color-mix(in srgb, var(--bordo) 20%, transparent);
+  --mancha-2: color-mix(in srgb, #1f5fd1 17%, transparent);
+  --mancha-3: color-mix(in srgb, #13976a 16%, transparent);
+
   color-scheme: light;
 }
 
@@ -88,6 +93,9 @@
     --grafico-egresos: #e0652f;
     --grafico-personal: #9085e9;
     --grafico-grilla: #2a2a31;
+    --mancha-1: color-mix(in srgb, #9c3a2f 22%, transparent);
+    --mancha-2: color-mix(in srgb, #3b7be8 16%, transparent);
+    --mancha-3: color-mix(in srgb, #199e70 14%, transparent);
     color-scheme: dark;
   }
 }
@@ -121,6 +129,9 @@
   --grafico-egresos: #e0652f;
   --grafico-personal: #9085e9;
   --grafico-grilla: #2a2a31;
+  --mancha-1: color-mix(in srgb, #9c3a2f 22%, transparent);
+  --mancha-2: color-mix(in srgb, #3b7be8 16%, transparent);
+  --mancha-3: color-mix(in srgb, #199e70 14%, transparent);
   color-scheme: dark;
 }
 
@@ -152,6 +163,9 @@
   --color-grafico-ingresos: var(--grafico-ingresos);
   --color-grafico-egresos: var(--grafico-egresos);
   --color-grafico-personal: var(--grafico-personal);
+  --color-mancha-1: var(--mancha-1);
+  --color-mancha-2: var(--mancha-2);
+  --color-mancha-3: var(--mancha-3);
 
   --font-texto: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
@@ -166,6 +180,9 @@
   --animate-pop: pop 380ms cubic-bezier(0.3, 1.6, 0.5, 1);
   --animate-latir: latir 2.4s ease-in-out infinite;
   --animate-confeti: confeti 1.8s ease-in forwards;
+  --animate-mancha-1: mancha-1 28s ease-in-out infinite alternate;
+  --animate-mancha-2: mancha-2 34s ease-in-out infinite alternate;
+  --animate-mancha-3: mancha-3 40s ease-in-out infinite alternate;
 
   @keyframes aparecer {
     from {
@@ -217,6 +234,22 @@
     }
     50% {
       opacity: 0.35;
+    }
+  }
+  /* Fondo: manchas que derivan despacio. */
+  @keyframes mancha-1 {
+    to {
+      transform: translate(18vw, 14vh) scale(1.15);
+    }
+  }
+  @keyframes mancha-2 {
+    to {
+      transform: translate(-16vw, -12vh) scale(0.9);
+    }
+  }
+  @keyframes mancha-3 {
+    to {
+      transform: translate(-10vw, -18vh) scale(1.2);
     }
   }
   /* Papelitos al cerrar el día con la caja justa. */

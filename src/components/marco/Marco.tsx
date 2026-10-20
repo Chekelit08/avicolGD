@@ -17,6 +17,7 @@ import {
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 import vaca from '../../assets/vaca.svg'
+import { FondoAnimado } from '../ui/FondoAnimado'
 import { useTema, type Tema } from '../../lib/tema'
 import { useSesion } from '../../sesion/Sesion'
 
@@ -116,7 +117,8 @@ export function Marco() {
   const ubicacion = useLocation()
 
   return (
-    <div className="min-h-dvh lg:pl-60">
+    <div className="isolate min-h-dvh lg:pl-60">
+      <FondoAnimado />
       <a
         href="#contenido"
         className="sr-only rounded-lg bg-marca px-3 py-2 text-sobre-marca focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50"
