@@ -128,3 +128,22 @@ export function useHoyContraSemanaPasada() {
     },
   })
 }
+
+/** Suma de egresos no anulados en un rango (para el resumen semanal). */
+export function useTotalEgresos(rango: Rango) {
+  return useQuery({
+    ...opciones,
+    queryKey: ['reportes', 'total-egresos', rango.desde, rango.hasta],
+    queryFn: async () => {
+      const filas = exigir(
+        await supabase()
+          .from('egresos')
+          .select('monto')
+          .gte('fecha', rango.desde)
+          .lte('fecha', rango.hasta)
+          .eq('anulado', false),
+      )
+      return filas.reduce((suma, e) => suma + e.monto, 0)
+    },
+  })
+}

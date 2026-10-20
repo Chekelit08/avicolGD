@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Info, Loader2 } from 'lucide-react'
+import { AlertCircle, Banknote, CheckCircle2, Info, Loader2, Smartphone } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 export function Cargando({ texto = 'Cargando…' }: { texto?: string }) {
@@ -139,11 +139,17 @@ export function EtiquetaMedio({
   mercadoPago?: boolean
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-sm">
+    <span className="inline-flex items-center gap-2 text-sm">
       <span
         aria-hidden="true"
-        className={`inline-block size-2 rounded-full ${medio === 'efectivo' ? 'bg-grafico-efectivo' : 'bg-grafico-digital'}`}
-      />
+        className={`grid size-6 place-items-center rounded-md ${medio === 'efectivo' ? 'bg-marca-suave text-marca' : 'bg-digital-suave text-digital'}`}
+      >
+        {medio === 'efectivo' ? (
+          <Banknote className="size-3.5" />
+        ) : (
+          <Smartphone className="size-3.5" />
+        )}
+      </span>
       {medio === 'efectivo' ? 'Efectivo' : mercadoPago ? 'Mercado Pago' : 'Digital'}
     </span>
   )

@@ -1,4 +1,15 @@
-import { ArrowRight, HandCoins, LockKeyhole, RotateCcw, WifiOff } from 'lucide-react'
+import {
+  ArrowRight,
+  Banknote,
+  CalendarDays,
+  HandCoins,
+  LockKeyhole,
+  Receipt,
+  RotateCcw,
+  Smartphone,
+  TrendingUp,
+  WifiOff,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { CampoImporte } from '../components/caja/CampoImporte'
@@ -21,7 +32,7 @@ import {
   type ResumenJornada,
 } from '../datos/caja'
 import { mensajeDeError } from '../lib/errores'
-import { cantidadVentas, formatearFecha, formatearPesos } from '../lib/formato'
+import { cantidadVentas, fechaDeTrabajo, formatearFecha, formatearPesos } from '../lib/formato'
 import { diaSemanaCorto } from '../lib/periodos'
 import { horaArgentina, saludo } from '../lib/ayudas'
 import { useEnLinea } from '../lib/useEnLinea'
@@ -49,6 +60,7 @@ export function Caja() {
           Sin internet. Las ventas no se van a guardar hasta que vuelva la conexión.
         </div>
       )}
+      <AvisoLunes />
       {estado.isPending ? (
         <Cargando texto="Buscando el día…" />
       ) : estado.isError ? (
@@ -79,6 +91,25 @@ function useSaludo() {
   const { perfil } = useSesion()
   const nombre = perfil && perfil.rol === 'admin' ? `, ${perfil.nombre.split(' ')[0]}` : ''
   return `${saludo(horaArgentina())}${nombre}`
+}
+
+/** Los lunes, al dueño le recuerda que ya está el resumen de la semana pasada. */
+function AvisoLunes() {
+  const { esAdmin } = useSesion()
+  const esLunes = new Date(`${fechaDeTrabajo(new Date())}T12:00:00`).getDay() === 1
+  if (!esAdmin || !esLunes) return null
+  return (
+    <Link
+      to="/panel"
+      className="flex presionable animate-aparecer items-center gap-3 rounded-xl border border-marca/20 bg-marca-suave px-4 py-3 text-sm font-medium text-marca hover:brightness-95"
+    >
+      <CalendarDays className="size-5 shrink-0" aria-hidden="true" />
+      <span className="flex-1">
+        Ya está el resumen de la semana pasada para mandar por WhatsApp.
+      </span>
+      <ArrowRight className="size-4" aria-hidden="true" />
+    </Link>
+  )
 }
 
 function Centrado({ children }: { children: React.ReactNode }) {
@@ -201,11 +232,15 @@ function Indicador({
   etiqueta,
   valor,
   detalle,
+  Icono,
+  tono,
   className = '',
 }: {
   etiqueta: string
   valor: number
   detalle?: string
+  Icono: typeof Banknote
+  tono: string
   className?: string
 }) {
   const animado = useNumeroAnimado(valor)
@@ -213,7 +248,12 @@ function Indicador({
     <div
       className={`rounded-xl border border-borde bg-superficie p-4 shadow-tarjeta transition-shadow hover:shadow-alta ${className}`}
     >
-      <p className="text-xs font-medium text-suave">{etiqueta}</p>
+      <p className="flex items-center gap-2 text-xs font-medium text-suave">
+        <span className={`grid size-7 place-items-center rounded-lg ${tono}`}>
+          <Icono className="size-4" aria-hidden="true" />
+        </span>
+        {etiqueta}
+      </p>
       <p className="mt-1 text-xl font-semibold tracking-tight cifras">{p(animado)}</p>
       {detalle && <p className="mt-0.5 text-xs text-suave">{detalle}</p>}
     </div>
@@ -241,32 +281,42 @@ function IndicadoresDelDia({ r }: { r: ResumenJornada | null | undefined }) {
   const suma = useSuma(total)
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      <div className="relative col-span-2 overflow-hidden rounded-xl border border-borde bg-superficie p-5 shadow-tarjeta sm:col-span-3">
-        <p className="text-xs font-medium text-suave">Total de hoy</p>
-        <p className="mt-1 text-4xl font-semibold tracking-tight cifras">{p(totalAnimado)}</p>
+      <div className="relative col-span-2 overflow-hidden rounded-2xl bg-linear-to-br from-marca to-marca-hover p-5 text-sobre-marca shadow-alta sm:col-span-3">
+        <TrendingUp
+          className="pointer-events-none absolute -right-4 -bottom-6 size-32 opacity-10"
+          aria-hidden="true"
+        />
+        <p className="text-xs font-medium tracking-wide uppercase opacity-80">Total de hoy</p>
+        <p className="mt-1 text-5xl font-semibold tracking-tight cifras">{p(totalAnimado)}</p>
         {suma && (
           <span
             key={suma.clave}
             aria-hidden="true"
-            className="absolute top-5 right-5 animate-flotar rounded-full bg-ok-suave px-3 py-1 text-sm font-semibold text-ok cifras"
+            className="absolute top-5 right-5 animate-flotar rounded-full bg-white/20 px-3 py-1 text-sm font-semibold cifras"
           >
             + {p(suma.monto)}
           </span>
         )}
-        <p className="mt-0.5 text-xs text-suave">{cantidadVentas(r?.cantidad_ventas ?? 0)}</p>
+        <p className="mt-1 text-sm opacity-80">{cantidadVentas(r?.cantidad_ventas ?? 0)}</p>
       </div>
       <Indicador
         etiqueta="Efectivo"
+        Icono={Banknote}
+        tono="bg-marca-suave text-marca"
         valor={r?.total_efectivo ?? 0}
         detalle={`${cantidadVentas(r?.cantidad_efectivo ?? 0)} · en caja ${p(r?.efectivo_esperado ?? 0)}`}
       />
       <Indicador
         etiqueta="Digital"
+        Icono={Smartphone}
+        tono="bg-digital-suave text-digital"
         valor={r?.total_digital ?? 0}
         detalle={cantidadVentas(r?.cantidad_digital ?? 0)}
       />
       <Indicador
         etiqueta="Ticket promedio"
+        Icono={Receipt}
+        tono="bg-ok-suave text-ok"
         valor={Math.round(r?.ticket_promedio ?? 0)}
         detalle="Por venta"
         className="col-span-2 sm:col-span-1"

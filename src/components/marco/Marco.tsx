@@ -68,14 +68,17 @@ function Navegacion({ alElegir }: { alElegir?: () => void }) {
           end={a === '/'}
           onClick={alElegir}
           className={({ isActive }) =>
-            `flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors ${
+            `group relative flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors ${
               isActive
-                ? 'bg-marca-suave text-marca'
+                ? 'bg-marca-suave font-semibold text-marca before:absolute before:inset-y-2 before:-left-3 before:w-1 before:rounded-r-full before:bg-marca'
                 : 'text-suave hover:bg-hundida hover:text-texto'
             }`
           }
         >
-          <Icono className="size-[18px]" aria-hidden="true" />
+          <Icono
+            className="size-[18px] transition-transform group-hover:scale-110"
+            aria-hidden="true"
+          />
           {texto}
         </NavLink>
       ))}
@@ -89,9 +92,19 @@ function PieUsuario() {
   const { siguiente, texto, Icono } = TEMAS[tema]
   return (
     <div className="flex flex-col gap-1 border-t border-borde pt-3">
-      <div className="px-3 pb-1">
-        <p className="truncate text-sm font-medium">{perfil?.nombre}</p>
-        <p className="text-xs text-suave">{perfil?.rol === 'admin' ? 'Administrador' : 'Cajero'}</p>
+      <div className="flex items-center gap-3 px-3 pb-2">
+        <span
+          aria-hidden="true"
+          className="grid size-9 shrink-0 place-items-center rounded-full bg-marca text-sm font-semibold text-sobre-marca"
+        >
+          {(perfil?.nombre ?? '?').slice(0, 1).toUpperCase()}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold">{perfil?.nombre}</span>
+          <span className="block text-xs text-suave">
+            {perfil?.rol === 'admin' ? 'Dueño' : 'Mostrador'}
+          </span>
+        </span>
       </div>
       <button
         type="button"

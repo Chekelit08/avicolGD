@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { enlaceWhatsapp, normalizarWhatsapp, textoResumen, type DatosResumen } from './whatsapp'
+import {
+  enlaceWhatsapp,
+  normalizarWhatsapp,
+  textoResumen,
+  textoResumenSemanal,
+  type DatosResumen,
+} from './whatsapp'
 
 describe('normalizarWhatsapp', () => {
   it('arma el número para wa.me', () => {
@@ -59,5 +65,37 @@ describe('enlaceWhatsapp', () => {
       'https://wa.me/5491122334455?text=hola%20y%20chau',
     )
     expect(enlaceWhatsapp(null, 'x')).toBe('https://wa.me/?text=x')
+  })
+})
+
+describe('textoResumenSemanal', () => {
+  const semana = {
+    desde: '2026-10-12',
+    hasta: '2026-10-18',
+    total: 1_080_000,
+    cantidad_ventas: 140,
+    total_efectivo: 600_000,
+    total_digital: 480_000,
+    dias_trabajados: 6,
+    promedio_diario: 180_000,
+    diferencia_caja: -500,
+    mejor_dia: '2026-10-17',
+    mejor_dia_total: 260_000,
+    total_anterior: 1_000_000,
+    egresos: 300_000,
+  }
+  it('resume la semana y la compara con la anterior', () => {
+    const t = textoResumenSemanal(semana)
+    expect(t).toContain('semana del 12/10 al 18/10')
+    expect(t).toMatch(/Vendiste \*\$\s1\.080\.000\* en 6 días \(140 ventas\)/)
+    expect(t).toContain('8 % más que la semana anterior')
+    expect(t).toContain('Mejor día: sábado 17/10')
+    expect(t).toMatch(/quedó aprox\. \$\s780\.000/)
+    expect(t).toMatch(/faltaron \$\s500/)
+  })
+  it('sin ventas lo dice simple', () => {
+    expect(textoResumenSemanal({ ...semana, cantidad_ventas: 0, total: 0 })).toContain(
+      'No hubo ventas',
+    )
   })
 })

@@ -210,3 +210,8 @@ Funciones nuevas, opcionales y sin pasos extra:
 - **Calculadora de vuelto** después de cada venta en efectivo: billetes sugeridos y vuelto grande. Desaparece al tipear la próxima venta.
 - **Contador de billetes** al cerrar el día: cantidad por billete y monedas; el total va al efectivo contado.
 - **Saludo** según la hora.
+
+### Resumen semanal por WhatsApp y diseño más marcado (20/10/2026)
+
+- **Resumen semanal:** tarjeta en el Panel (semana pasada completa o esta semana hasta hoy, comparada con el mismo tramo de la anterior). Muestra lo vendido, el promedio por día, el mejor día, los gastos y las diferencias de caja, con un botón que arma el texto para WhatsApp (`textoResumenSemanal`). Los lunes, la caja del dueño muestra un aviso con link al Panel. Igual que el cierre diario: abre `wa.me`, no manda solo.
+- **Diseño:** el total del día pasa a una tarjeta bordó con texto blanco (es lo más importante de la pantalla). Los indicadores y los medios de pago llevan ícono en un recuadro de color (bordó para efectivo, azul para digital). La barra lateral marca la sección activa y muestra al usuario con su inicial.

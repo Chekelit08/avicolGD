@@ -9,6 +9,7 @@ import {
   GraficoIngresosEgresos,
 } from '../../components/graficos/Graficos'
 import { Indicador, Variacion } from '../../components/graficos/Piezas'
+import { ResumenSemanal } from '../../components/ResumenSemanal'
 import { MensajeError, Titulo } from '../../components/ui/Estados'
 import { Segmentado } from '../../components/ui/Segmentado'
 import {
@@ -77,6 +78,8 @@ export default function Panel() {
       {error ? <MensajeError>{mensajeDeError(error)}</MensajeError> : null}
 
       {hoyVs.data && <HoyContraSemanaPasada datos={hoyVs.data} />}
+
+      <ResumenSemanal />
 
       <h2 className="sr-only">Este mes</h2>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

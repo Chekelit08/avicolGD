@@ -71,7 +71,7 @@ Cuando cerrás, aparece **Mandar resumen por WhatsApp**: abre WhatsApp con el re
 En la barra de la izquierda aparecen más secciones:
 
 - **Consulta:** cualquier día, semana o mes, comparado con el período anterior. En el mes está **Descargar PDF para el contador** y **Descargar Excel**.
-- **Panel:** gráficos de cómo viene el negocio (por día, por semana, efectivo vs. digital, días y horas en que más se vende, ingresos y gastos) y cómo va hoy contra el mismo día de la semana pasada.
+- **Panel:** arriba está el **Resumen de la semana** (lo vendido, si fue más o menos que la anterior, el mejor día y los gastos), con un botón para **mandarlo por WhatsApp**. Los lunes, la caja te avisa que ya está listo. Más abajo: gráficos de cómo viene el negocio (por día, por semana, efectivo vs. digital, días y horas en que más se vende, ingresos y gastos) y cómo va hoy contra el mismo día de la semana pasada.
 - **Egresos:** cargar lo que se paga (alquiler, mercadería, luz, impuestos). Se anulan con motivo, no se borran.
 - **Usuarios:** crear cuentas (con un usuario simple, por ejemplo `mostrador`, sin email), cambiar contraseñas (la escribís vos o la genera la app) y cambiar la tuya y desactivar a quien ya no trabaja. Los datos de entrada se pueden mandar por WhatsApp.
 - **Auditoría:** quién anuló, cerró, reabrió o cambió algo, y cuándo.

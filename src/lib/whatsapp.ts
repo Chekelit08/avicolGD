@@ -60,3 +60,68 @@ export function textoResumen(r: DatosResumen): string {
 export function enlaceWhatsapp(numero: string | null | undefined, texto: string): string {
   return `https://wa.me/${numero ?? ''}?text=${encodeURIComponent(texto)}`
 }
+
+export interface DatosSemana {
+  desde: string
+  hasta: string
+  total: number
+  cantidad_ventas: number
+  total_efectivo: number
+  total_digital: number
+  dias_trabajados: number
+  promedio_diario: number
+  diferencia_caja: number
+  mejor_dia: string | null
+  mejor_dia_total: number | null
+  /** Total de la semana anterior, para comparar (null si no hubo caja). */
+  total_anterior: number | null
+  /** Egresos cargados en la semana (sin anulados). */
+  egresos: number
+}
+
+const DIAS_LARGOS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+
+function diaYFecha(fecha: string): { dia: string; ddmm: string } {
+  const [anio, mes, dia] = fecha.split('-')
+  const nombre = DIAS_LARGOS[new Date(Number(anio), Number(mes) - 1, Number(dia)).getDay()]
+  return { dia: nombre ?? '', ddmm: `${dia}/${mes}` }
+}
+
+/** El texto del resumen semanal para mandar por WhatsApp. */
+export function textoResumenSemanal(s: DatosSemana): string {
+  const p = (n: number) => formatearPesos(n, { sinCentavos: n % 1 === 0 })
+  const lineas = [
+    `*Avícola GD · semana del ${diaYFecha(s.desde).ddmm} al ${diaYFecha(s.hasta).ddmm}*`,
+  ]
+  if (s.cantidad_ventas === 0) {
+    lineas.push('No hubo ventas cargadas esta semana.')
+    return lineas.join('\n')
+  }
+  let vendido = `Vendiste *${p(s.total)}* en ${s.dias_trabajados} ${s.dias_trabajados === 1 ? 'día' : 'días'} (${s.cantidad_ventas} ventas)`
+  if (s.total_anterior && s.total_anterior > 0) {
+    const cambio = Math.round(((s.total - s.total_anterior) / s.total_anterior) * 100)
+    vendido +=
+      cambio === 0
+        ? ', igual que la semana anterior'
+        : `, ${cambio > 0 ? '📈' : '📉'} ${Math.abs(cambio)} % ${cambio > 0 ? 'más' : 'menos'} que la semana anterior`
+  }
+  lineas.push(`${vendido}.`)
+  lineas.push(`• Efectivo: ${p(s.total_efectivo)}`)
+  lineas.push(`• Digital: ${p(s.total_digital)}`)
+  lineas.push(`Promedio por día: ${p(s.promedio_diario)}`)
+  if (s.mejor_dia && s.mejor_dia_total) {
+    const { dia, ddmm } = diaYFecha(s.mejor_dia)
+    lineas.push(`🏆 Mejor día: ${dia} ${ddmm} (${p(s.mejor_dia_total)})`)
+  }
+  if (s.egresos > 0) {
+    lineas.push(`Gastos cargados: ${p(s.egresos)} · quedó aprox. ${p(s.total - s.egresos)}`)
+  }
+  if (s.diferencia_caja !== 0) {
+    lineas.push(
+      `Diferencias de caja en la semana: ${s.diferencia_caja > 0 ? 'sobraron' : 'faltaron'} ${p(Math.abs(s.diferencia_caja))}`,
+    )
+  } else {
+    lineas.push('La caja dio justa todos los días ✅')
+  }
+  return lineas.join('\n')
+}

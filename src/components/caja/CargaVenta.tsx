@@ -1,4 +1,4 @@
-import { Banknote, CheckCircle2, Smartphone, Undo2 } from 'lucide-react'
+import { Banknote, CheckCircle2, ShoppingBag, Smartphone, Undo2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import {
   useAnularVenta,
@@ -125,7 +125,10 @@ export function CargaVenta({
 
   return (
     <section aria-labelledby="titulo-carga" className="flex flex-col gap-4">
-      <h2 id="titulo-carga" className="text-[15px] font-semibold">
+      <h2 id="titulo-carga" className="flex items-center gap-2 text-[15px] font-semibold">
+        <span className="grid size-7 place-items-center rounded-lg bg-marca-suave text-marca">
+          <ShoppingBag className="size-4" aria-hidden="true" />
+        </span>
         Nueva venta
       </h2>
 

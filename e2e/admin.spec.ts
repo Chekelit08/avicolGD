@@ -28,6 +28,11 @@ test('el panel muestra indicadores y gráficos con su tabla', async ({ page }) =
   await expect(page.getByText('Ticket promedio')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Horas pico' })).toBeVisible()
   await expect(page.getByText('Hoy vas')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Resumen de la semana' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Mandar resumen por WhatsApp' })).toHaveAttribute(
+    'href',
+    /^https:\/\/wa\.me\/.*semana%20del/,
+  )
   await page.getByText('Ver los datos').first().click()
   await expect(page.getByRole('columnheader', { name: 'Efectivo' }).first()).toBeVisible()
 })
