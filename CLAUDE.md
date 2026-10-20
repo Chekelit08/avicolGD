@@ -6,7 +6,7 @@ App web para reemplazar el cuaderno de caja de una carnicería-avícola de barri
 
 - React 19 + TypeScript (estricto) + Vite 8, Tailwind CSS 4, React Router, TanStack Query, React Hook Form + Zod, Recharts, date-fns + `@date-fns/tz`, vite-plugin-pwa.
 - Supabase: Postgres + Auth + RLS + Edge Functions (`usuarios`, `mercadopago`) + pg_cron. No hay servidor propio.
-- Hosting: Cloudflare Pages (`public/_redirects`, `public/_headers`).
+- Hosting: Vercel (`vercel.json`) en https://avicola-gd.vercel.app. También sirven Netlify (`netlify.toml`) y Cloudflare Pages (`public/_redirects`, `public/_headers`).
 - Exportar: jsPDF + jspdf-autotable, write-excel-file (se cargan con `import()` solo al usarlos).
 - Tests: Vitest (`src/**/*.test.ts`), pgTAP (`supabase/tests`), Playwright (`e2e/`).
 

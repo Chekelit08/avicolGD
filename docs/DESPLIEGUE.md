@@ -1,6 +1,6 @@
 # Despliegue (todo gratis)
 
-Base y login en **Supabase**, la app en **Cloudflare Pages**. Son unos 30 minutos la primera vez.
+Base y login en **Supabase**, la app en **Vercel** (https://avicola-gd.vercel.app). También queda una copia en Netlify (https://avicola-gd.netlify.app) y la configuración para Cloudflare Pages. Son unos 30 minutos la primera vez.
 
 ## 1. Supabase (ya creado)
 
@@ -17,7 +17,7 @@ El proyecto ya existe y tiene todas las tablas, reglas, funciones y la función 
 
 1. **Authentication → Sign In / Providers**: apagá **Allow new users to sign up**. (Igual, una cuenta auto-registrada nace inactiva y no puede hacer nada.)
 2. **Authentication → Passwords**: largo mínimo **10**.
-3. **Authentication → URL Configuration** → _Site URL_ = `https://avicola-gd.netlify.app` y _Redirect URLs_ = `https://avicola-gd.netlify.app/nueva-clave` (para que funcione "Me olvidé la contraseña").
+3. **Authentication → URL Configuration** → _Site URL_ = `https://avicola-gd.vercel.app` y _Redirect URLs_ = `https://avicola-gd.vercel.app/nueva-clave` (y las de Netlify si la seguís usando) (para que funcione "Me olvidé la contraseña").
 
 ### Mejoras del 18/10 (ya aplicadas)
 
@@ -51,7 +51,12 @@ node scripts/crear-admin.mjs "Nombre" email@ejemplo.com   # con .env.servidor (v
 
 `db push` **no** carga los datos de prueba (`seed.sql` es solo para desarrollo local).
 
-## 2. Cloudflare Pages
+## 2. Vercel (la dirección oficial)
+
+Proyecto `avicola-gd` en la cuenta de Ezequiel. `vercel.json` define el build (`npm run build` → `dist`), que las rutas de la app funcionen al recargar y las cabeceras de seguridad. Las variables `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` (la **pública**) están cargadas en el proyecto.
+Para publicar una versión nueva: en Vercel → proyecto → **Deployments → Redeploy**, o conectá el repo en **Settings → Git** para que cada push publique solo.
+
+## 2b. Cloudflare Pages (alternativa)
 
 1. Entrá a <https://dash.cloudflare.com> → **Workers & Pages → Create → Pages → Connect to Git** y elegí el repo `avicolGD`.
 2. Configuración del build:
