@@ -7,7 +7,6 @@ import logo from '../assets/logo-gonza.svg'
 import { Boton } from '../components/ui/Boton'
 import { Campo } from '../components/ui/Campo'
 import { MensajeError } from '../components/ui/Estados'
-import { FondoAnimado } from '../components/ui/FondoAnimado'
 import { esErrorDeRed, MENSAJE_SIN_INTERNET } from '../lib/errores'
 import { supabase } from '../lib/supabase'
 import { emailDeUsuario } from '../lib/usuario'
@@ -27,8 +26,7 @@ export function PantallaAcceso({
   children: React.ReactNode
 }) {
   return (
-    <main className="isolate flex min-h-dvh flex-col items-center justify-center px-4 py-10">
-      <FondoAnimado />
+    <main className="flex min-h-dvh flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
           <img
