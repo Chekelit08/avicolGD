@@ -186,3 +186,9 @@ Una pantalla de admin para lo configurable: Mercado Pago (estado, carga automát
 
 - **Hoy vas $ X** contra el mismo día de la semana pasada **hasta la misma hora** (`hoy_contra_semana_pasada`). Comparar contra el día completo haría que cualquier mañana se vea mal.
 - **Horas pico** (`ventas_por_hora`): promedio vendido por hora de los días trabajados del período. Es una sola serie, con el verde de "ingresos" ya validado, y tiene tabla en "Ver los datos". Se muestran solo las horas con ventas reales, así una venta suelta de madrugada no estira el gráfico.
+
+## Ajustes pedidos por Ezequiel (20/10/2026)
+
+- **Sin Mercado Pago en la pantalla.** Se sacaron la tarjeta de Ajustes, el aviso de cobro en la caja y la pregunta de duplicado. La base y la Edge Function `mercadopago` quedan, apagadas (sin claves no hacen nada), por si algún día se quiere conectar.
+- **Sin Personal.** La sección de empleados salió del menú y del gráfico de ganancia. Los sueldos, si se pagan, se cargan como egreso.
+- **Usuarios simples.** Se entra con un usuario (`mostrador`) o con email; por dentro el usuario es `<usuario>@usuarios.avicola-gd.app`. El admin escribe la contraseña o la genera, y elige si la persona tiene que cambiarla al entrar (`pedir_cambio`). Cada admin cambia la suya desde Usuarios.

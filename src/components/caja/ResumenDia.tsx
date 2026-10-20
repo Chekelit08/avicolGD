@@ -42,12 +42,6 @@ export function ResumenDia({ resumen }: { resumen: ResumenJornada }) {
           etiqueta={`Digital (${cantidadVentas(resumen.cantidad_digital)})`}
           valor={p(resumen.total_digital)}
         />
-        {resumen.cantidad_mercadopago > 0 && (
-          <Fila
-            etiqueta={`De eso, por Mercado Pago (${cantidadVentas(resumen.cantidad_mercadopago)})`}
-            valor={p(resumen.total_mercadopago)}
-          />
-        )}
         <Fila etiqueta="Cantidad de ventas" valor={String(resumen.cantidad_ventas)} />
         <Fila etiqueta="Ticket promedio" valor={p(resumen.ticket_promedio)} />
         {resumen.cantidad_anuladas > 0 && (

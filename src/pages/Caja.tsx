@@ -1,5 +1,5 @@
 import { ArrowRight, HandCoins, LockKeyhole, RotateCcw, WifiOff } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { CampoImporte } from '../components/caja/CampoImporte'
 import { CargaVenta } from '../components/caja/CargaVenta'
@@ -19,10 +19,9 @@ import {
   useVentasDeJornada,
   type Jornada,
   type ResumenJornada,
-  type Venta,
 } from '../datos/caja'
 import { mensajeDeError } from '../lib/errores'
-import { cantidadVentas, formatearFecha, formatearHora, formatearPesos } from '../lib/formato'
+import { cantidadVentas, formatearFecha, formatearPesos } from '../lib/formato'
 import { diaSemanaCorto } from '../lib/periodos'
 import { useEnLinea } from '../lib/useEnLinea'
 import { useSesion } from '../sesion/Sesion'
@@ -226,11 +225,7 @@ function IndicadoresDelDia({ r }: { r: ResumenJornada | null | undefined }) {
       <Indicador
         etiqueta="Digital"
         valor={p(r?.total_digital ?? 0)}
-        detalle={
-          r?.cantidad_mercadopago
-            ? `${cantidadVentas(r.cantidad_digital)} · ${p(r.total_mercadopago)} de Mercado Pago`
-            : cantidadVentas(r?.cantidad_digital ?? 0)
-        }
+        detalle={cantidadVentas(r?.cantidad_digital ?? 0)}
       />
       <Indicador
         etiqueta="Ticket promedio"
@@ -242,36 +237,12 @@ function IndicadoresDelDia({ r }: { r: ResumenJornada | null | undefined }) {
   )
 }
 
-/** Avisa cuando entra sola una venta de Mercado Pago (llega con el refresco de la caja). */
-function useCobrosNuevos(ventas: Venta[] | undefined) {
-  const vistas = useRef<Set<string> | null>(null)
-  const [nuevo, setNuevo] = useState<Venta | null>(null)
-
-  useEffect(() => {
-    if (!ventas) return
-    if (!vistas.current) {
-      vistas.current = new Set(ventas.map((v) => v.id))
-      return
-    }
-    const llegados = ventas.filter((v) => !vistas.current?.has(v.id))
-    llegados.forEach((v) => vistas.current?.add(v.id))
-    const deMp = llegados.find((v) => v.origen === 'mercadopago')
-    if (!deMp) return
-    setNuevo(deMp)
-    const t = window.setTimeout(() => setNuevo(null), 15_000)
-    return () => window.clearTimeout(t)
-  }, [ventas])
-
-  return nuevo
-}
-
 function DiaAbierto({ jornada }: { jornada: Jornada }) {
-  const resumen = useResumenJornada(jornada.id, { vivo: true })
-  const ventas = useVentasDeJornada(jornada.id, { vivo: true })
+  const resumen = useResumenJornada(jornada.id)
+  const ventas = useVentasDeJornada(jornada.id)
   const salidas = useSalidasDeJornada(jornada.id)
   const [resaltada, setResaltada] = useState<string | null>(null)
   const [sacando, setSacando] = useState(false)
-  const cobroNuevo = useCobrosNuevos(ventas.data)
 
   return (
     <div>
@@ -305,22 +276,12 @@ function DiaAbierto({ jornada }: { jornada: Jornada }) {
             <SacarEfectivo alTerminar={() => setSacando(false)} />
           ) : (
             <CargaVenta
-              ventasDelDia={ventas.data}
               onGuardada={(v) => setResaltada(v.id)}
               onSacarEfectivo={() => setSacando(true)}
             />
           )}
         </Tarjeta>
         <div className="flex min-w-0 flex-col gap-4">
-          <div aria-live="polite">
-            {cobroNuevo && (
-              <Aviso tono="ok">
-                Entraron {p(cobroNuevo.importe)} por Mercado Pago a las{' '}
-                {formatearHora(new Date(cobroNuevo.registrada_en))}. Ya están en la caja: no hace
-                falta cargarlos.
-              </Aviso>
-            )}
-          </div>
           <IndicadoresDelDia r={resumen.data} />
           <Tarjeta sinRelleno>
             {ventas.isError ? (

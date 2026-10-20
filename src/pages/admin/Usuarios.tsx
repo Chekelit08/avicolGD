@@ -1,4 +1,4 @@
-import { Copy, KeyRound, MessageCircle, Store, UserPlus } from 'lucide-react'
+import { Copy, KeyRound, MessageCircle, RefreshCw, Store, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { Boton } from '../../components/ui/Boton'
 import { Campo } from '../../components/ui/Campo'
@@ -14,6 +14,7 @@ import {
 } from '../../datos/admin'
 import { claveTemporal } from '../../lib/clave'
 import { mensajeDeError } from '../../lib/errores'
+import { supabase } from '../../lib/supabase'
 import { emailDeUsuario, usuarioDeEmail, usuarioSugerido, usuarioValido } from '../../lib/usuario'
 import { enlaceWhatsapp } from '../../lib/whatsapp'
 import { useSesion } from '../../sesion/Sesion'
@@ -27,6 +28,68 @@ const AYUDA_ROL: Record<Rol, string> = {
 interface Datos {
   usuario: string
   clave: string
+  /** Si al entrar le va a pedir elegir una propia. */
+  pedirCambio: boolean
+}
+
+const MINIMO_CLAVE = 10
+
+function errorDeClave(clave: string): string | undefined {
+  if (clave.length < MINIMO_CLAVE) return `Tiene que tener al menos ${MINIMO_CLAVE} caracteres`
+  if (clave.length > 72) return 'Es demasiado larga (máximo 72 caracteres)'
+  return undefined
+}
+
+/** Contraseña que se puede escribir a mano o generar con un botón. */
+function CampoClave({
+  etiqueta,
+  clave,
+  onCambio,
+  error,
+  pedirCambio,
+  onPedirCambio,
+}: {
+  etiqueta: string
+  clave: string
+  onCambio: (clave: string) => void
+  error?: string
+  /** Si se pasa, aparece la opción de pedir que la cambie al entrar. */
+  pedirCambio?: boolean
+  onPedirCambio?: (pedir: boolean) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Campo
+        etiqueta={etiqueta}
+        autoComplete="new-password"
+        autoCapitalize="none"
+        spellCheck={false}
+        value={clave}
+        onChange={(e) => onCambio(e.target.value)}
+        ayuda={`Escribí una o generala con el botón. Mínimo ${MINIMO_CLAVE} caracteres.`}
+        error={error}
+      />
+      <Boton
+        variante="secundario"
+        tamano="chico"
+        className="self-start"
+        onClick={() => onCambio(claveTemporal())}
+      >
+        <RefreshCw className="size-4" aria-hidden="true" /> Generar una
+      </Boton>
+      {onPedirCambio && (
+        <label className="flex min-h-11 items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            className="size-5 accent-marca"
+            checked={pedirCambio}
+            onChange={(e) => onPedirCambio(e.target.checked)}
+          />
+          Que elija una propia la primera vez que entre
+        </label>
+      )}
+    </div>
+  )
 }
 
 export default function Usuarios() {
@@ -86,7 +149,8 @@ export default function Usuarios() {
 /** Lo que hay que pasarle a la persona: usuario y contraseña, para copiar o mandar por WhatsApp. */
 function DatosDeIngreso({ datos, titulo }: { datos: Datos; titulo: string }) {
   const [copiado, setCopiado] = useState(false)
-  const texto = `Avícola GD — tus datos para entrar:\n${location.origin}\nUsuario: ${datos.usuario}\nContraseña: ${datos.clave}\n(La primera vez te pide elegir una nueva.)`
+  const texto =
+    `Avícola GD — tus datos para entrar:\n${location.origin}\nUsuario: ${datos.usuario}\nContraseña: ${datos.clave}\n${datos.pedirCambio ? '(La primera vez te pide elegir una nueva.)' : ''}`.trim()
   return (
     <div
       role="status"
@@ -99,9 +163,11 @@ function DatosDeIngreso({ datos, titulo }: { datos: Datos; titulo: string }) {
         <dt className="text-suave">Contraseña</dt>
         <dd className="text-lg font-semibold cifras">{datos.clave}</dd>
       </dl>
-      <p className="text-sm text-suave">
-        La primera vez que entre, la app le pide elegir una nueva.
-      </p>
+      {datos.pedirCambio && (
+        <p className="text-sm text-suave">
+          La primera vez que entre, la app le pide elegir una nueva.
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
         <Boton
           variante="secundario"
@@ -137,7 +203,8 @@ function NuevaCuenta({
   const [usuario, setUsuario] = useState(inicial.usuario)
   const [usuarioTocado, setUsuarioTocado] = useState(Boolean(inicial.usuario))
   const [rol, setRol] = useState<Rol>(inicial.rol)
-  const [clave] = useState(claveTemporal)
+  const [clave, setClave] = useState(claveTemporal)
+  const [pedirCambio, setPedirCambio] = useState(true)
   const [creado, setCreado] = useState<Datos | null>(null)
   const [intentado, setIntentado] = useState(false)
 
@@ -146,12 +213,23 @@ function NuevaCuenta({
     ? undefined
     : 'De 3 a 30 letras o números, sin espacios (por ejemplo: mostrador, juan.perez)'
 
+  const errorClave = errorDeClave(clave)
+
   const guardar = () => {
     setIntentado(true)
-    if (errorNombre || errorUsuario) return
+    if (errorNombre || errorUsuario || errorClave) return
     crear.mutate(
-      { nombre: nombre.trim(), email: emailDeUsuario(usuario), rol, clave },
-      { onSuccess: () => setCreado({ usuario: usuarioDeEmail(emailDeUsuario(usuario)), clave }) },
+      {
+        nombre: nombre.trim(),
+        email: emailDeUsuario(usuario),
+        rol,
+        clave,
+        pedir_cambio: pedirCambio,
+      },
+      {
+        onSuccess: () =>
+          setCreado({ usuario: usuarioDeEmail(emailDeUsuario(usuario)), clave, pedirCambio }),
+      },
     )
   }
 
@@ -203,10 +281,14 @@ function NuevaCuenta({
             />
             <p className="text-sm text-suave">{AYUDA_ROL[rol]}</p>
           </div>
-          <p className="text-sm text-suave">
-            La contraseña la armamos nosotros (<strong className="cifras">{clave}</strong>) y te la
-            mostramos al crear la cuenta.
-          </p>
+          <CampoClave
+            etiqueta="Contraseña"
+            clave={clave}
+            onCambio={setClave}
+            error={intentado ? errorClave : undefined}
+            pedirCambio={pedirCambio}
+            onPedirCambio={setPedirCambio}
+          />
           {crear.isError && <MensajeError>{mensajeDeError(crear.error)}</MensajeError>}
           <div className="flex flex-wrap gap-2">
             <Boton cargando={crear.isPending} onClick={guardar}>
@@ -227,15 +309,42 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
   const actualizar = useActualizarPerfil()
   const restablecer = useRestablecerClave()
   const [accion, setAccion] = useState<'desactivar' | 'clave' | null>(null)
+  const [clave, setClave] = useState('')
+  const [intentado, setIntentado] = useState(false)
+  const [guardando, setGuardando] = useState(false)
+  const [errorPropio, setErrorPropio] = useState<string | null>(null)
   const [nuevaClave, setNuevaClave] = useState<string | null>(null)
+  const [pedirCambio, setPedirCambio] = useState(true)
   const soyYo = perfil.id === yo?.id
   const usuario = usuarioDeEmail(perfil.email)
+  const errorClave = errorDeClave(clave)
 
-  const darClaveNueva = () => {
-    const clave = claveTemporal()
-    setAccion('clave')
+  const abrirClave = () => {
+    setClave(soyYo ? '' : claveTemporal())
+    setIntentado(false)
     setNuevaClave(null)
-    restablecer.mutate({ usuario_id: perfil.id, clave }, { onSuccess: () => setNuevaClave(clave) })
+    setErrorPropio(null)
+    restablecer.reset()
+    setAccion('clave')
+  }
+
+  const guardarClave = async () => {
+    setIntentado(true)
+    if (errorClave) return
+    if (!soyYo) {
+      restablecer.mutate(
+        { usuario_id: perfil.id, clave, pedir_cambio: pedirCambio },
+        { onSuccess: () => setNuevaClave(clave) },
+      )
+      return
+    }
+    // La propia se cambia con la sesión actual; no pide cambiarla de nuevo al entrar.
+    setGuardando(true)
+    setErrorPropio(null)
+    const { error } = await supabase().auth.updateUser({ password: clave })
+    setGuardando(false)
+    if (error) setErrorPropio(mensajeDeError(error))
+    else setNuevaClave(clave)
   }
 
   return (
@@ -252,19 +361,15 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
             <p className="text-sm text-aviso">Todavía no entró con su contraseña nueva</p>
           )}
         </div>
-        {!soyYo && (
-          <div className="flex flex-wrap items-center gap-2">
-            {perfil.activo && (
-              <Boton
-                variante="secundario"
-                tamano="chico"
-                cargando={restablecer.isPending}
-                onClick={darClaveNueva}
-              >
-                <KeyRound className="size-4" aria-hidden="true" /> Se olvidó la contraseña
-              </Boton>
-            )}
-            {perfil.activo ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {perfil.activo && accion !== 'clave' && (
+            <Boton variante="secundario" tamano="chico" onClick={abrirClave}>
+              <KeyRound className="size-4" aria-hidden="true" />{' '}
+              {soyYo ? 'Cambiar mi contraseña' : 'Cambiar contraseña'}
+            </Boton>
+          )}
+          {!soyYo &&
+            (perfil.activo ? (
               <Boton variante="fantasma" tamano="chico" onClick={() => setAccion('desactivar')}>
                 Desactivar
               </Boton>
@@ -277,9 +382,8 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
               >
                 Reactivar
               </Boton>
-            )}
-          </div>
-        )}
+            ))}
+        </div>
       </div>
 
       {accion === 'desactivar' && (
@@ -313,12 +417,53 @@ function FilaUsuario({ perfil }: { perfil: Perfil }) {
       )}
 
       {accion === 'clave' && (
-        <div className="mt-3 flex flex-col gap-2">
-          {restablecer.isError && <MensajeError>{mensajeDeError(restablecer.error)}</MensajeError>}
-          {nuevaClave && (
+        <div className="mt-3 flex max-w-md flex-col gap-3 rounded-xl bg-hundida p-4">
+          {!nuevaClave && (
+            <>
+              <CampoClave
+                etiqueta={soyYo ? 'Tu contraseña nueva' : `Contraseña nueva para ${perfil.nombre}`}
+                clave={clave}
+                onCambio={setClave}
+                error={intentado ? errorClave : undefined}
+                pedirCambio={pedirCambio}
+                onPedirCambio={soyYo ? undefined : setPedirCambio}
+              />
+              {restablecer.isError && (
+                <MensajeError>{mensajeDeError(restablecer.error)}</MensajeError>
+              )}
+              {errorPropio && <MensajeError>{errorPropio}</MensajeError>}
+              <div className="flex gap-2">
+                <Boton
+                  cargando={restablecer.isPending || guardando}
+                  onClick={() => void guardarClave()}
+                >
+                  Guardar contraseña
+                </Boton>
+                <Boton variante="secundario" onClick={() => setAccion(null)}>
+                  Cancelar
+                </Boton>
+              </div>
+            </>
+          )}
+          {nuevaClave && soyYo && (
+            <>
+              <p role="status" className="font-semibold text-ok">
+                ✓ Listo. Desde ahora entrás con la contraseña nueva.
+              </p>
+              <Boton
+                variante="secundario"
+                tamano="chico"
+                className="self-start"
+                onClick={() => setAccion(null)}
+              >
+                Listo
+              </Boton>
+            </>
+          )}
+          {nuevaClave && !soyYo && (
             <>
               <DatosDeIngreso
-                datos={{ usuario, clave: nuevaClave }}
+                datos={{ usuario, clave: nuevaClave, pedirCambio }}
                 titulo={`Contraseña nueva para ${perfil.nombre}`}
               />
               <Boton

@@ -1,5 +1,4 @@
 import { expect, test, type Page } from '@playwright/test'
-import { sql } from './preparar.ts'
 
 const CLAVE = 'avicola-prueba-2026'
 
@@ -62,23 +61,6 @@ test('flujo del día: ingresar, abrir, cargar 3 ventas con el teclado, cerrar y 
   await expect(page.getByText('− $ 2.000')).toBeVisible()
   await expect(importe).toBeFocused()
 
-  // Entra solo un cobro de Mercado Pago (lo que haría la Edge Function con el aviso de MP)
-  sql(
-    `set role service_role; select public.registrar_cobro_mp('E2E-1', 3000, now(), 'regular_payment', 'QR', 'Ana');`,
-  )
-  await expect(page.getByText(/Entraron \$\s3\.000 por Mercado Pago/)).toBeVisible({
-    timeout: 30_000,
-  })
-  await expect(page.getByText('Mercado Pago', { exact: true })).toBeVisible()
-
-  // Si el cajero igual la tipea con +, la app pregunta; Esc no la carga
-  await importe.fill('3000')
-  await importe.press('+')
-  await expect(page.getByText(/Ya entraron \$\s3\.000 solos por Mercado Pago/)).toBeVisible()
-  await importe.press('Escape')
-  await expect(importe).toHaveValue('')
-  await expect(page.getByText('$ 27.800').first()).toBeVisible()
-
   // Cerrar el día con un faltante de $ 500: Enter para revisar, Enter para cerrar
   await page.getByRole('link', { name: 'Cerrar el día' }).click()
   // esperado = 10.000 + 16.500 − 2.000
@@ -93,12 +75,12 @@ test('flujo del día: ingresar, abrir, cargar 3 ventas con el teclado, cerrar y 
   await contado.press('Enter')
   await expect(page.getByRole('heading', { name: 'Día cerrado' })).toBeVisible()
   const whatsapp = page.getByRole('link', { name: 'Mandar resumen por WhatsApp' })
-  await expect(whatsapp).toHaveAttribute('href', /^https:\/\/wa\.me\/\?text=.*Mercado%20Pago/)
+  await expect(whatsapp).toHaveAttribute('href', /^https:\/\/wa\.me\/\?text=.*Total/)
 
   // Ver el resumen: el día queda bloqueado
   await page.getByRole('link', { name: 'Volver al inicio' }).click()
   await expect(page.getByRole('heading', { name: 'El día de hoy ya se cerró' })).toBeVisible()
-  await expect(page.getByText('$ 27.800,00')).toBeVisible()
+  await expect(page.getByText('$ 24.800,00')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Reabrir el día' })).toHaveCount(0)
 })
 

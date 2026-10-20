@@ -83,6 +83,8 @@ Deno.serve(async (req) => {
   }
 
   const clave = typeof cuerpo.clave === 'string' ? cuerpo.clave : ''
+  // Por defecto la persona elige una contraseña propia la primera vez que entra.
+  const pedirCambio = cuerpo.pedir_cambio !== false
   const usuarioId = typeof cuerpo.usuario_id === 'string' ? cuerpo.usuario_id : ''
   if (usuarioId && !/^[0-9a-f-]{36}$/i.test(usuarioId)) return error('Usuario inválido.')
 
@@ -93,8 +95,7 @@ Deno.serve(async (req) => {
       const rol = cuerpo.rol === 'admin' ? 'admin' : 'cajero'
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return error('Escribí un email válido.')
       if (nombre.length < 1 || nombre.length > 80) return error('Escribí el nombre.')
-      if (clave.length < 10)
-        return error('La contraseña temporal tiene que tener al menos 10 caracteres.')
+      if (clave.length < 10) return error('La contraseña tiene que tener al menos 10 caracteres.')
 
       const creado = await llamar('/auth/v1/admin/users', {
         method: 'POST',
@@ -103,7 +104,7 @@ Deno.serve(async (req) => {
           password: clave,
           email_confirm: true,
           user_metadata: { nombre },
-          app_metadata: { rol, debe_cambiar_clave: true },
+          app_metadata: { rol, debe_cambiar_clave: pedirCambio },
         }),
       })
       if (!creado.ok) {
@@ -117,8 +118,7 @@ Deno.serve(async (req) => {
 
     case 'restablecer_clave': {
       if (!usuarioId) return error('Falta el usuario.')
-      if (clave.length < 10)
-        return error('La contraseña temporal tiene que tener al menos 10 caracteres.')
+      if (clave.length < 10) return error('La contraseña tiene que tener al menos 10 caracteres.')
       const r = await llamar(`/auth/v1/admin/users/${usuarioId}`, {
         method: 'PUT',
         body: JSON.stringify({ password: clave }),
@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
       if (!r.ok) return error(mensajeAuth(r.json))
       await llamar(`/rest/v1/perfiles?id=eq.${usuarioId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ debe_cambiar_clave: true }),
+        body: JSON.stringify({ debe_cambiar_clave: pedirCambio }),
       })
       await auditar(quienId, 'restablecer_clave', usuarioId, null)
       return respuesta({ ok: true })

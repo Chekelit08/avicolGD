@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  calcularArqueo,
-  cobroMpParecido,
-  necesitaConfirmacion,
-  puedeAnular,
-  variacion,
-} from './caja'
+import { calcularArqueo, necesitaConfirmacion, puedeAnular, variacion } from './caja'
 
 const mostrador = { id: 'mostrador', esAdmin: false }
 const admin = { id: 'gabriel', esAdmin: true }
@@ -76,24 +70,5 @@ describe('variacion', () => {
   })
   it('sin período anterior no hay variación', () => {
     expect(variacion(100, 0)).toBeNull()
-  })
-})
-
-describe('cobroMpParecido', () => {
-  const mp = (importe: number, minutos: number, extra = {}) => ({
-    importe,
-    origen: 'mercadopago',
-    anulada: false,
-    registrada_en: haceMinutos(minutos),
-    ...extra,
-  })
-  it('encuentra un cobro de MP reciente con el mismo importe', () => {
-    expect(cobroMpParecido([mp(8000, 3)], 8000, ahora)).not.toBeNull()
-  })
-  it('ignora otros importes, cobros viejos, anulados y ventas tipeadas', () => {
-    expect(cobroMpParecido([mp(8000, 3)], 8001, ahora)).toBeNull()
-    expect(cobroMpParecido([mp(8000, 20)], 8000, ahora)).toBeNull()
-    expect(cobroMpParecido([mp(8000, 3, { anulada: true })], 8000, ahora)).toBeNull()
-    expect(cobroMpParecido([mp(8000, 3, { origen: 'manual' })], 8000, ahora)).toBeNull()
   })
 })

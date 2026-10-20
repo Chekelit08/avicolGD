@@ -38,10 +38,10 @@ test('la auditoría carga y Personal ya no está', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Auditoría' })).toBeVisible()
 })
 
-test('en Ajustes se guarda el WhatsApp del dueño y se ve Mercado Pago', async ({ page }) => {
+test('en Ajustes se guarda el WhatsApp del dueño y no aparece Mercado Pago', async ({ page }) => {
   await page.getByRole('link', { name: 'Ajustes' }).click()
-  await expect(page.getByRole('heading', { name: 'Mercado Pago' })).toBeVisible()
-  await expect(page.getByText('Cargar solos los cobros en la caja')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Resumen por WhatsApp' })).toBeVisible()
+  await expect(page.getByText('Mercado Pago')).toHaveCount(0)
   const numero = page.getByLabel('WhatsApp del dueño')
   await numero.fill('11 15 2233')
   await expect(
@@ -75,4 +75,23 @@ test('el admin crea la cuenta Mostrador con un clic y entra con usuario simple',
   await otra.getByRole('button', { name: 'Ingresar' }).click()
   await expect(otra.getByText(/elegí tu contraseña/)).toBeVisible()
   await otra.close()
+
+  // El admin le pone una contraseña elegida por él, sin pedir que la cambie
+  await page.getByRole('button', { name: 'Listo' }).click()
+  const fila = page.getByRole('listitem').filter({ hasText: `Usuario: ${usuario}` })
+  await fila.getByRole('button', { name: 'Cambiar contraseña' }).click()
+  await fila.getByLabel(/Contraseña nueva para/).fill('milanesa napolitana')
+  await fila.getByLabel('Que elija una propia la primera vez que entre').uncheck()
+  await fila.getByRole('button', { name: 'Guardar contraseña' }).click()
+  await expect(fila.getByText('✓ Contraseña nueva para Caja de prueba')).toBeVisible()
+
+  const tercera = await browser.newPage()
+  await tercera.goto('/ingresar')
+  await tercera.getByLabel('Usuario o email').fill(usuario)
+  await tercera.getByLabel('Contraseña').fill('milanesa napolitana')
+  await tercera.getByRole('button', { name: 'Ingresar' }).click()
+  await expect(
+    tercera.getByRole('heading', { name: /Abrir el día|Caja de hoy|ya se cerró/ }),
+  ).toBeVisible()
+  await tercera.close()
 })

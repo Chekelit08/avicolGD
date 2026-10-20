@@ -24,27 +24,6 @@ export function puedeAnular(
   return minutos < MINUTOS_ANULACION_CAJERO
 }
 
-export const MINUTOS_COBRO_MP_RECIENTE = 15
-
-/**
- * Si el importe que se va a cargar como digital ya entró solo por Mercado Pago en los
- * últimos 15 minutos, devuelve esa venta para preguntar antes de cargarla dos veces.
- */
-export function cobroMpParecido<
-  V extends { importe: number; origen: string; anulada: boolean; registrada_en: string },
->(ventas: V[], importe: number, ahora: Date = new Date()): V | null {
-  const desde = ahora.getTime() - MINUTOS_COBRO_MP_RECIENTE * 60_000
-  return (
-    ventas.find(
-      (v) =>
-        v.origen === 'mercadopago' &&
-        !v.anulada &&
-        v.importe === importe &&
-        new Date(v.registrada_en).getTime() >= desde,
-    ) ?? null
-  )
-}
-
 /** Regla 6: un importe por encima del tope pide confirmación (evita ceros de más). */
 export function necesitaConfirmacion(importe: number, tope: number): boolean {
   return importe > tope

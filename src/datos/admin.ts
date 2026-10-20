@@ -14,7 +14,6 @@ export type Perfil = Tablas['perfiles']['Row']
 export type RegistroAuditoria = Tablas['auditoria']['Row']
 export type TipoPago = Database['public']['Enums']['tipo_pago_empleado']
 export type Rol = Database['public']['Enums']['rol_usuario']
-export type CobroMp = Tablas['cobros_mp']['Row']
 export type Configuracion = Tablas['configuracion']['Row']
 
 function useInvalidar(...claves: string[][]) {
@@ -242,8 +241,15 @@ export function useActualizarPerfil() {
 }
 
 type AccionUsuarios =
-  | { accion: 'crear'; email: string; nombre: string; rol: Rol; clave: string }
-  | { accion: 'restablecer_clave'; usuario_id: string; clave: string }
+  | {
+      accion: 'crear'
+      email: string
+      nombre: string
+      rol: Rol
+      clave: string
+      pedir_cambio: boolean
+    }
+  | { accion: 'restablecer_clave'; usuario_id: string; clave: string; pedir_cambio: boolean }
   | { accion: 'bloquear'; usuario_id: string; bloqueado: boolean }
 
 /** Llama a la Edge Function `usuarios`. Los errores vienen ya escritos para mostrar. */
@@ -270,8 +276,13 @@ async function llamarFuncion(nombre: string, cuerpo: object): Promise<unknown> {
 export function useCrearUsuario() {
   const invalidar = useInvalidar(['perfiles'])
   return useMutation({
-    mutationFn: (u: { email: string; nombre: string; rol: Rol; clave: string }) =>
-      llamarUsuarios({ accion: 'crear', ...u }),
+    mutationFn: (u: {
+      email: string
+      nombre: string
+      rol: Rol
+      clave: string
+      pedir_cambio: boolean
+    }) => llamarUsuarios({ accion: 'crear', ...u }),
     onSuccess: invalidar,
   })
 }
@@ -279,7 +290,7 @@ export function useCrearUsuario() {
 export function useRestablecerClave() {
   const invalidar = useInvalidar(['perfiles'])
   return useMutation({
-    mutationFn: (u: { usuario_id: string; clave: string }) =>
+    mutationFn: (u: { usuario_id: string; clave: string; pedir_cambio: boolean }) =>
       llamarUsuarios({ accion: 'restablecer_clave', ...u }),
     onSuccess: invalidar,
   })
@@ -304,63 +315,8 @@ export function useAuditoria(accion: string, limite: number) {
 }
 
 // ---------------------------------------------------------------------------
-// Mercado Pago y ajustes
+// Ajustes
 // ---------------------------------------------------------------------------
-
-export interface EstadoMp {
-  configurado: boolean
-  cuenta?: string
-}
-
-export function useEstadoMp() {
-  return useQuery({
-    queryKey: ['mercadopago', 'estado'],
-    staleTime: 5 * 60_000,
-    retry: false,
-    queryFn: async () => (await llamarFuncion('mercadopago', { accion: 'estado' })) as EstadoMp,
-  })
-}
-
-export function useBuscarCobrosMp() {
-  const invalidar = useInvalidar(['mercadopago'], ['ventas'], ['resumen-jornada'])
-  return useMutation({
-    mutationFn: async () =>
-      (await llamarFuncion('mercadopago', { accion: 'barrer' })) as EstadoMp & {
-        revisados?: number
-        nuevos?: number
-      },
-    onSuccess: invalidar,
-  })
-}
-
-export function useCobrosMp() {
-  return useQuery({
-    queryKey: ['mercadopago', 'cobros'],
-    queryFn: async () =>
-      exigir(
-        await supabase()
-          .from('cobros_mp')
-          .select('*')
-          .order('pagado_en', { ascending: false })
-          .limit(50),
-      ),
-  })
-}
-
-export function useResolverCobroMp() {
-  const invalidar = useInvalidar(['mercadopago'], ['ventas'], ['resumen-jornada'])
-  return useMutation({
-    mutationFn: async (r: { id: string; cargar: boolean; motivo?: string }) =>
-      exigir(
-        await supabase().rpc('resolver_cobro_mp', {
-          p_cobro_id: r.id,
-          p_cargar: r.cargar,
-          p_motivo: r.motivo,
-        }),
-      ),
-    onSuccess: invalidar,
-  })
-}
 
 export function useActualizarConfiguracion() {
   const invalidar = useInvalidar(['configuracion'])
