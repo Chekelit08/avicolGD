@@ -28,12 +28,15 @@ delete from public.auditoria;
 
 -- Cuentas de prueba que creó Claude para revisar que Usuarios funcione.
 delete from public.perfiles
-where email in ('prueba-claude@avicola.test', 'prueba-claude-2@avicola.test');
+where email in ('prueba-claude@avicola.test', 'prueba-claude-2@avicola.test',
+                'prueba.claude3@usuarios.avicola-gd.app');
 delete from auth.identities
 where user_id in (select id from auth.users
-                  where email in ('prueba-claude@avicola.test', 'prueba-claude-2@avicola.test'));
+                  where email in ('prueba-claude@avicola.test', 'prueba-claude-2@avicola.test',
+                'prueba.claude3@usuarios.avicola-gd.app'));
 delete from auth.users
-where email in ('prueba-claude@avicola.test', 'prueba-claude-2@avicola.test');
+where email in ('prueba-claude@avicola.test', 'prueba-claude-2@avicola.test',
+                'prueba.claude3@usuarios.avicola-gd.app');
 
 alter table public.ventas enable trigger ventas_proteger;
 alter table public.salidas_caja enable trigger salidas_caja_proteger;
