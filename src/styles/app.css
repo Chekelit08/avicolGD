@@ -160,11 +160,74 @@
 
   --animate-aparecer: aparecer 220ms ease-out;
   --animate-resaltar: resaltar 1.6s ease-out;
+  --animate-entrar: entrar 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-pagina: pagina 280ms ease-out;
+  --animate-flotar: flotar 1.4s ease-out forwards;
+  --animate-pop: pop 380ms cubic-bezier(0.3, 1.6, 0.5, 1);
+  --animate-latir: latir 2.4s ease-in-out infinite;
+  --animate-confeti: confeti 1.8s ease-in forwards;
 
   @keyframes aparecer {
     from {
       opacity: 0;
       transform: translateY(-6px);
+    }
+  }
+  /* Fila nueva en una lista: entra desde la izquierda. */
+  @keyframes entrar {
+    from {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+  }
+  /* Cambio de pantalla. */
+  @keyframes pagina {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  /* "+ $ 12.500" que sube y se desvanece sobre el total. */
+  @keyframes flotar {
+    0% {
+      opacity: 0;
+      transform: translateY(6px) scale(0.9);
+    }
+    15% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-28px) scale(1);
+    }
+  }
+  /* Aparición con rebote (íconos de éxito). */
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+  }
+  /* Punto "día abierto" que late suave. */
+  @keyframes latir {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+  /* Papelitos al cerrar el día con la caja justa. */
+  @keyframes confeti {
+    from {
+      opacity: 1;
+      transform: translate(0, -10vh) rotate(0deg);
+    }
+    to {
+      opacity: 0;
+      transform: translate(var(--deriva, 0px), 105vh) rotate(var(--giro, 540deg));
     }
   }
   @keyframes resaltar {
@@ -195,6 +258,17 @@
   :focus-visible {
     outline: 3px solid color-mix(in srgb, var(--foco) 55%, transparent);
     outline-offset: 2px;
+  }
+}
+
+/* Botones y tarjetas que responden al toque: se hunden un poco al apretar. */
+@utility presionable {
+  transition:
+    transform 120ms ease-out,
+    box-shadow 160ms ease-out,
+    background-color 160ms ease-out;
+  &:active:not(:disabled) {
+    transform: scale(0.97);
   }
 }
 

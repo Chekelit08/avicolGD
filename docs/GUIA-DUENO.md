@@ -26,6 +26,7 @@ El cursor ya está en el campo **Importe**: no hace falta hacer clic.
 
 Eso guarda la venta. Aparece "✓ Venta guardada" abajo a la derecha, el total sube y el campo queda vacío para la siguiente.
 Si te equivocaste, tocá **Deshacer** en ese aviso, o **Anular** en la lista (tenés 10 minutos). **Esc** borra lo que escribiste.
+**Vuelto:** después de una venta en efectivo aparece **"¿Con cuánto pagó?"**. Tocá el billete (por ejemplo **$ 10.000**) y te muestra el vuelto. Si no lo necesitás, seguí tipeando la próxima venta y desaparece sola.
 Si una venta es muy grande (más de $ 500.000), la app pregunta si está bien: **Enter** para guardar, **Esc** para corregir.
 
 <img src="capturas/03-cargar-venta.png" alt="Cargar una venta" width="560">
@@ -55,6 +56,7 @@ Esa plata se descuenta de lo que tiene que haber en la caja. El pago a proveedor
 
 1. Tocá **Cerrar el día** (arriba a la derecha).
 2. Contá la plata de la caja (incluido el fondo inicial), escribila y apretá **Enter**.
+   ¿Te es más fácil contar billete por billete? Tocá **Contar billete por billete**, poné cuántos hay de cada uno con **+** y **−** (y las monedas), y la app suma sola.
 3. La app te dice si **coincide**, si **sobra** o si **falta**. Si no coincide, escribí una nota.
 4. Apretá **Enter** otra vez para confirmar (o tocá **Sí, cerrar el día**).
 

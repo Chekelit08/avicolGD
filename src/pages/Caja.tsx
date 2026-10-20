@@ -1,5 +1,5 @@
 import { ArrowRight, HandCoins, LockKeyhole, RotateCcw, WifiOff } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { CampoImporte } from '../components/caja/CampoImporte'
 import { CargaVenta } from '../components/caja/CargaVenta'
@@ -23,7 +23,9 @@ import {
 import { mensajeDeError } from '../lib/errores'
 import { cantidadVentas, formatearFecha, formatearPesos } from '../lib/formato'
 import { diaSemanaCorto } from '../lib/periodos'
+import { horaArgentina, saludo } from '../lib/ayudas'
 import { useEnLinea } from '../lib/useEnLinea'
+import { useNumeroAnimado } from '../lib/useNumeroAnimado'
 import { useSesion } from '../sesion/Sesion'
 
 function fechaCorta(fecha: string) {
@@ -72,11 +74,19 @@ export function Caja() {
   )
 }
 
+/** "Buenas tardes, Gonza" (a la cuenta compartida del mostrador no se la nombra). */
+function useSaludo() {
+  const { perfil } = useSesion()
+  const nombre = perfil && perfil.rol === 'admin' ? `, ${perfil.nombre.split(' ')[0]}` : ''
+  return `${saludo(horaArgentina())}${nombre}`
+}
+
 function Centrado({ children }: { children: React.ReactNode }) {
   return <div className="mx-auto w-full max-w-md py-6 sm:py-12">{children}</div>
 }
 
 function AbrirDia({ hoy }: { hoy: string }) {
+  const saludoDelDia = useSaludo()
   const abrir = useAbrirDia()
   const [fondo, setFondo] = useState(0)
 
@@ -84,7 +94,10 @@ function AbrirDia({ hoy }: { hoy: string }) {
     <Centrado>
       <Tarjeta className="flex flex-col gap-5 p-6">
         <div>
-          <p className="text-sm text-suave first-letter:uppercase">{diaSemanaCorto(hoy)}</p>
+          <p className="text-sm text-suave">
+            {saludoDelDia} ·{' '}
+            <span className="inline-block first-letter:uppercase">{diaSemanaCorto(hoy)}</span>
+          </p>
           <h1 className="text-2xl font-semibold tracking-tight">Abrir el día</h1>
           <p className="mt-1 text-sm text-suave">
             Si arrancás con plata para el cambio, escribila. Si no, dejalo en 0 y apretá Enter.
@@ -191,45 +204,70 @@ function Indicador({
   className = '',
 }: {
   etiqueta: string
-  valor: string
+  valor: number
   detalle?: string
   className?: string
 }) {
+  const animado = useNumeroAnimado(valor)
   return (
-    <div className={`rounded-xl border border-borde bg-superficie p-4 shadow-tarjeta ${className}`}>
+    <div
+      className={`rounded-xl border border-borde bg-superficie p-4 shadow-tarjeta transition-shadow hover:shadow-alta ${className}`}
+    >
       <p className="text-xs font-medium text-suave">{etiqueta}</p>
-      <p className="mt-1 text-xl font-semibold tracking-tight cifras">{valor}</p>
+      <p className="mt-1 text-xl font-semibold tracking-tight cifras">{p(animado)}</p>
       {detalle && <p className="mt-0.5 text-xs text-suave">{detalle}</p>}
     </div>
   )
 }
 
+/** Cuando el total sube, muestra "+ $ X" flotando un momento. */
+function useSuma(total: number) {
+  const anterior = useRef(total)
+  const [suma, setSuma] = useState<{ monto: number; clave: number } | null>(null)
+  useEffect(() => {
+    const diferencia = total - anterior.current
+    anterior.current = total
+    if (diferencia <= 0) return
+    setSuma({ monto: diferencia, clave: Date.now() })
+    const t = window.setTimeout(() => setSuma(null), 1_400)
+    return () => window.clearTimeout(t)
+  }, [total])
+  return suma
+}
+
 function IndicadoresDelDia({ r }: { r: ResumenJornada | null | undefined }) {
+  const total = r?.total ?? 0
+  const totalAnimado = useNumeroAnimado(total, 700)
+  const suma = useSuma(total)
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      <div className="col-span-2 rounded-xl border border-borde bg-superficie p-5 shadow-tarjeta sm:col-span-3">
+      <div className="relative col-span-2 overflow-hidden rounded-xl border border-borde bg-superficie p-5 shadow-tarjeta sm:col-span-3">
         <p className="text-xs font-medium text-suave">Total de hoy</p>
-        <p
-          key={r?.total}
-          className="mt-1 animate-aparecer text-4xl font-semibold tracking-tight cifras"
-        >
-          {p(r?.total ?? 0)}
-        </p>
+        <p className="mt-1 text-4xl font-semibold tracking-tight cifras">{p(totalAnimado)}</p>
+        {suma && (
+          <span
+            key={suma.clave}
+            aria-hidden="true"
+            className="absolute top-5 right-5 animate-flotar rounded-full bg-ok-suave px-3 py-1 text-sm font-semibold text-ok cifras"
+          >
+            + {p(suma.monto)}
+          </span>
+        )}
         <p className="mt-0.5 text-xs text-suave">{cantidadVentas(r?.cantidad_ventas ?? 0)}</p>
       </div>
       <Indicador
         etiqueta="Efectivo"
-        valor={p(r?.total_efectivo ?? 0)}
+        valor={r?.total_efectivo ?? 0}
         detalle={`${cantidadVentas(r?.cantidad_efectivo ?? 0)} · en caja ${p(r?.efectivo_esperado ?? 0)}`}
       />
       <Indicador
         etiqueta="Digital"
-        valor={p(r?.total_digital ?? 0)}
+        valor={r?.total_digital ?? 0}
         detalle={cantidadVentas(r?.cantidad_digital ?? 0)}
       />
       <Indicador
         etiqueta="Ticket promedio"
-        valor={p(Math.round(r?.ticket_promedio ?? 0))}
+        valor={Math.round(r?.ticket_promedio ?? 0)}
         detalle="Por venta"
         className="col-span-2 sm:col-span-1"
       />
@@ -238,6 +276,7 @@ function IndicadoresDelDia({ r }: { r: ResumenJornada | null | undefined }) {
 }
 
 function DiaAbierto({ jornada }: { jornada: Jornada }) {
+  const saludoDelDia = useSaludo()
   const resumen = useResumenJornada(jornada.id)
   const ventas = useVentasDeJornada(jornada.id)
   const salidas = useSalidasDeJornada(jornada.id)
@@ -247,10 +286,19 @@ function DiaAbierto({ jornada }: { jornada: Jornada }) {
   return (
     <div>
       <Titulo
-        subtitulo={<span className="first-letter:uppercase">{diaSemanaCorto(jornada.fecha)}</span>}
+        subtitulo={
+          <>
+            {saludoDelDia} ·{' '}
+            <span className="inline-block first-letter:uppercase">
+              {diaSemanaCorto(jornada.fecha)}
+            </span>
+          </>
+        }
         accion={
           <div className="flex flex-wrap items-center gap-3">
-            <Chip tono="ok">● Día abierto</Chip>
+            <Chip tono="ok">
+              <span className="animate-latir motion-reduce:animate-none">●</span> Día abierto
+            </Chip>
             <button
               type="button"
               onClick={() => setSacando(true)}

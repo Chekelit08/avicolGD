@@ -1,11 +1,13 @@
-import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Banknote, CheckCircle2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router'
+import { ContadorBilletes } from '../components/caja/ContadorBilletes'
 import { MandarResumen } from '../components/caja/MandarResumen'
 import { Diferencia, ResumenDia } from '../components/caja/ResumenDia'
 import { CampoImporte } from '../components/caja/CampoImporte'
 import { Boton } from '../components/ui/Boton'
 import { AreaTexto } from '../components/ui/Campo'
+import { Confeti } from '../components/ui/Confeti'
 import { Aviso, Cargando, MensajeError, Tarjeta, Titulo } from '../components/ui/Estados'
 import { useCerrarDia, useEstadoDelDia, useResumenJornada, type Jornada } from '../datos/caja'
 import { calcularArqueo } from '../lib/caja'
@@ -38,6 +40,7 @@ function FormularioCierre({
   const [nota, setNota] = useState('')
   const [confirmando, setConfirmando] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
+  const [contando, setContando] = useState(false)
 
   if (resumen.isPending) return <Cargando />
   if (resumen.isError || !resumen.data)
@@ -101,6 +104,25 @@ function FormularioCierre({
             }}
             onAccion={alAccion}
           />
+          <button
+            type="button"
+            onClick={() => setContando((c) => !c)}
+            aria-expanded={contando}
+            className="inline-flex min-h-11 presionable items-center gap-2 self-start rounded-[10px] border border-borde-fuerte bg-superficie px-4 text-sm font-semibold shadow-tarjeta hover:bg-hundida"
+          >
+            <Banknote className="size-4" aria-hidden="true" />
+            {contando ? 'Ocultar el contador' : 'Contar billete por billete'}
+          </button>
+          {contando && (
+            <ContadorBilletes
+              alCambiar={(total) => {
+                setContado(total)
+                setTipeado(true)
+                setConfirmando(false)
+                setAviso(null)
+              }}
+            />
+          )}
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
             <span className="text-suave">
               Esperado en caja:{' '}
@@ -157,11 +179,15 @@ function FormularioCierre({
 }
 
 function DiaCerradoOk({ jornada }: { jornada: Jornada }) {
+  const justa = jornada.diferencia_efectivo === 0
   return (
     <div className="mx-auto w-full max-w-md py-12">
-      <Tarjeta className="flex flex-col items-center gap-4 p-8 text-center">
-        <CheckCircle2 className="size-12 text-ok" aria-hidden="true" />
-        <h1 className="text-2xl font-semibold tracking-tight">Día cerrado</h1>
+      {justa && <Confeti />}
+      <Tarjeta className="flex animate-pop flex-col items-center gap-4 p-8 text-center">
+        <CheckCircle2 className="size-14 animate-pop text-ok" aria-hidden="true" />
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {justa ? '¡Día cerrado, la caja da justa!' : 'Día cerrado'}
+        </h1>
         <p className="text-sm text-suave">
           La caja del {formatearFecha(new Date(`${jornada.fecha}T12:00:00-03:00`))} quedó cerrada.
         </p>

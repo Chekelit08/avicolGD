@@ -27,7 +27,12 @@ test('flujo del día: ingresar, abrir, cargar 3 ventas con el teclado, cerrar y 
   await importe.fill('12500')
   await expect(importe).toHaveValue('12.500')
   await importe.press('Enter')
-  await expect(page.getByText(/Venta guardada · Efectivo/)).toBeVisible()
+  await expect(page.getByText(/Venta guardada/)).toBeVisible()
+
+  // Calculadora de vuelto: pagó con $ 20.000
+  await page.getByRole('button', { name: '$ 20.000' }).click()
+  await expect(page.getByText(/Vuelto:\s*\$\s7\.500/)).toBeVisible()
+  await importe.focus()
   await expect(importe).toHaveValue('')
   await expect(importe).toBeFocused()
 
@@ -66,7 +71,12 @@ test('flujo del día: ingresar, abrir, cargar 3 ventas con el teclado, cerrar y 
   // esperado = 10.000 + 16.500 − 2.000
   await expect(page.getByText('$ 24.500,00').first()).toBeVisible()
   const contado = page.getByLabel('Efectivo contado')
-  await contado.fill('24000')
+  // Contar billete por billete: 1 de $ 20.000 y 4 de $ 1.000
+  await page.getByRole('button', { name: 'Contar billete por billete' }).click()
+  await page.getByRole('button', { name: 'Un billete de $ 20.000 más' }).click()
+  await page.getByLabel('Cantidad de billetes de $ 1.000').fill('4')
+  await expect(contado).toHaveValue('24.000')
+  await contado.focus()
   await expect(page.getByText(/Faltan \$\s500,00/)).toBeVisible()
   await contado.press('Enter')
   await expect(

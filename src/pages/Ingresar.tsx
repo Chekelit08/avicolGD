@@ -32,12 +32,12 @@ export function PantallaAcceso({
           <img
             src={logo}
             alt="Gonza — Carnicería, Chanchería, Avícola"
-            className="w-40 dark:rounded-xl dark:bg-white dark:p-3"
+            className="w-40 animate-pop dark:rounded-xl dark:bg-white dark:p-3"
           />
           <h1 className="mt-6 text-2xl font-semibold tracking-tight">{titulo}</h1>
           <p className="mt-1 text-sm text-suave">Avícola GD · Caja diaria</p>
         </div>
-        <div className="rounded-xl border border-borde bg-superficie p-6 shadow-tarjeta">
+        <div className="animate-pagina rounded-xl border border-borde bg-superficie p-6 shadow-tarjeta">
           {children}
         </div>
       </div>

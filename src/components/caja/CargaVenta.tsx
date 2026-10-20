@@ -1,4 +1,4 @@
-import { Banknote, Smartphone, Undo2 } from 'lucide-react'
+import { Banknote, CheckCircle2, Smartphone, Undo2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import {
   useAnularVenta,
@@ -13,6 +13,7 @@ import type { AccionTecla } from '../../lib/importe'
 import { formatearPesos } from '../../lib/formato'
 import { Boton } from '../ui/Boton'
 import { Aviso } from '../ui/Estados'
+import { CalculadoraVuelto } from './CalculadoraVuelto'
 import { CampoImporte } from './CampoImporte'
 
 const NOMBRE_MEDIO: Record<MedioPago, string> = { efectivo: 'Efectivo', digital: 'Digital' }
@@ -42,6 +43,7 @@ export function CargaVenta({
   const [porConfirmar, setPorConfirmar] = useState<MedioPago | null>(null)
   const [ultima, setUltima] = useState<Venta | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
+  const [vueltoDe, setVueltoDe] = useState<number | null>(null)
   const registrar = useRegistrarVenta()
   const anular = useAnularVenta()
   const { data: config } = useConfiguracion()
@@ -70,6 +72,7 @@ export function CargaVenta({
           navigator.vibrate?.(30)
           setImporte(0)
           setUltima(venta)
+          setVueltoDe(venta.medio_pago === 'efectivo' ? venta.importe : null)
           onGuardada?.(venta)
           window.clearTimeout(temporizador.current)
           temporizador.current = window.setTimeout(() => setUltima(null), 8_000)
@@ -135,6 +138,7 @@ export function CargaVenta({
         describedBy="ayuda-teclas"
         onCambio={(n) => {
           setImporte(n)
+          if (n > 0) setVueltoDe(null)
           setPorConfirmar(null)
           setAviso(null)
           if (registrar.isError) registrar.reset()
@@ -172,7 +176,7 @@ export function CargaVenta({
             onClick={() => guardar('efectivo')}
             disabled={registrar.isPending}
             aria-label="Guardar venta en efectivo"
-            className="flex min-h-16 items-center justify-between gap-2 rounded-xl bg-efectivo px-4 text-sobre-medio shadow-tarjeta transition hover:brightness-110 active:scale-[0.99] disabled:opacity-50"
+            className="flex min-h-16 items-center justify-between gap-2 rounded-xl bg-efectivo px-4 text-sobre-medio shadow-tarjeta transition hover:-translate-y-0.5 hover:shadow-alta hover:brightness-110 active:translate-y-0 active:scale-[0.97] disabled:opacity-50"
           >
             <span className="flex items-center gap-2 text-lg font-semibold">
               <Banknote className="size-5" aria-hidden="true" /> Efectivo
@@ -184,7 +188,7 @@ export function CargaVenta({
             onClick={() => guardar('digital')}
             disabled={registrar.isPending}
             aria-label="Guardar venta digital"
-            className="flex min-h-16 items-center justify-between gap-2 rounded-xl bg-digital px-4 text-sobre-medio shadow-tarjeta transition hover:brightness-110 active:scale-[0.99] disabled:opacity-50"
+            className="flex min-h-16 items-center justify-between gap-2 rounded-xl bg-digital px-4 text-sobre-medio shadow-tarjeta transition hover:-translate-y-0.5 hover:shadow-alta hover:brightness-110 active:translate-y-0 active:scale-[0.97] disabled:opacity-50"
           >
             <span className="flex items-center gap-2 text-lg font-semibold">
               <Smartphone className="size-5" aria-hidden="true" /> Digital
@@ -200,6 +204,10 @@ export function CargaVenta({
         Pago). <strong className="text-texto">Esc</strong> borra y{' '}
         <strong className="text-texto">−</strong> saca efectivo de la caja.
       </p>
+
+      {vueltoDe !== null && !porConfirmar && (
+        <CalculadoraVuelto importe={vueltoDe} alCerrar={() => setVueltoDe(null)} />
+      )}
 
       {aviso && <Aviso tono="aviso">{aviso}</Aviso>}
       {registrar.isError && (
@@ -222,8 +230,10 @@ export function CargaVenta({
         ) : ultima ? (
           <div className="pointer-events-auto flex animate-aparecer items-center gap-4 rounded-xl border border-borde bg-superficie px-4 py-3 shadow-alta">
             <span className="text-sm">
-              <span className="font-semibold text-ok">✓ Venta guardada</span> ·{' '}
-              {NOMBRE_MEDIO[ultima.medio_pago]}{' '}
+              <span className="inline-flex items-center gap-1 font-semibold text-ok">
+                <CheckCircle2 className="size-4 animate-pop" aria-hidden="true" /> Venta guardada
+              </span>{' '}
+              · {NOMBRE_MEDIO[ultima.medio_pago]}{' '}
               <span className="font-semibold cifras">
                 {formatearPesos(ultima.importe, { sinCentavos: true })}
               </span>

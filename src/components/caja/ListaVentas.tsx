@@ -60,7 +60,9 @@ export function ListaVentas({
         <ul className="divide-y divide-borde">
           {recortadas.map((v) => (
             <li key={v.id} className={`px-5 ${v.id === resaltada ? 'animate-resaltar' : ''}`}>
-              <div className={`flex min-h-12 items-center gap-4 ${v.anulada ? 'text-suave' : ''}`}>
+              <div
+                className={`flex min-h-12 items-center gap-4 ${v.anulada ? 'text-suave' : ''} ${v.id === resaltada ? 'animate-entrar' : ''}`}
+              >
                 <span className="w-11 text-sm text-suave cifras">
                   {formatearHora(new Date(v.registrada_en))}
                 </span>

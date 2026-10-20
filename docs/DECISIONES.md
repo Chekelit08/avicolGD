@@ -192,3 +192,21 @@ Una pantalla de admin para lo configurable: Mercado Pago (estado, carga automát
 - **Sin Mercado Pago en la pantalla.** Se sacaron la tarjeta de Ajustes, el aviso de cobro en la caja y la pregunta de duplicado. La base y la Edge Function `mercadopago` quedan, apagadas (sin claves no hacen nada), por si algún día se quiere conectar.
 - **Sin Personal.** La sección de empleados salió del menú y del gráfico de ganancia. Los sueldos, si se pagan, se cargan como egreso.
 - **Usuarios simples.** Se entra con un usuario (`mostrador`) o con email; por dentro el usuario es `<usuario>@usuarios.avicola-gd.app`. El admin escribe la contraseña o la genera, y elige si la persona tiene que cambiarla al entrar (`pedir_cambio`). Cada admin cambia la suya desde Usuarios.
+
+### Más animada, sin frenar el mostrador
+
+Animaciones cortas (menos de medio segundo) que acompañan lo que pasa y nunca bloquean el teclado:
+
+- el total del día cuenta hasta el valor nuevo y muestra "+ $ X" flotando;
+- la venta nueva entra a la lista;
+- los botones se hunden al apretarlos y cada pantalla aparece con un fundido;
+- el punto de "Día abierto" late suave;
+- hay papelitos cuando el cierre da justo.
+
+Todas se apagan si el sistema tiene "reducir movimiento".
+
+Funciones nuevas, opcionales y sin pasos extra:
+
+- **Calculadora de vuelto** después de cada venta en efectivo: billetes sugeridos y vuelto grande. Desaparece al tipear la próxima venta.
+- **Contador de billetes** al cerrar el día: cantidad por billete y monedas; el total va al efectivo contado.
+- **Saludo** según la hora.

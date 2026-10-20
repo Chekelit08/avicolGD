@@ -34,7 +34,7 @@ export function Boton({
       type="button"
       disabled={disabled || cargando}
       aria-busy={cargando || undefined}
-      className={`inline-flex touch-manipulation items-center justify-center gap-2 rounded-[10px] font-semibold transition-colors select-none disabled:cursor-not-allowed disabled:opacity-50 ${TAMANOS[tamano]} ${VARIANTES[variante]} ${className}`}
+      className={`inline-flex presionable touch-manipulation items-center justify-center gap-2 rounded-[10px] font-semibold select-none disabled:cursor-not-allowed disabled:opacity-50 ${TAMANOS[tamano]} ${VARIANTES[variante]} ${className}`}
       {...props}
     >
       {cargando ? 'Un momento…' : children}
