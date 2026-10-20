@@ -4,7 +4,7 @@ Una página para usar la app todos los días. No hace falta saber de computadora
 
 ## 1. Entrar
 
-Abrí la app (el ícono de la vaca en la compu o el celular del local). Escribí el email y la contraseña y tocá **Ingresar**.
+Abrí la app (el ícono de la vaca en la compu o el celular del local). Escribí el usuario (por ejemplo `mostrador`) o tu email, la contraseña, y tocá **Ingresar**.
 La sesión queda abierta todo el día; se cierra sola si pasan 12 horas sin usarla.
 
 <img src="capturas/01-ingresar.png" alt="Pantalla para ingresar" width="560">
@@ -76,17 +76,16 @@ En la barra de la izquierda aparecen más secciones:
 - **Consulta:** cualquier día, semana o mes, comparado con el período anterior. En el mes está **Descargar PDF para el contador** y **Descargar Excel**.
 - **Panel:** gráficos de cómo viene el negocio (por día, por semana, efectivo vs. digital, días y horas en que más se vende, ingresos y gastos) y cómo va hoy contra el mismo día de la semana pasada.
 - **Egresos:** cargar lo que se paga (alquiler, mercadería, luz, impuestos). Se anulan con motivo, no se borran.
-- **Personal:** empleados, sueldos, adelantos y aguinaldos, y cuánto cuesta el personal por mes.
-- **Usuarios:** crear cuentas, cambiar contraseñas, desactivar a quien ya no trabaja.
+- **Usuarios:** crear cuentas (con un usuario simple, por ejemplo `mostrador`, sin email), dar una contraseña nueva si alguien se la olvidó y desactivar a quien ya no trabaja. Los datos de entrada se pueden mandar por WhatsApp.
 - **Auditoría:** quién anuló, cerró, reabrió o cambió algo, y cuándo.
 - **Ajustes:** la conexión con Mercado Pago (y los cobros para revisar), el WhatsApp al que se manda el resumen y el importe a partir del cual la caja pide confirmación.
 
 <img src="capturas/06-panel.png" alt="Panel con gráficos" width="560">
 
-La **ganancia aproximada** es ventas − egresos − personal cargados en la app. Es una estimación, no un balance contable.
+La **ganancia aproximada** es ventas − egresos cargados en la app (si pagás sueldos, cargalos como egreso). Es una estimación, no un balance contable.
 
 ## Si algo no anda
 
-- **No puedo entrar:** revisá el email y la contraseña. Si te la olvidaste, tocá _Me olvidé la contraseña_ o pedile a un administrador una nueva.
+- **No puedo entrar:** revisá el usuario y la contraseña. Si te la olvidaste, pedile al dueño que en **Usuarios** toque _Se olvidó la contraseña_: te da una nueva al instante.
 - **Se ve todo raro o viejo:** cerrá la app y abrila de nuevo (se actualiza sola).
 - **Para cualquier otra cosa:** avisale a Ezequiel.

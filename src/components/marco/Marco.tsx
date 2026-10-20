@@ -11,7 +11,6 @@ import {
   Store,
   Sun,
   UserCog,
-  Users,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -33,7 +32,6 @@ const SECCIONES: Seccion[] = [
   { a: '/consulta', texto: 'Consulta', Icono: Search, soloAdmin: true },
   { a: '/panel', texto: 'Panel', Icono: BarChart3, soloAdmin: true },
   { a: '/egresos', texto: 'Egresos', Icono: Receipt, soloAdmin: true },
-  { a: '/personal', texto: 'Personal', Icono: Users, soloAdmin: true },
   { a: '/usuarios', texto: 'Usuarios', Icono: UserCog, soloAdmin: true },
   { a: '/auditoria', texto: 'Auditoría', Icono: ShieldCheck, soloAdmin: true },
   { a: '/ajustes', texto: 'Ajustes', Icono: Settings, soloAdmin: true },

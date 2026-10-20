@@ -9,10 +9,11 @@ import { Campo } from '../components/ui/Campo'
 import { MensajeError } from '../components/ui/Estados'
 import { esErrorDeRed, MENSAJE_SIN_INTERNET } from '../lib/errores'
 import { supabase } from '../lib/supabase'
+import { emailDeUsuario } from '../lib/usuario'
 import { useSesion } from '../sesion/Sesion'
 
 const esquema = z.object({
-  email: z.email('Escribí un email válido, por ejemplo nombre@gmail.com'),
+  email: z.string().trim().min(1, 'Escribí tu usuario (por ejemplo, mostrador) o tu email'),
   clave: z.string().min(1, 'Escribí tu contraseña'),
 })
 type Datos = z.infer<typeof esquema>
@@ -59,9 +60,14 @@ export function Ingresar() {
   const ingresar = handleSubmit(async ({ email, clave }) => {
     setError(null)
     try {
-      const { error: e } = await supabase().auth.signInWithPassword({ email, password: clave })
+      const { error: e } = await supabase().auth.signInWithPassword({
+        email: emailDeUsuario(email),
+        password: clave,
+      })
       if (e) {
-        setError(esErrorDeRed(e) ? MENSAJE_SIN_INTERNET : 'El email o la contraseña no coinciden.')
+        setError(
+          esErrorDeRed(e) ? MENSAJE_SIN_INTERNET : 'El usuario o la contraseña no coinciden.',
+        )
         return
       }
       navegar('/', { replace: true })
@@ -78,10 +84,10 @@ export function Ingresar() {
         {aviso && <p className="rounded-xl bg-hundida px-4 py-3 text-sm">{aviso}</p>}
         {error && <MensajeError>{error}</MensajeError>}
         <Campo
-          etiqueta="Email"
-          type="email"
+          etiqueta="Usuario o email"
           autoComplete="username"
-          inputMode="email"
+          autoCapitalize="none"
+          spellCheck={false}
           error={formState.errors.email?.message}
           {...register('email')}
         />

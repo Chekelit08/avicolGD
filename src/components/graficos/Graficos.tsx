@@ -361,24 +361,17 @@ export function GraficoIngresosEgresos({
   return (
     <TarjetaGrafico
       titulo="Ingresos, egresos y ganancia aproximada"
-      subtitulo="Estimación: ventas − egresos − personal. No incluye mercadería en stock, deudas ni impuestos no cargados."
+      subtitulo="Estimación: ventas − egresos. No incluye mercadería en stock, deudas ni impuestos no cargados."
       leyenda={[
         { color: COLORES.ingresos, texto: 'Ingresos (ventas)' },
         { color: COLORES.egresos, texto: 'Egresos' },
-        { color: COLORES.personal, texto: 'Personal' },
         { color: COLORES.texto, texto: 'Ganancia aprox.', forma: 'linea' },
       ]}
       cargando={cargando}
       tabla={
         <TablaDatos
-          columnas={['Mes', 'Ingresos', 'Egresos', 'Personal', 'Ganancia aprox.']}
-          filas={datos.map((d) => [
-            nombreMes(d.mes),
-            p(d.ingresos),
-            p(d.egresos),
-            p(d.personal),
-            p(d.ganancia),
-          ])}
+          columnas={['Mes', 'Ingresos', 'Egresos', 'Ganancia aprox.']}
+          filas={datos.map((d) => [nombreMes(d.mes), p(d.ingresos), p(d.egresos), p(d.ganancia)])}
         />
       }
     >
@@ -403,13 +396,6 @@ export function GraficoIngresosEgresos({
             dataKey="egresos"
             name="Egresos"
             fill={COLORES.egresos}
-            maxBarSize={BARRA_MAX}
-            radius={PUNTA}
-          />
-          <Bar
-            dataKey="personal"
-            name="Personal"
-            fill={COLORES.personal}
             maxBarSize={BARRA_MAX}
             radius={PUNTA}
           />

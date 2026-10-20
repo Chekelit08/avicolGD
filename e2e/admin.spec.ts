@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/ingresar')
-  await page.getByLabel('Email').fill('gabriel@avicola.test')
+  await page.getByLabel('Usuario o email').fill('gabriel@avicola.test')
   await page.getByLabel('Contraseña').fill('avicola-prueba-2026')
   await page.getByRole('button', { name: 'Ingresar' }).click()
   await expect(page.getByRole('link', { name: 'Egresos' })).toBeVisible()
@@ -32,10 +32,8 @@ test('el panel muestra indicadores y gráficos con su tabla', async ({ page }) =
   await expect(page.getByRole('columnheader', { name: 'Efectivo' }).first()).toBeVisible()
 })
 
-test('personal y auditoría cargan', async ({ page }) => {
-  await page.getByRole('link', { name: 'Personal' }).click()
-  await expect(page.getByRole('heading', { name: /Costo de personal de/ })).toBeVisible()
-  await expect(page.getByRole('cell', { name: 'Marcos Ríos' })).toBeVisible()
+test('la auditoría carga y Personal ya no está', async ({ page }) => {
+  await expect(page.getByRole('link', { name: 'Personal' })).toHaveCount(0)
   await page.getByRole('link', { name: 'Auditoría' }).click()
   await expect(page.getByRole('heading', { name: 'Auditoría' })).toBeVisible()
 })
@@ -53,4 +51,28 @@ test('en Ajustes se guarda el WhatsApp del dueño y se ve Mercado Pago', async (
   await expect(page.getByText('Se manda a +5491122334455')).toBeVisible()
   await page.getByRole('button', { name: 'Guardar número' }).click()
   await expect(page.getByRole('button', { name: 'Guardar número' })).toBeDisabled()
+})
+
+test('el admin crea la cuenta Mostrador con un clic y entra con usuario simple', async ({
+  page,
+  browser,
+}) => {
+  await page.getByRole('link', { name: 'Usuarios' }).click()
+  await page.getByRole('button', { name: 'Nueva cuenta' }).click()
+  const usuario = `caja${Date.now() % 100000}`
+  await page.getByLabel('Nombre').fill('Caja de prueba')
+  await page.getByLabel('Usuario para entrar').fill(usuario)
+  await page.getByRole('button', { name: 'Crear cuenta' }).click()
+  await expect(page.getByText('✓ Cuenta de Caja de prueba creada')).toBeVisible()
+  const clave = await page.locator('dd').nth(1).innerText()
+  await expect(page.getByRole('link', { name: 'Mandar por WhatsApp' })).toBeVisible()
+
+  // La persona entra escribiendo solo el usuario
+  const otra = await browser.newPage()
+  await otra.goto('/ingresar')
+  await otra.getByLabel('Usuario o email').fill(usuario)
+  await otra.getByLabel('Contraseña').fill(clave)
+  await otra.getByRole('button', { name: 'Ingresar' }).click()
+  await expect(otra.getByText(/elegí tu contraseña/)).toBeVisible()
+  await otra.close()
 })

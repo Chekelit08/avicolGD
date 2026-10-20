@@ -17,7 +17,6 @@ import { ProveedorSesion } from './sesion/Sesion'
 const Consulta = lazy(() => import('./pages/admin/Consulta'))
 const Panel = lazy(() => import('./pages/admin/Panel'))
 const Egresos = lazy(() => import('./pages/admin/Egresos'))
-const Personal = lazy(() => import('./pages/admin/Personal'))
 const Usuarios = lazy(() => import('./pages/admin/Usuarios'))
 const Auditoria = lazy(() => import('./pages/admin/Auditoria'))
 const Ajustes = lazy(() => import('./pages/admin/Ajustes'))
@@ -71,7 +70,6 @@ export function App() {
                     <Route path="consulta" element={<Consulta />} />
                     <Route path="panel" element={<Panel />} />
                     <Route path="egresos" element={<Egresos />} />
-                    <Route path="personal" element={<Personal />} />
                     <Route path="usuarios" element={<Usuarios />} />
                     <Route path="auditoria" element={<Auditoria />} />
                     <Route path="ajustes" element={<Ajustes />} />

@@ -5,7 +5,7 @@ const CLAVE = 'avicola-prueba-2026'
 
 async function ingresar(page: Page, email: string) {
   await page.goto('/ingresar')
-  await page.getByLabel('Email').fill(email)
+  await page.getByLabel('Usuario o email').fill(email)
   await page.getByLabel('Contraseña').fill(CLAVE)
   await page.getByRole('button', { name: 'Ingresar' }).click()
 }
@@ -112,15 +112,15 @@ test('el cajero no ve las secciones de administración', async ({ page }) => {
 
 test('login con contraseña incorrecta muestra un error claro', async ({ page }) => {
   await page.goto('/ingresar')
-  await page.getByLabel('Email').fill('mostrador@avicola.test')
+  await page.getByLabel('Usuario o email').fill('mostrador@avicola.test')
   await page.getByLabel('Contraseña').fill('cualquiera-mal')
   await page.getByRole('button', { name: 'Ingresar' }).click()
-  await expect(page.getByText('El email o la contraseña no coinciden.')).toBeVisible()
+  await expect(page.getByText('El usuario o la contraseña no coinciden.')).toBeVisible()
 })
 
 test('con clave temporal, el primer ingreso obliga a elegir una nueva', async ({ page }) => {
   await page.goto('/ingresar')
-  await page.getByLabel('Email').fill('temporal@avicola.test')
+  await page.getByLabel('Usuario o email').fill('temporal@avicola.test')
   await page.getByLabel('Contraseña').fill('pollo-asado-1234')
   await page.getByRole('button', { name: 'Ingresar' }).click()
   await expect(page.getByText('Hola Lucía: elegí tu contraseña')).toBeVisible()
