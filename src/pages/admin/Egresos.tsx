@@ -1,13 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { format, startOfMonth } from 'date-fns'
+import { addMonths, endOfMonth, format, startOfMonth } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { ChevronLeft, ChevronRight, PlusCircle, Wallet } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { GraficoEgresosCategoria } from '../../components/graficos/Graficos'
 import { Boton } from '../../components/ui/Boton'
+import { TotalDestacado } from '../../components/ui/Destacado'
 import { Campo, Selector } from '../../components/ui/Campo'
 import {
   Cargando,
+  Chip,
   EtiquetaMedio,
   MensajeError,
   Tarjeta,
@@ -21,7 +25,6 @@ import {
   useCrearEgreso,
   useEgresos,
   useGuardarCategoria,
-  useProveedores,
   type FiltroEgresos,
 } from '../../datos/admin'
 import { useEgresosPorCategoria } from '../../datos/reportes'
@@ -43,12 +46,15 @@ type Salida = z.output<typeof esquema>
 
 export default function Egresos() {
   const hoy = fechaDeTrabajo(new Date())
-  const [filtro, setFiltro] = useState<FiltroEgresos>({
-    desde: format(startOfMonth(leerFecha(hoy)), 'yyyy-MM-dd'),
-    hasta: hoy,
+  const [mes, setMes] = useState(() => startOfMonth(leerFecha(hoy)))
+  const fin = format(endOfMonth(mes), 'yyyy-MM-dd')
+  const filtro: FiltroEgresos = {
+    desde: format(mes, 'yyyy-MM-dd'),
+    hasta: fin < hoy ? fin : hoy,
     categoriaId: '',
     proveedor: '',
-  })
+  }
+  const esEsteMes = fin >= hoy
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,7 +64,31 @@ export default function Egresos() {
           <FormularioEgreso hoy={hoy} />
           <Categorias />
         </div>
-        <Listado filtro={filtro} setFiltro={setFiltro} />
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-borde bg-superficie p-2 shadow-tarjeta">
+            <Boton
+              variante="secundario"
+              className="size-11 shrink-0 px-0"
+              aria-label="Mes anterior"
+              onClick={() => setMes((m) => addMonths(m, -1))}
+            >
+              <ChevronLeft className="size-5" aria-hidden="true" />
+            </Boton>
+            <h2 className="text-lg font-semibold tracking-tight first-letter:uppercase">
+              {format(mes, "MMMM 'de' yyyy", { locale: es })}
+            </h2>
+            <Boton
+              variante="secundario"
+              className="size-11 shrink-0 px-0"
+              aria-label="Mes siguiente"
+              disabled={esEsteMes}
+              onClick={() => setMes((m) => addMonths(m, 1))}
+            >
+              <ChevronRight className="size-5" aria-hidden="true" />
+            </Boton>
+          </div>
+          <Listado filtro={filtro} />
+        </div>
       </div>
     </div>
   )
@@ -66,7 +96,6 @@ export default function Egresos() {
 
 function FormularioEgreso({ hoy }: { hoy: string }) {
   const categorias = useCategorias()
-  const proveedores = useProveedores()
   const crear = useCrearEgreso()
   const [guardado, setGuardado] = useState<string | null>(null)
   const { register, handleSubmit, control, reset, formState } = useForm<Entrada, unknown, Salida>({
@@ -80,7 +109,7 @@ function FormularioEgreso({ hoy }: { hoy: string }) {
       { ...d, proveedor: d.proveedor || null },
       {
         onSuccess: () => {
-          setGuardado(`Egreso guardado: ${d.descripcion} ${formatearPesos(d.monto)}`)
+          setGuardado(`Gasto guardado: ${d.descripcion} ${formatearPesos(d.monto)}`)
           reset({ fecha: d.fecha, categoria_id: '', descripcion: '', proveedor: '', monto: '' })
         },
       },
@@ -89,7 +118,12 @@ function FormularioEgreso({ hoy }: { hoy: string }) {
 
   return (
     <Tarjeta>
-      <h2 className="mb-3 font-semibold">Cargar un egreso</h2>
+      <h2 className="mb-4 flex items-center gap-2 text-[15px] font-semibold">
+        <span className="grid size-7 place-items-center rounded-lg bg-marca-suave text-marca">
+          <PlusCircle className="size-4" aria-hidden="true" />
+        </span>
+        Anotar un gasto
+      </h2>
       <form onSubmit={guardar} noValidate className="flex flex-col gap-3">
         <Campo
           etiqueta="Fecha"
@@ -118,18 +152,6 @@ function FormularioEgreso({ hoy }: { hoy: string }) {
           error={formState.errors.descripcion?.message}
           {...register('descripcion')}
         />
-        <Campo
-          etiqueta="Proveedor (opcional)"
-          list="proveedores"
-          autoComplete="off"
-          error={formState.errors.proveedor?.message}
-          {...register('proveedor')}
-        />
-        <datalist id="proveedores">
-          {(proveedores.data ?? []).map((p) => (
-            <option key={p} value={p} />
-          ))}
-        </datalist>
         <Campo
           etiqueta="Monto"
           inputMode="decimal"
@@ -166,8 +188,8 @@ function FormularioEgreso({ hoy }: { hoy: string }) {
             ✓ {guardado}
           </p>
         )}
-        <Boton type="submit" cargando={crear.isPending}>
-          Guardar egreso
+        <Boton type="submit" tamano="grande" cargando={crear.isPending}>
+          Guardar gasto
         </Boton>
       </form>
     </Tarjeta>
@@ -234,65 +256,27 @@ function Categorias() {
   )
 }
 
-function Listado({
-  filtro,
-  setFiltro,
-}: {
-  filtro: FiltroEgresos
-  setFiltro: (f: FiltroEgresos) => void
-}) {
+function Listado({ filtro }: { filtro: FiltroEgresos }) {
   const egresos = useEgresos(filtro)
-  const categorias = useCategorias()
   const porCategoria = useEgresosPorCategoria(filtro)
   const [verAnulados, setVerAnulados] = useState(false)
   const [anulando, setAnulando] = useState<string | null>(null)
 
   const filas = (egresos.data ?? []).filter((e) => verAnulados || !e.anulado)
-  const total = (egresos.data ?? []).filter((e) => !e.anulado).reduce((s, e) => s + e.monto, 0)
+  const vigentes = (egresos.data ?? []).filter((e) => !e.anulado)
+  const total = vigentes.reduce((s, e) => s + e.monto, 0)
+  const hayAnulados = (egresos.data ?? []).some((e) => e.anulado)
 
   return (
     <div className="flex flex-col gap-4">
-      <Tarjeta className="flex flex-wrap items-end gap-3">
-        <Campo
-          etiqueta="Desde"
-          type="date"
-          value={filtro.desde}
-          max={filtro.hasta}
-          onChange={(e) => e.target.value && setFiltro({ ...filtro, desde: e.target.value })}
-        />
-        <Campo
-          etiqueta="Hasta"
-          type="date"
-          value={filtro.hasta}
-          min={filtro.desde}
-          onChange={(e) => e.target.value && setFiltro({ ...filtro, hasta: e.target.value })}
-        />
-        <Selector
-          etiqueta="Categoría"
-          value={filtro.categoriaId}
-          onChange={(e) => setFiltro({ ...filtro, categoriaId: e.target.value })}
-        >
-          <option value="">Todas</option>
-          {(categorias.data ?? []).map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.nombre}
-            </option>
-          ))}
-        </Selector>
-        <Campo
-          etiqueta="Proveedor"
-          value={filtro.proveedor}
-          placeholder="Buscar…"
-          onChange={(e) => setFiltro({ ...filtro, proveedor: e.target.value })}
-        />
-      </Tarjeta>
+      <TotalDestacado
+        etiqueta="Gastado en el mes"
+        valor={formatearPesos(total, { sinCentavos: total % 1 === 0 })}
+        detalle={`${vigentes.length} ${vigentes.length === 1 ? 'gasto anotado' : 'gastos anotados'}`}
+        Icono={Wallet}
+      />
 
-      <p className="flex items-baseline justify-between gap-3 px-1">
-        <span className="text-suave">Total del período (sin anulados)</span>
-        <span className="text-3xl font-semibold">{formatearPesos(total)}</span>
-      </p>
-
-      {!filtro.categoriaId && !filtro.proveedor && (
+      {vigentes.length > 0 && (
         <GraficoEgresosCategoria
           datos={porCategoria.data ?? []}
           cargando={porCategoria.isFetching}
@@ -300,34 +284,36 @@ function Listado({
       )}
 
       {egresos.isError && <MensajeError>{mensajeDeError(egresos.error)}</MensajeError>}
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold">Egresos</h2>
-        <label className="flex min-h-11 items-center gap-2 text-sm text-suave">
-          <input
-            type="checkbox"
-            className="size-5"
-            checked={verAnulados}
-            onChange={(e) => setVerAnulados(e.target.checked)}
-          />
-          Ver anulados
-        </label>
+      <div className="flex min-h-11 items-center justify-between">
+        <h2 className="text-[15px] font-semibold">Detalle</h2>
+        {hayAnulados && (
+          <label className="flex min-h-11 items-center gap-2 text-sm text-suave">
+            <input
+              type="checkbox"
+              className="size-5 accent-marca"
+              checked={verAnulados}
+              onChange={(e) => setVerAnulados(e.target.checked)}
+            />
+            Ver anulados
+          </label>
+        )}
       </div>
       {egresos.isPending ? (
         <Cargando />
       ) : filas.length === 0 ? (
-        <Vacio titulo="No hay egresos en este período">Cargá el primero con el formulario.</Vacio>
+        <Vacio titulo="No hay gastos anotados este mes">Anotá el primero con el formulario.</Vacio>
       ) : (
         <ul className="divide-y divide-borde overflow-hidden rounded-xl border border-borde bg-superficie shadow-tarjeta">
           {filas.map((e) => (
             <li key={e.id} className={`px-4 py-3 ${e.anulado ? 'text-suave' : ''}`}>
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <div className="min-w-0">
                   <p className={`font-semibold ${e.anulado ? 'line-through' : ''}`}>
                     {e.descripcion}
                   </p>
-                  <p className="text-sm text-suave">
-                    {fechaLarga(e.fecha)} · {e.categoria?.nombre}
-                    {e.proveedor ? ` · ${e.proveedor}` : ''} ·{' '}
+                  <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-suave">
+                    <span className="cifras">{fechaLarga(e.fecha).slice(0, 5)}</span>
+                    {e.categoria?.nombre && <Chip>{e.categoria.nombre}</Chip>}
                     <EtiquetaMedio medio={e.medio_pago} />
                   </p>
                   {e.anulado && <p className="text-sm">Anulado: {e.motivo_anulacion}</p>}
@@ -345,7 +331,7 @@ function Listado({
                     <button
                       type="button"
                       onClick={() => setAnulando(e.id)}
-                      className="min-h-11 px-2 text-sm font-semibold text-alerta-texto underline-offset-4 hover:underline"
+                      className="min-h-9 rounded-lg px-2 text-sm font-medium text-suave hover:bg-alerta-suave hover:text-alerta-texto"
                     >
                       Anular
                     </button>
@@ -386,7 +372,7 @@ function AnularEgreso({ id, alTerminar }: { id: string; alTerminar: () => void }
           cargando={anular.isPending}
           onClick={() => anular.mutate({ id, motivo: motivo.trim() }, { onSuccess: alTerminar })}
         >
-          Anular egreso
+          Anular gasto
         </Boton>
       </div>
     </div>

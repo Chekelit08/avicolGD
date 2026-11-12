@@ -12,3 +12,17 @@ createRoot(raiz).render(
     <App />
   </StrictMode>,
 )
+
+// Cuando se publica una versión nueva, la app se actualiza sola: sin esto, la pantalla
+// abierta seguía mostrando la versión vieja hasta que alguien recargaba a mano.
+if ('serviceWorker' in navigator) {
+  let teniaControl = Boolean(navigator.serviceWorker.controller)
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (teniaControl) window.location.reload()
+    teniaControl = true
+  })
+  // La compu del mostrador puede quedar abierta días: buscar versión nueva cada hora.
+  window.setInterval(() => {
+    void navigator.serviceWorker.getRegistration().then((r) => r?.update())
+  }, 60 * 60_000)
+}

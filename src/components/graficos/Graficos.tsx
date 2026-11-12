@@ -426,7 +426,7 @@ export function GraficoEgresosCategoria({
   const total = datos.reduce((s, d) => s + d.total, 0)
   return (
     <TarjetaGrafico
-      titulo="Egresos por categoría"
+      titulo="Gastos por categoría"
       subtitulo={`Total del período: ${p(total)}`}
       cargando={cargando}
       tabla={
