@@ -39,7 +39,7 @@ const base: DatosResumen = {
 describe('textoResumen', () => {
   it('resume el día con lo que importa', () => {
     const t = textoResumen(base)
-    expect(t).toContain('cierre del sábado 17/10')
+    expect(t).toContain('ventas del sábado 17/10')
     expect(t).toMatch(/Total: \*\$\s245\.300\* \(87 ventas\)/)
     expect(t).toMatch(/Mercado Pago: \$\s80\.000/)
     expect(t).toMatch(/Salidas de caja: − \$\s30\.000/)
@@ -91,7 +91,6 @@ describe('textoResumenSemanal', () => {
     expect(t).toContain('8 % más que la semana anterior')
     expect(t).toContain('Mejor día: sábado 17/10')
     expect(t).toMatch(/quedó aprox\. \$\s780\.000/)
-    expect(t).toMatch(/faltaron \$\s500/)
   })
   it('sin ventas lo dice simple', () => {
     expect(textoResumenSemanal({ ...semana, cantidad_ventas: 0, total: 0 })).toContain(

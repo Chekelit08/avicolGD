@@ -35,7 +35,7 @@ export function textoResumen(r: DatosResumen): string {
   const [anio, mes, dia] = r.fecha.split('-')
   const nombreDia = DIAS[new Date(Number(anio), Number(mes) - 1, Number(dia)).getDay()]
   const lineas = [
-    `*Avícola GD · cierre del ${nombreDia} ${dia}/${mes}*`,
+    `*Avícola GD · ventas del ${nombreDia} ${dia}/${mes}*`,
     `Total: *${p(r.total)}* (${r.cantidad_ventas} ${r.cantidad_ventas === 1 ? 'venta' : 'ventas'})`,
     `• Efectivo: ${p(r.total_efectivo)}`,
     `• Digital: ${p(r.total_digital)}` +
@@ -115,13 +115,6 @@ export function textoResumenSemanal(s: DatosSemana): string {
   }
   if (s.egresos > 0) {
     lineas.push(`Gastos cargados: ${p(s.egresos)} · quedó aprox. ${p(s.total - s.egresos)}`)
-  }
-  if (s.diferencia_caja !== 0) {
-    lineas.push(
-      `Diferencias de caja en la semana: ${s.diferencia_caja > 0 ? 'sobraron' : 'faltaron'} ${p(Math.abs(s.diferencia_caja))}`,
-    )
-  } else {
-    lineas.push('La caja dio justa todos los días ✅')
   }
   return lineas.join('\n')
 }

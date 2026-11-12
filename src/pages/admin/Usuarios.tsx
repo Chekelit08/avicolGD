@@ -21,8 +21,8 @@ import { useSesion } from '../../sesion/Sesion'
 
 const NOMBRE_ROL: Record<Rol, string> = { cajero: 'Mostrador', admin: 'Dueño' }
 const AYUDA_ROL: Record<Rol, string> = {
-  cajero: 'Solo carga ventas, saca efectivo y cierra el día.',
-  admin: 'Ve todo: consultas, panel, egresos, ajustes y usuarios.',
+  cajero: 'Solo carga las ventas.',
+  admin: 'Ve todo: resumen, historial, gastos y usuarios.',
 }
 
 interface Datos {

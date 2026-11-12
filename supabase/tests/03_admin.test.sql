@@ -39,7 +39,7 @@ select ok(
 
 -- Un día que quedó abierto de ayer bloquea abrir hoy
 select throws_ok($$select public.abrir_jornada(0)$$, 'P0001', null, 'con un día viejo abierto no se abre otro');
-select throws_ok($$select public.registrar_venta(100, 'efectivo')$$, 'P0001', null, 'ni se cargan ventas de hoy en el día viejo');
+select lives_ok($$select public.registrar_venta(100, 'efectivo')$$, 'pero una venta cierra sola el día viejo y abre el de hoy');
 
 -- El admin cambia nombre y rol, pero no el email ni la marca de clave temporal
 update public.perfiles set email = 'otro@x.com', debe_cambiar_clave = true, nombre = 'Caja 1'

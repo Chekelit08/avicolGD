@@ -6,7 +6,6 @@ import { Marco } from './components/marco/Marco'
 import { Cargando } from './components/ui/Estados'
 import { supabaseConfigurado } from './lib/supabase'
 import { Caja } from './pages/Caja'
-import { CerrarDia } from './pages/CerrarDia'
 import { Estilo } from './pages/Estilo'
 import { Ingresar } from './pages/Ingresar'
 import { NuevaClave } from './pages/NuevaClave'
@@ -18,8 +17,6 @@ const Consulta = lazy(() => import('./pages/admin/Consulta'))
 const Panel = lazy(() => import('./pages/admin/Panel'))
 const Egresos = lazy(() => import('./pages/admin/Egresos'))
 const Usuarios = lazy(() => import('./pages/admin/Usuarios'))
-const Auditoria = lazy(() => import('./pages/admin/Auditoria'))
-const Ajustes = lazy(() => import('./pages/admin/Ajustes'))
 
 const clienteConsultas = new QueryClient({
   defaultOptions: {
@@ -65,14 +62,11 @@ export function App() {
               <Route element={<ConSesion />}>
                 <Route element={<Marco />}>
                   <Route index element={<Caja />} />
-                  <Route path="cerrar" element={<CerrarDia />} />
                   <Route element={<SoloAdmin />}>
                     <Route path="consulta" element={<Consulta />} />
                     <Route path="panel" element={<Panel />} />
                     <Route path="egresos" element={<Egresos />} />
                     <Route path="usuarios" element={<Usuarios />} />
-                    <Route path="auditoria" element={<Auditoria />} />
-                    <Route path="ajustes" element={<Ajustes />} />
                   </Route>
                 </Route>
               </Route>

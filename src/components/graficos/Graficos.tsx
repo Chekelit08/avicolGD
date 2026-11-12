@@ -360,11 +360,11 @@ export function GraficoIngresosEgresos({
 }) {
   return (
     <TarjetaGrafico
-      titulo="Ingresos, egresos y ganancia aproximada"
-      subtitulo="Estimación: ventas − egresos. No incluye mercadería en stock, deudas ni impuestos no cargados."
+      titulo="Ventas, gastos y ganancia aproximada"
+      subtitulo="Estimación: ventas − gastos. No incluye mercadería en stock, deudas ni impuestos no cargados."
       leyenda={[
-        { color: COLORES.ingresos, texto: 'Ingresos (ventas)' },
-        { color: COLORES.egresos, texto: 'Egresos' },
+        { color: COLORES.ingresos, texto: 'Ventas' },
+        { color: COLORES.egresos, texto: 'Gastos' },
         { color: COLORES.texto, texto: 'Ganancia aprox.', forma: 'linea' },
       ]}
       cargando={cargando}

@@ -1,53 +1,29 @@
-import { format, startOfMonth, startOfYear } from 'date-fns'
-import { useState } from 'react'
+import { format, startOfMonth } from 'date-fns'
 import {
   DistribucionMedios,
   GraficoDiasSemana,
-  GraficoFacturacionAgrupada,
   GraficoFacturacionDiaria,
-  GraficoHoras,
   GraficoIngresosEgresos,
 } from '../../components/graficos/Graficos'
 import { Indicador, Variacion } from '../../components/graficos/Piezas'
 import { ResumenSemanal } from '../../components/ResumenSemanal'
 import { MensajeError, Titulo } from '../../components/ui/Estados'
-import { Segmentado } from '../../components/ui/Segmentado'
 import {
-  useFacturacionAgrupada,
   useFacturacionPorDia,
   useHoyContraSemanaPasada,
   useIngresosEgresos,
   useResumenPeriodo,
   useVentasPorDiaSemana,
-  useVentasPorHora,
 } from '../../datos/reportes'
 import type { HoyContraSemanaPasada as HoyVs } from '../../datos/reportes'
 import { variacion } from '../../lib/caja'
 import { mensajeDeError } from '../../lib/errores'
 import { fechaDeTrabajo, formatearPesos } from '../../lib/formato'
-import {
-  diaSemanaCorto,
-  hastaHoy,
-  leerFecha,
-  periodo,
-  ultimosDias,
-  type Rango,
-} from '../../lib/periodos'
-
-type Rapido = '30' | '90' | 'anio' | 'otro'
-
-function rangoRapido(r: Rapido, hoy: string): Rango {
-  if (r === '30') return ultimosDias(hoy, 30)
-  if (r === '90') return ultimosDias(hoy, 90)
-  return { desde: format(startOfYear(leerFecha(hoy)), 'yyyy-MM-dd'), hasta: hoy }
-}
+import { diaSemanaCorto, hastaHoy, leerFecha, periodo, ultimosDias } from '../../lib/periodos'
 
 export default function Panel() {
   const hoy = fechaDeTrabajo(new Date())
-  const [rapido, setRapido] = useState<Rapido>('30')
-  const [propio, setPropio] = useState<Rango>(ultimosDias(hoy, 30))
-  const [unidad, setUnidad] = useState<'week' | 'month'>('week')
-  const rango = rapido === 'otro' ? propio : rangoRapido(rapido, hoy)
+  const rango = ultimosDias(hoy, 30)
   const rangoMeses = {
     desde: format(startOfMonth(leerFecha(rango.desde)), 'yyyy-MM-dd'),
     hasta: rango.hasta,
@@ -59,22 +35,18 @@ export default function Panel() {
   const resumenMesAnterior = useResumenPeriodo(mes.anterior)
   const resumenRango = useResumenPeriodo(rango)
   const porDia = useFacturacionPorDia(rango)
-  const agrupada = useFacturacionAgrupada(rango, unidad)
   const diasSemana = useVentasPorDiaSemana(rango)
   const ingresosEgresos = useIngresosEgresos(rangoMeses)
-  const porHora = useVentasPorHora(rango)
   const hoyVs = useHoyContraSemanaPasada()
 
-  const error = [resumenMes, porDia, agrupada, diasSemana, ingresosEgresos, porHora].find(
-    (q) => q.isError,
-  )?.error
+  const error = [resumenMes, porDia, diasSemana, ingresosEgresos].find((q) => q.isError)?.error
   const rm = resumenMes.data
   const rma = resumenMesAnterior.data
   const p = (n: number) => formatearPesos(n, { sinCentavos: true })
 
   return (
     <div className="flex flex-col gap-4">
-      <Titulo>Panel</Titulo>
+      <Titulo subtitulo="Cómo viene el negocio, de un vistazo.">Resumen</Titulo>
       {error ? <MensajeError>{mensajeDeError(error)}</MensajeError> : null}
 
       {hoyVs.data && <HoyContraSemanaPasada datos={hoyVs.data} />}
@@ -125,76 +97,15 @@ export default function Panel() {
         />
       </div>
 
-      <div className="mt-2 flex flex-wrap items-end gap-3">
-        <Segmentado
-          etiqueta="Período de los gráficos"
-          valor={rapido}
-          onCambio={setRapido}
-          opciones={[
-            { valor: '30', texto: 'Últimos 30 días' },
-            { valor: '90', texto: '90 días' },
-            { valor: 'anio', texto: 'Este año' },
-            { valor: 'otro', texto: 'Elegir fechas' },
-          ]}
-        />
-        {rapido === 'otro' && (
-          <div className="flex flex-wrap gap-2">
-            <label className="flex flex-col text-sm font-semibold">
-              Desde
-              <input
-                type="date"
-                value={propio.desde}
-                max={propio.hasta}
-                onChange={(e) =>
-                  e.target.value && setPropio((r) => ({ ...r, desde: e.target.value }))
-                }
-                className="min-h-11 rounded-xl border border-borde bg-superficie px-2 font-normal shadow-tarjeta"
-              />
-            </label>
-            <label className="flex flex-col text-sm font-semibold">
-              Hasta
-              <input
-                type="date"
-                value={propio.hasta}
-                min={propio.desde}
-                max={hoy}
-                onChange={(e) =>
-                  e.target.value && setPropio((r) => ({ ...r, hasta: e.target.value }))
-                }
-                className="min-h-11 rounded-xl border border-borde bg-superficie px-2 font-normal shadow-tarjeta"
-              />
-            </label>
-          </div>
-        )}
-      </div>
-
+      <h2 className="mt-2 text-[15px] font-semibold">Últimos 30 días</h2>
       <GraficoFacturacionDiaria datos={porDia.data ?? []} cargando={porDia.isFetching} />
       <div className="grid gap-4 lg:grid-cols-2">
-        <GraficoFacturacionAgrupada
-          datos={agrupada.data ?? []}
-          unidad={unidad}
-          cargando={agrupada.isFetching}
-          accion={
-            <Segmentado
-              etiqueta="Agrupar por"
-              valor={unidad}
-              onCambio={setUnidad}
-              opciones={[
-                { valor: 'week', texto: 'Semana' },
-                { valor: 'month', texto: 'Mes' },
-              ]}
-            />
-          }
+        <DistribucionMedios
+          efectivo={resumenRango.data?.total_efectivo ?? 0}
+          digital={resumenRango.data?.total_digital ?? 0}
         />
-        <div className="flex flex-col gap-4">
-          <DistribucionMedios
-            efectivo={resumenRango.data?.total_efectivo ?? 0}
-            digital={resumenRango.data?.total_digital ?? 0}
-          />
-          <GraficoDiasSemana datos={diasSemana.data ?? []} cargando={diasSemana.isFetching} />
-        </div>
+        <GraficoDiasSemana datos={diasSemana.data ?? []} cargando={diasSemana.isFetching} />
       </div>
-      <GraficoHoras datos={porHora.data ?? []} cargando={porHora.isFetching} />
       <GraficoIngresosEgresos
         datos={ingresosEgresos.data ?? []}
         cargando={ingresosEgresos.isFetching}

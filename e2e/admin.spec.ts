@@ -5,12 +5,12 @@ test.beforeEach(async ({ page }) => {
   await page.getByLabel('Usuario o email').fill('gabriel@avicola.test')
   await page.getByLabel('Contraseña').fill('avicola-prueba-2026')
   await page.getByRole('button', { name: 'Ingresar' }).click()
-  await expect(page.getByRole('link', { name: 'Egresos' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Gastos' })).toBeVisible()
 })
 
 test('el admin carga un egreso y lo ve en el listado', async ({ page }) => {
   const descripcion = `Bolsas ${Date.now()}`
-  await page.getByRole('link', { name: 'Egresos' }).click()
+  await page.getByRole('link', { name: 'Gastos' }).click()
   await page.getByLabel('Categoría').first().selectOption({ label: 'Otros' })
   await page.getByLabel('Qué se pagó').fill(descripcion)
   await page.getByLabel('Monto').fill('15.000')
@@ -23,10 +23,9 @@ test('el admin carga un egreso y lo ve en el listado', async ({ page }) => {
 })
 
 test('el panel muestra indicadores y gráficos con su tabla', async ({ page }) => {
-  await page.getByRole('link', { name: 'Panel' }).click()
+  await page.getByRole('link', { name: 'Resumen' }).click()
   await expect(page.getByRole('heading', { name: 'Facturación por día' })).toBeVisible()
   await expect(page.getByText('Ticket promedio')).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Horas pico' })).toBeVisible()
   await expect(page.getByText('Hoy vas')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Resumen de la semana' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Mandar resumen por WhatsApp' })).toHaveAttribute(
@@ -37,25 +36,11 @@ test('el panel muestra indicadores y gráficos con su tabla', async ({ page }) =
   await expect(page.getByRole('columnheader', { name: 'Efectivo' }).first()).toBeVisible()
 })
 
-test('la auditoría carga y Personal ya no está', async ({ page }) => {
-  await expect(page.getByRole('link', { name: 'Personal' })).toHaveCount(0)
-  await page.getByRole('link', { name: 'Auditoría' }).click()
-  await expect(page.getByRole('heading', { name: 'Auditoría' })).toBeVisible()
-})
-
-test('en Ajustes se guarda el WhatsApp del dueño y no aparece Mercado Pago', async ({ page }) => {
-  await page.getByRole('link', { name: 'Ajustes' }).click()
-  await expect(page.getByRole('heading', { name: 'Resumen por WhatsApp' })).toBeVisible()
-  await expect(page.getByText('Mercado Pago')).toHaveCount(0)
-  const numero = page.getByLabel('WhatsApp del dueño')
-  await numero.fill('11 15 2233')
-  await expect(
-    page.getByText('Escribí el número con característica, sin el 0 ni el 15.'),
-  ).toBeVisible()
-  await numero.fill('11 2233 4455')
-  await expect(page.getByText('Se manda a +5491122334455')).toBeVisible()
-  await page.getByRole('button', { name: 'Guardar número' }).click()
-  await expect(page.getByRole('button', { name: 'Guardar número' })).toBeDisabled()
+test('el menú del dueño es corto y el historial muestra un día', async ({ page }) => {
+  for (const fuera of ['Personal', 'Auditoría', 'Ajustes', 'Consulta', 'Panel'])
+    await expect(page.getByRole('link', { name: fuera, exact: true })).toHaveCount(0)
+  await page.getByRole('link', { name: 'Historial' }).click()
+  await expect(page.getByRole('heading', { name: 'Historial' })).toBeVisible()
 })
 
 test('el admin crea la cuenta Mostrador con un clic y entra con usuario simple', async ({
@@ -95,8 +80,6 @@ test('el admin crea la cuenta Mostrador con un clic y entra con usuario simple',
   await tercera.getByLabel('Usuario o email').fill(usuario)
   await tercera.getByLabel('Contraseña').fill('milanesa napolitana')
   await tercera.getByRole('button', { name: 'Ingresar' }).click()
-  await expect(
-    tercera.getByRole('heading', { name: /Abrir el día|Caja de hoy|ya se cerró/ }),
-  ).toBeVisible()
+  await expect(tercera.getByRole('heading', { name: 'Caja de hoy' })).toBeVisible()
   await tercera.close()
 })

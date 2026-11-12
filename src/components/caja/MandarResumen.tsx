@@ -14,9 +14,9 @@ export function MandarResumen({ jornada }: { jornada: Jornada }) {
       href={enlaceWhatsapp(config.data?.whatsapp_dueno, texto)}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] border border-borde-fuerte bg-superficie font-semibold shadow-tarjeta hover:bg-hundida"
+      className="inline-flex min-h-12 presionable items-center justify-center gap-2 rounded-[10px] border border-borde-fuerte bg-superficie font-semibold shadow-tarjeta hover:bg-hundida"
     >
-      <MessageCircle className="size-5" aria-hidden="true" /> Mandar resumen por WhatsApp
+      <MessageCircle className="size-5" aria-hidden="true" /> Mandar el resumen de hoy por WhatsApp
     </a>
   )
 }

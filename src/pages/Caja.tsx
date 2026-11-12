@@ -2,46 +2,32 @@ import {
   ArrowRight,
   Banknote,
   CalendarDays,
-  HandCoins,
-  LockKeyhole,
   Receipt,
-  RotateCcw,
   Smartphone,
   TrendingUp,
   WifiOff,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { CampoImporte } from '../components/caja/CampoImporte'
 import { CargaVenta } from '../components/caja/CargaVenta'
-import { ListaSalidas } from '../components/caja/ListaSalidas'
-import { MandarResumen } from '../components/caja/MandarResumen'
 import { ListaVentas } from '../components/caja/ListaVentas'
-import { ResumenDia } from '../components/caja/ResumenDia'
-import { SacarEfectivo } from '../components/caja/SacarEfectivo'
+import { MandarResumen } from '../components/caja/MandarResumen'
 import { Boton } from '../components/ui/Boton'
-import { Aviso, Cargando, Chip, MensajeError, Tarjeta, Titulo } from '../components/ui/Estados'
+import { Cargando, MensajeError, Tarjeta, Titulo } from '../components/ui/Estados'
 import {
-  useAbrirDia,
   useEstadoDelDia,
-  useReabrirDia,
   useResumenJornada,
-  useSalidasDeJornada,
   useVentasDeJornada,
   type Jornada,
   type ResumenJornada,
 } from '../datos/caja'
-import { mensajeDeError } from '../lib/errores'
-import { cantidadVentas, fechaDeTrabajo, formatearFecha, formatearPesos } from '../lib/formato'
-import { diaSemanaCorto } from '../lib/periodos'
 import { horaArgentina, saludo } from '../lib/ayudas'
+import { mensajeDeError } from '../lib/errores'
+import { cantidadVentas, fechaDeTrabajo, formatearPesos } from '../lib/formato'
+import { diaSemanaCorto } from '../lib/periodos'
 import { useEnLinea } from '../lib/useEnLinea'
 import { useNumeroAnimado } from '../lib/useNumeroAnimado'
 import { useSesion } from '../sesion/Sesion'
-
-function fechaCorta(fecha: string) {
-  return formatearFecha(new Date(`${fecha}T12:00:00-03:00`)).slice(0, 5)
-}
 
 const p = (n: number) => formatearPesos(n, { sinCentavos: n % 1 === 0 })
 
@@ -73,14 +59,14 @@ export function Caja() {
         >
           {mensajeDeError(estado.error)}
         </MensajeError>
-      ) : estado.data.abierta && estado.data.abierta.fecha !== estado.data.hoy ? (
-        <DiaViejoAbierto jornada={estado.data.abierta} />
-      ) : estado.data.abierta ? (
-        <DiaAbierto jornada={estado.data.abierta} />
-      ) : estado.data.deHoy ? (
-        <DiaCerrado jornada={estado.data.deHoy} />
       ) : (
-        <AbrirDia hoy={estado.data.hoy} />
+        <CajaDeHoy
+          hoy={estado.data.hoy}
+          jornada={
+            // El día se abre solo con la primera venta: si todavía no hay, la caja arranca en cero.
+            estado.data.abierta?.fecha === estado.data.hoy ? estado.data.abierta : null
+          }
+        />
       )}
     </div>
   )
@@ -109,122 +95,6 @@ function AvisoLunes() {
       </span>
       <ArrowRight className="size-4" aria-hidden="true" />
     </Link>
-  )
-}
-
-function Centrado({ children }: { children: React.ReactNode }) {
-  return <div className="mx-auto w-full max-w-md py-6 sm:py-12">{children}</div>
-}
-
-function AbrirDia({ hoy }: { hoy: string }) {
-  const saludoDelDia = useSaludo()
-  const abrir = useAbrirDia()
-  const [fondo, setFondo] = useState(0)
-
-  return (
-    <Centrado>
-      <Tarjeta className="flex flex-col gap-5 p-6">
-        <div>
-          <p className="text-sm text-suave">
-            {saludoDelDia} ·{' '}
-            <span className="inline-block first-letter:uppercase">{diaSemanaCorto(hoy)}</span>
-          </p>
-          <h1 className="text-2xl font-semibold tracking-tight">Abrir el día</h1>
-          <p className="mt-1 text-sm text-suave">
-            Si arrancás con plata para el cambio, escribila. Si no, dejalo en 0 y apretá Enter.
-          </p>
-        </div>
-        <CampoImporte
-          etiqueta="Fondo de caja inicial"
-          importe={fondo}
-          onCambio={setFondo}
-          enfocar
-          onAccion={(a) => {
-            if (a === 'efectivo' && !abrir.isPending) abrir.mutate(fondo)
-            if (a === 'borrar') setFondo(0)
-          }}
-        />
-        {abrir.isError && <MensajeError>{mensajeDeError(abrir.error)}</MensajeError>}
-        <Boton tamano="grande" cargando={abrir.isPending} onClick={() => abrir.mutate(fondo)}>
-          Abrir el día · Enter
-        </Boton>
-      </Tarjeta>
-    </Centrado>
-  )
-}
-
-function DiaViejoAbierto({ jornada }: { jornada: Jornada }) {
-  return (
-    <Centrado>
-      <Tarjeta className="flex flex-col gap-4 p-6">
-        <Chip tono="aviso">Pendiente de cierre</Chip>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Quedó abierto el {fechaCorta(jornada.fecha)}
-        </h1>
-        <p className="text-sm text-suave">
-          Antes de abrir el día de hoy hay que cerrar ese día y contar la caja.
-        </p>
-        <Link
-          to="/cerrar"
-          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[10px] bg-marca font-semibold text-sobre-marca shadow-tarjeta hover:bg-marca-hover"
-        >
-          Cerrar el día {fechaCorta(jornada.fecha)}{' '}
-          <ArrowRight className="size-4" aria-hidden="true" />
-        </Link>
-      </Tarjeta>
-    </Centrado>
-  )
-}
-
-function DiaCerrado({ jornada }: { jornada: Jornada }) {
-  const { esAdmin } = useSesion()
-  const resumen = useResumenJornada(jornada.id)
-  const reabrir = useReabrirDia()
-  const [confirmar, setConfirmar] = useState(false)
-
-  return (
-    <Centrado>
-      <Tarjeta className="flex flex-col gap-5 p-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">El día de hoy ya se cerró</h1>
-            <p className="mt-1 text-sm text-suave">
-              La caja quedó bloqueada. Mañana se abre un día nuevo.
-            </p>
-          </div>
-          <LockKeyhole className="size-6 text-suave" aria-hidden="true" />
-        </div>
-        {resumen.data && <ResumenDia resumen={resumen.data} />}
-        <MandarResumen jornada={jornada} />
-        {esAdmin &&
-          (confirmar ? (
-            <Aviso
-              tono="aviso"
-              accion={
-                <div className="flex gap-2">
-                  <Boton variante="secundario" tamano="chico" onClick={() => setConfirmar(false)}>
-                    No
-                  </Boton>
-                  <Boton
-                    tamano="chico"
-                    cargando={reabrir.isPending}
-                    onClick={() => reabrir.mutate(jornada.id)}
-                  >
-                    Sí, reabrir
-                  </Boton>
-                </div>
-              }
-            >
-              ¿Reabrir el día? Va a quedar registrado en la auditoría.
-              {reabrir.isError && <span className="block">{mensajeDeError(reabrir.error)}</span>}
-            </Aviso>
-          ) : (
-            <Boton variante="secundario" onClick={() => setConfirmar(true)}>
-              <RotateCcw className="size-4" aria-hidden="true" /> Reabrir el día
-            </Boton>
-          ))}
-      </Tarjeta>
-    </Centrado>
   )
 }
 
@@ -304,7 +174,7 @@ function IndicadoresDelDia({ r }: { r: ResumenJornada | null | undefined }) {
         Icono={Banknote}
         tono="bg-marca-suave text-marca"
         valor={r?.total_efectivo ?? 0}
-        detalle={`${cantidadVentas(r?.cantidad_efectivo ?? 0)} · en caja ${p(r?.efectivo_esperado ?? 0)}`}
+        detalle={cantidadVentas(r?.cantidad_efectivo ?? 0)}
       />
       <Indicador
         etiqueta="Digital"
@@ -325,13 +195,12 @@ function IndicadoresDelDia({ r }: { r: ResumenJornada | null | undefined }) {
   )
 }
 
-function DiaAbierto({ jornada }: { jornada: Jornada }) {
+function CajaDeHoy({ hoy, jornada }: { hoy: string; jornada: Jornada | null }) {
+  const { esAdmin } = useSesion()
   const saludoDelDia = useSaludo()
-  const resumen = useResumenJornada(jornada.id)
-  const ventas = useVentasDeJornada(jornada.id)
-  const salidas = useSalidasDeJornada(jornada.id)
+  const resumen = useResumenJornada(jornada?.id)
+  const ventas = useVentasDeJornada(jornada?.id)
   const [resaltada, setResaltada] = useState<string | null>(null)
-  const [sacando, setSacando] = useState(false)
 
   return (
     <div>
@@ -339,45 +208,15 @@ function DiaAbierto({ jornada }: { jornada: Jornada }) {
         subtitulo={
           <>
             {saludoDelDia} ·{' '}
-            <span className="inline-block first-letter:uppercase">
-              {diaSemanaCorto(jornada.fecha)}
-            </span>
+            <span className="inline-block first-letter:uppercase">{diaSemanaCorto(hoy)}</span>
           </>
-        }
-        accion={
-          <div className="flex flex-wrap items-center gap-3">
-            <Chip tono="ok">
-              <span className="animate-latir motion-reduce:animate-none">●</span> Día abierto
-            </Chip>
-            <button
-              type="button"
-              onClick={() => setSacando(true)}
-              aria-keyshortcuts="-"
-              className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-borde-fuerte bg-superficie px-4 text-[15px] font-semibold shadow-tarjeta hover:bg-hundida"
-            >
-              <HandCoins className="size-4" aria-hidden="true" /> Sacar efectivo
-            </button>
-            <Link
-              to="/cerrar"
-              className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-borde-fuerte bg-superficie px-4 text-[15px] font-semibold shadow-tarjeta hover:bg-hundida"
-            >
-              Cerrar el día <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          </div>
         }
       >
         Caja de hoy
       </Titulo>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,30rem)_1fr]">
         <Tarjeta className="self-start p-6">
-          {sacando ? (
-            <SacarEfectivo alTerminar={() => setSacando(false)} />
-          ) : (
-            <CargaVenta
-              onGuardada={(v) => setResaltada(v.id)}
-              onSacarEfectivo={() => setSacando(true)}
-            />
-          )}
+          <CargaVenta onGuardada={(v) => setResaltada(v.id)} />
         </Tarjeta>
         <div className="flex min-w-0 flex-col gap-4">
           <IndicadoresDelDia r={resumen.data} />
@@ -386,16 +225,14 @@ function DiaAbierto({ jornada }: { jornada: Jornada }) {
               <div className="p-5">
                 <MensajeError>{mensajeDeError(ventas.error)}</MensajeError>
               </div>
-            ) : ventas.data ? (
-              <ListaVentas ventas={ventas.data} editable limite={10} resaltada={resaltada} />
+            ) : !jornada || ventas.data ? (
+              <ListaVentas ventas={ventas.data ?? []} editable limite={10} resaltada={resaltada} />
             ) : (
               <Cargando />
             )}
           </Tarjeta>
-          {salidas.data && salidas.data.length > 0 && (
-            <Tarjeta sinRelleno>
-              <ListaSalidas salidas={salidas.data} editable />
-            </Tarjeta>
+          {esAdmin && jornada && (resumen.data?.cantidad_ventas ?? 0) > 0 && (
+            <MandarResumen jornada={jornada} />
           )}
         </div>
       </div>

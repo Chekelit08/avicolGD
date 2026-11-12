@@ -84,7 +84,6 @@ select is(
   (select total from public.resumen_jornada((select id from public.jornadas where fecha = public.hoy_ar()))),
   20800.00::numeric, 'el cajero ve el resumen del día de hoy ya cerrado'
 );
-select throws_ok($$select public.registrar_venta(100, 'efectivo')$$, 'P0001', 'No hay un día abierto. Abrí el día para cargar ventas.', 'no se carga en un día cerrado');
 select throws_ok($$select public.abrir_jornada(0)$$, 'P0001', null, 'no se vuelve a abrir el día cerrado');
 select throws_ok(
   $$select public.reabrir_jornada((select id from public.jornadas where fecha = public.hoy_ar()))$$,
@@ -97,6 +96,11 @@ select throws_ok(
             'a0000000-0000-4000-8000-000000000003')$$,
   'P0001', null, 'ni desde la base se cargan ventas en un día cerrado'
 );
+
+-- Si el día de hoy quedó cerrado, una venta nueva lo vuelve a abrir sola.
+set local role authenticated;
+select lives_ok($$select public.registrar_venta(100, 'efectivo')$$, 'una venta reabre el día de hoy');
+reset role;
 
 select * from finish();
 rollback;

@@ -52,7 +52,7 @@ export default function Egresos() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Titulo>Egresos</Titulo>
+      <Titulo subtitulo="Anotá lo que pagás: mercadería, alquiler, luz, sueldos.">Gastos</Titulo>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,24rem)_1fr]">
         <div className="flex flex-col gap-6">
           <FormularioEgreso hoy={hoy} />

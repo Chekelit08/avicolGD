@@ -215,3 +215,13 @@ Funciones nuevas, opcionales y sin pasos extra:
 
 - **Resumen semanal:** tarjeta en el Panel (semana pasada completa o esta semana hasta hoy, comparada con el mismo tramo de la anterior). Muestra lo vendido, el promedio por día, el mejor día, los gastos y las diferencias de caja, con un botón que arma el texto para WhatsApp (`textoResumenSemanal`). Los lunes, la caja del dueño muestra un aviso con link al Panel. Igual que el cierre diario: abre `wa.me`, no manda solo.
 - **Diseño:** el total del día pasa a una tarjeta bordó con texto blanco (es lo más importante de la pantalla). Los indicadores y los medios de pago llevan ícono en un recuadro de color (bordó para efectivo, azul para digital). La barra lateral marca la sección activa y muestra al usuario con su inicial.
+
+## Simplificación grande (12/11/2026)
+
+**Pedido de Ezequiel:** quien usa la app maneja muy poco la compu; hay que dejar solo lo que sirve.
+
+- **Sin abrir ni cerrar el día.** `jornada_de_hoy()` crea la jornada con la primera venta y cierra sola cualquier jornada vieja abierta (contado = esperado, diferencia 0, nota "Cierre automático"). Se pierde el arqueo de efectivo: es el costo aceptado.
+- **Fuera de la pantalla:** Cerrar el día, fondo inicial, contador de billetes, Sacar efectivo (tecla −), Auditoría y Ajustes. Las tablas y funciones quedan en la base.
+- **Menú del dueño:** Caja, Resumen (antes Panel), Historial (antes Consulta), Gastos (antes Egresos), Usuarios.
+- **Resumen:** siempre los últimos 30 días, sin selector de fechas; se sacaron los gráficos por semana/mes y horas pico.
+- **Se queda:** calculadora de vuelto, anular con motivo, resumen de hoy y de la semana por WhatsApp (sin número fijo: se elige el contacto al mandar).

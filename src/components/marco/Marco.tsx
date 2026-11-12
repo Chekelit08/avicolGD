@@ -1,13 +1,11 @@
 import {
   BarChart3,
+  CalendarDays,
   LogOut,
   Menu,
   Monitor,
   Moon,
   Receipt,
-  Search,
-  Settings,
-  ShieldCheck,
   Store,
   Sun,
   UserCog,
@@ -29,12 +27,10 @@ interface Seccion {
 
 const SECCIONES: Seccion[] = [
   { a: '/', texto: 'Caja', Icono: Store },
-  { a: '/consulta', texto: 'Consulta', Icono: Search, soloAdmin: true },
-  { a: '/panel', texto: 'Panel', Icono: BarChart3, soloAdmin: true },
-  { a: '/egresos', texto: 'Egresos', Icono: Receipt, soloAdmin: true },
+  { a: '/panel', texto: 'Resumen', Icono: BarChart3, soloAdmin: true },
+  { a: '/consulta', texto: 'Historial', Icono: CalendarDays, soloAdmin: true },
+  { a: '/egresos', texto: 'Gastos', Icono: Receipt, soloAdmin: true },
   { a: '/usuarios', texto: 'Usuarios', Icono: UserCog, soloAdmin: true },
-  { a: '/auditoria', texto: 'Auditoría', Icono: ShieldCheck, soloAdmin: true },
-  { a: '/ajustes', texto: 'Ajustes', Icono: Settings, soloAdmin: true },
 ]
 
 const TEMAS: Record<Tema, { siguiente: Tema; texto: string; Icono: LucideIcon }> = {

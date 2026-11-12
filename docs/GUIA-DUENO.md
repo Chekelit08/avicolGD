@@ -1,88 +1,39 @@
 # Guía rápida de Avícola GD
 
-Una página para usar la app todos los días. No hace falta saber de computadoras.
+La app está en **https://avicola-gd.vercel.app**. No hace falta saber de computadoras.
 
 ## 1. Entrar
 
-Abrí la app (el ícono de la vaca en la compu o el celular del local). Escribí el usuario (por ejemplo `mostrador`) o tu email, la contraseña, y tocá **Ingresar**.
-La sesión queda abierta todo el día; se cierra sola si pasan 12 horas sin usarla.
+Escribí tu **usuario** (por ejemplo `mostrador`) y la **contraseña**, y tocá **Ingresar**. Queda abierta: no hay que entrar todos los días.
 
-<img src="capturas/01-ingresar.png" alt="Pantalla para ingresar" width="560">
+## 2. Cargar una venta
 
-## 2. Abrir el día (a la mañana)
+No hay que abrir ni cerrar nada: la caja siempre está lista.
 
-Si todavía no se abrió la caja, aparece **Abrir el día**. Si arrancás con plata para el cambio, escribila; si no, dejalo en 0. Apretá **Enter**.
-
-<img src="capturas/02-abrir-el-dia.png" alt="Abrir el día" width="560">
-
-## 3. Cargar una venta (con el teclado)
-
-El cursor ya está en el campo **Importe**: no hace falta hacer clic.
-
-1. Escribí el importe con los números del teclado (por ejemplo `12500`).
+1. Escribí el importe con los números (por ejemplo `12500`).
 2. Apretá:
    - **Enter** si pagó en **efectivo**.
-   - **+** si fue **digital** (transferencia, tarjeta o Mercado Pago).
+   - **+** si pagó con **transferencia o tarjeta**.
 
-Eso guarda la venta. Aparece "✓ Venta guardada" abajo a la derecha, el total sube y el campo queda vacío para la siguiente.
-Si te equivocaste, tocá **Deshacer** en ese aviso, o **Anular** en la lista (tenés 10 minutos). **Esc** borra lo que escribiste.
-**Vuelto:** después de una venta en efectivo aparece **"¿Con cuánto pagó?"**. Tocá el billete (por ejemplo **$ 10.000**) y te muestra el vuelto. Si no lo necesitás, seguí tipeando la próxima venta y desaparece sola.
-Si una venta es muy grande (más de $ 500.000), la app pregunta si está bien: **Enter** para guardar, **Esc** para corregir.
+Listo. Aparece "Venta guardada" y el total de hoy sube. También podés tocar los botones **Efectivo** y **Digital**.
 
-<img src="capturas/03-cargar-venta.png" alt="Cargar una venta" width="560">
+- **Vuelto:** después de una venta en efectivo aparece "¿Con cuánto pagó?". Tocá el billete y te dice el vuelto. Si no lo necesitás, seguí con la próxima venta.
+- **Si te equivocaste:** tocá **Deshacer** en el aviso, o **Anular** al lado de la venta.
+- **Si dice "Sin internet":** la venta no se guardó. Cuando vuelva, apretá Enter o + de nuevo.
 
-**Si dice "Sin internet":** la venta **no** se guardó. El importe queda escrito; cuando vuelva la conexión, apretá Enter o + de nuevo.
+## 3. Para el dueño
 
-En el celular también anda: se abre el teclado numérico y tocás **Efectivo** o **Digital**.
+En el menú hay cuatro cosas más:
 
-## 4. Anular una venta
+- **Resumen:** cuánto vas vendiendo hoy, la semana y el mes, con gráficos. Tiene un botón para **mandar el resumen de la semana por WhatsApp**.
+- **Historial:** para mirar cualquier día, semana o mes, y descargar el mes en PDF o Excel para el contador.
+- **Gastos:** anotá lo que pagás (mercadería, alquiler, luz, sueldos). Así el Resumen te muestra cuánto quedó.
+- **Usuarios:** crear cuentas y cambiar contraseñas.
 
-En la lista de ventas, tocá **Anular**, elegí el motivo (por ejemplo, _Error de tipeo_) y confirmá. La venta no se borra: queda tachada y no suma.
-Pasados 10 minutos, solo un administrador puede anularla.
-
-<img src="capturas/04-anular.png" alt="Anular una venta" width="560">
-
-## 5. Pagarle al proveedor o sacar plata de la caja
-
-Si sacás plata del cajón con el día abierto (al proveedor del pollo, para vos, para comprar bolsas), anotalo así el cierre da bien:
-
-1. Apretá **−** (la tecla de restar) o tocá **Sacar efectivo**.
-2. Escribí cuánto sacaste y elegí para qué: **Pago a proveedor**, **Retiro del dueño**, **Gasto del local** u **Otro**.
-3. Apretá **Enter**.
-
-Esa plata se descuenta de lo que tiene que haber en la caja. El pago a proveedor y el gasto del local quedan también en **Egresos**, así no hay que cargarlos dos veces.
-
-## 6. Cerrar el día (a la noche)
-
-1. Tocá **Cerrar el día** (arriba a la derecha).
-2. Contá la plata de la caja (incluido el fondo inicial), escribila y apretá **Enter**.
-   ¿Te es más fácil contar billete por billete? Tocá **Contar billete por billete**, poné cuántos hay de cada uno con **+** y **−** (y las monedas), y la app suma sola.
-3. La app te dice si **coincide**, si **sobra** o si **falta**. Si no coincide, escribí una nota.
-4. Apretá **Enter** otra vez para confirmar (o tocá **Sí, cerrar el día**).
-
-Después de cerrar no se pueden cargar ni cambiar ventas de ese día. Si hay que corregir algo, un administrador puede **reabrirlo** (queda anotado).
-Si un día quedó sin cerrar, al otro día la app pide cerrarlo primero.
-Cuando cerrás, aparece **Mandar resumen por WhatsApp**: abre WhatsApp con el resumen del día escrito (total, efectivo, digital, salidas y si la caja dio bien), listo para mandar.
-
-<img src="capturas/05-cerrar-el-dia.png" alt="Cerrar el día" width="560">
-
-## 7. Para el dueño (administradores)
-
-En la barra de la izquierda aparecen más secciones:
-
-- **Consulta:** cualquier día, semana o mes, comparado con el período anterior. En el mes está **Descargar PDF para el contador** y **Descargar Excel**.
-- **Panel:** arriba está el **Resumen de la semana** (lo vendido, si fue más o menos que la anterior, el mejor día y los gastos), con un botón para **mandarlo por WhatsApp**. Los lunes, la caja te avisa que ya está listo. Más abajo: gráficos de cómo viene el negocio (por día, por semana, efectivo vs. digital, días y horas en que más se vende, ingresos y gastos) y cómo va hoy contra el mismo día de la semana pasada.
-- **Egresos:** cargar lo que se paga (alquiler, mercadería, luz, impuestos). Se anulan con motivo, no se borran.
-- **Usuarios:** crear cuentas (con un usuario simple, por ejemplo `mostrador`, sin email), cambiar contraseñas (la escribís vos o la genera la app) y cambiar la tuya y desactivar a quien ya no trabaja. Los datos de entrada se pueden mandar por WhatsApp.
-- **Auditoría:** quién anuló, cerró, reabrió o cambió algo, y cuándo.
-- **Ajustes:** el WhatsApp al que se manda el resumen y el importe a partir del cual la caja pide confirmación.
-
-<img src="capturas/06-panel.png" alt="Panel con gráficos" width="560">
-
-La **ganancia aproximada** es ventas − egresos cargados en la app (si pagás sueldos, cargalos como egreso). Es una estimación, no un balance contable.
+En la **Caja**, al dueño también le aparece **Mandar el resumen de hoy por WhatsApp**.
 
 ## Si algo no anda
 
-- **No puedo entrar:** revisá el usuario y la contraseña. Si te la olvidaste, pedile al dueño que en **Usuarios** toque _Se olvidó la contraseña_: te da una nueva al instante.
-- **Se ve todo raro o viejo:** cerrá la app y abrila de nuevo (se actualiza sola).
-- **Para cualquier otra cosa:** avisale a Ezequiel.
+- **No puedo entrar:** revisá el usuario y la contraseña. El dueño puede ponerte una nueva desde **Usuarios**.
+- **Se ve raro o viejo:** cerrá la app y abrila de nuevo.
+- **Cualquier otra cosa:** avisale a Ezequiel.

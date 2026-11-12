@@ -11,15 +11,14 @@ async function ingresar(page: Page, email: string) {
 
 test.describe.configure({ mode: 'serial' })
 
-test('flujo del día: ingresar, abrir, cargar 3 ventas con el teclado, cerrar y ver el resumen', async ({
+test('caja: se ingresa y se cargan ventas con el teclado, sin abrir ni cerrar el día', async ({
   page,
 }) => {
   await ingresar(page, 'mostrador@avicola.test')
 
-  // Abrir el día con fondo de caja: se tipea y Enter
-  await expect(page.getByRole('heading', { name: 'Abrir el día' })).toBeVisible()
-  await page.getByLabel('Fondo de caja inicial').fill('10000')
-  await page.getByLabel('Fondo de caja inicial').press('Enter')
+  // No hay que abrir el día: la caja ya está lista
+  await expect(page.getByRole('heading', { name: 'Caja de hoy' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Cerrar el día' })).toHaveCount(0)
 
   // Tres ventas: importe + Enter (efectivo) o + (digital); el cursor vuelve solo al campo
   const importe = page.getByLabel('Importe', { exact: true })
@@ -54,50 +53,17 @@ test('flujo del día: ingresar, abrir, cargar 3 ventas con el teclado, cerrar y 
   await importe.press('Escape')
   await expect(importe).toHaveValue('')
 
-  // Pagarle al proveedor con plata de la caja: tecla −, importe, motivo y Enter
-  await importe.press('-')
-  const salida = page.getByLabel('Importe que sale')
-  await expect(salida).toBeFocused()
-  await salida.fill('2000')
-  await page.getByRole('button', { name: 'Pago a proveedor' }).click()
-  await page.getByLabel(/Proveedor/).fill('Pollos Don Juan')
-  await page.getByLabel(/Proveedor/).press('Enter')
-  await expect(page.getByRole('heading', { name: 'Salidas de caja' })).toBeVisible()
-  await expect(page.getByText('− $ 2.000')).toBeVisible()
-  await expect(importe).toBeFocused()
-
-  // Cerrar el día con un faltante de $ 500: Enter para revisar, Enter para cerrar
-  await page.getByRole('link', { name: 'Cerrar el día' }).click()
-  // esperado = 10.000 + 16.500 − 2.000
-  await expect(page.getByText('$ 24.500,00').first()).toBeVisible()
-  const contado = page.getByLabel('Efectivo contado')
-  // Contar billete por billete: 1 de $ 20.000 y 4 de $ 1.000
-  await page.getByRole('button', { name: 'Contar billete por billete' }).click()
-  await page.getByRole('button', { name: 'Un billete de $ 20.000 más' }).click()
-  await page.getByLabel('Cantidad de billetes de $ 1.000').fill('4')
-  await expect(contado).toHaveValue('24.000')
-  await contado.focus()
-  await expect(page.getByText(/Faltan \$\s500,00/)).toBeVisible()
-  await contado.press('Enter')
-  await expect(
-    page.getByText('Vas a cerrar el día. Después no se puede modificar sin un administrador.'),
-  ).toBeVisible()
-  await contado.press('Enter')
-  await expect(page.getByRole('heading', { name: 'Día cerrado' })).toBeVisible()
-  const whatsapp = page.getByRole('link', { name: 'Mandar resumen por WhatsApp' })
-  await expect(whatsapp).toHaveAttribute('href', /^https:\/\/wa\.me\/\?text=.*Total/)
-
-  // Ver el resumen: el día queda bloqueado
-  await page.getByRole('link', { name: 'Volver al inicio' }).click()
-  await expect(page.getByRole('heading', { name: 'El día de hoy ya se cerró' })).toBeVisible()
-  await expect(page.getByText('$ 24.800,00')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Reabrir el día' })).toHaveCount(0)
+  // Anular la última venta con motivo
+  await page.getByRole('button', { name: 'Anular' }).first().click()
+  await page.getByRole('button', { name: 'Error de tipeo' }).click()
+  await page.getByRole('button', { name: 'Anular venta' }).click()
+  await expect(page.getByText('$ 20.800').first()).toBeVisible()
 })
 
 test('el cajero no ve las secciones de administración', async ({ page }) => {
   await ingresar(page, 'mostrador@avicola.test')
-  await expect(page.getByRole('heading', { name: 'El día de hoy ya se cerró' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Egresos' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Caja de hoy' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Gastos' })).toHaveCount(0)
   await page.goto('/egresos')
   await expect(page.getByText('Esta sección es solo para administradores')).toBeVisible()
 })
@@ -123,5 +89,5 @@ test('con clave temporal, el primer ingreso obliga a elegir una nueva', async ({
   await page.getByLabel('Contraseña nueva').fill('milanesa con papas')
   await page.getByLabel('Repetí la contraseña').fill('milanesa con papas')
   await page.getByRole('button', { name: 'Guardar contraseña' }).click()
-  await expect(page.getByRole('heading', { name: 'El día de hoy ya se cerró' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Caja de hoy' })).toBeVisible()
 })

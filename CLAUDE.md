@@ -30,18 +30,21 @@ En la nube de Claude Code: `PLAYWRIGHT_CHROMIUM=/opt/pw-browsers/chromium npm ru
 
 Proyecto en la nube: Supabase `anadbauxypifiplihpje` (São Paulo). Deploy: ver `docs/DESPLIEGUE.md` (`supabase db push`, `supabase functions deploy usuarios`, Cloudflare Pages con `npm run build` → `dist`).
 
-## Reglas de negocio (no negociables)
+## Reglas de negocio
 
-1. Una sola jornada abierta a la vez (índice único). Si quedó abierta una de un día anterior, hay que cerrarla antes de abrir otra o cargar ventas.
-2. Las ventas solo se cargan en la jornada abierta **de hoy** (`registrar_venta`). Una jornada cerrada queda bloqueada por trigger; solo un admin la reabre (`reabrir_jornada`, auditado).
-3. **Medio de pago: `efectivo` | `digital`**, sin más detalle. Igual en ventas, egresos y pagos a empleados.
-4. **El tipo se elige siempre** y elegirlo guarda: con el teclado, **Enter = Efectivo** y **+ = Digital** (también el + del teclado numérico); **−** abre "Sacar efectivo"; Esc borra. Los botones Efectivo/Digital hacen lo mismo. No hay medio preseleccionado.
-5. Las ventas y los egresos no se borran, se anulan con motivo. Un cajero anula ventas de su cuenta con menos de 10 minutos; después, solo admin. Los pagos a empleados sí se pueden borrar (auditado).
-6. Importe > 0, entero en la carga (sin centavos), máximo $ 9.999.999. Arriba de `configuracion.tope_confirmacion` ($ 500.000) se pide confirmación. Validar en cliente (Zod) **y** en la base.
-7. Efectivo esperado = fondo inicial + ventas en efectivo no anuladas − salidas de caja no anuladas (`efectivo_esperado()`). Diferencia = contado − esperado.
-8. Cada registro guarda quién y cuándo. Los totales los calcula la base (funciones SQL en `20261017000003_reportes.sql` y `…04`).
-9. Roles: `cajero` (cuenta compartida "Mostrador") y `admin` (cuentas personales). Permisos con RLS; el cajero no ve egresos, sueldos, historial ni usuarios. Siempre queda al menos un admin activo.
-10. Auditoría: solo se agrega (trigger bloquea update/delete). Se llena con triggers.
+La app se simplificó a pedido del dueño (ver `docs/DECISIONES.md`, 12/11/2026): **no se abre ni se cierra el día a mano, no hay arqueo ni salidas de caja en la pantalla.**
+
+1. **El día es automático** (`jornada_de_hoy()`): la primera venta del día crea la jornada; una jornada vieja que quedó abierta se cierra sola (sin diferencia). Sigue habiendo una sola jornada abierta (índice único).
+2. Las ventas se cargan con `registrar_venta`, siempre en la jornada de hoy.
+3. **Medio de pago: `efectivo` | `digital`**, sin más detalle.
+4. **El tipo se elige siempre** y elegirlo guarda: **Enter = Efectivo**, **+ = Digital**; Esc borra. Los botones hacen lo mismo. No hay medio preseleccionado.
+5. Las ventas y los gastos no se borran, se anulan con motivo. Un cajero anula ventas de su cuenta con menos de 10 minutos; después, solo admin (y solo del día de hoy).
+6. Importe > 0, entero en la carga, máximo $ 9.999.999. Arriba de `configuracion.tope_confirmacion` ($ 500.000) se pide confirmación. Validar en cliente **y** en la base.
+7. Cada registro guarda quién y cuándo. Los totales los calcula la base.
+8. Roles: `cajero` ("Mostrador": solo la caja) y `admin` ("Dueño": Caja, Resumen, Historial, Gastos, Usuarios). Permisos con RLS. Siempre queda al menos un admin activo.
+9. Auditoría: solo se agrega; se llena con triggers (no tiene pantalla).
+
+En la base siguen existiendo, sin pantalla: cierre manual y arqueo (`cerrar_jornada`), `salidas_caja`, empleados, `cobros_mp` y la función `mercadopago`.
 
 Fuera de alcance: inventario/productos, facturación ARCA/AFIP, impresora fiscal, cobrar o devolver por la API de Mercado Pago (solo se **leen** los cobros recibidos, ver `docs/MERCADO-PAGO.md`), apps nativas.
 

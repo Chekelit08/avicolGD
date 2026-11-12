@@ -31,14 +31,7 @@ function Tecla({ children }: { children: string }) {
  * Enter la guarda en efectivo, + la guarda digital. Los botones hacen lo mismo con el mouse.
  * Si falla (por ejemplo, sin internet), el importe queda en el campo para reintentar.
  */
-export function CargaVenta({
-  onGuardada,
-  onSacarEfectivo,
-}: {
-  onGuardada?: (venta: Venta) => void
-  /** Tecla − : pasar a "Sacar efectivo". */
-  onSacarEfectivo?: () => void
-}) {
+export function CargaVenta({ onGuardada }: { onGuardada?: (venta: Venta) => void }) {
   const [importe, setImporte] = useState(0)
   const [porConfirmar, setPorConfirmar] = useState<MedioPago | null>(null)
   const [ultima, setUltima] = useState<Venta | null>(null)
@@ -84,10 +77,6 @@ export function CargaVenta({
   }
 
   const alAccion = (accion: Exclude<AccionTecla, null>) => {
-    if (accion === 'salida') {
-      if (!porConfirmar) onSacarEfectivo?.()
-      return
-    }
     if (accion === 'borrar') {
       // Esc con la confirmación abierta = "Corregir": vuelve al importe sin borrarlo.
       if (porConfirmar) {
@@ -202,10 +191,8 @@ export function CargaVenta({
       )}
 
       <p id="ayuda-teclas" className="text-sm text-suave">
-        Tipeá el importe y apretá <strong className="text-texto">Enter</strong> si pagó en efectivo
-        o <strong className="text-texto">+</strong> si fue digital (transferencia, tarjeta o Mercado
-        Pago). <strong className="text-texto">Esc</strong> borra y{' '}
-        <strong className="text-texto">−</strong> saca efectivo de la caja.
+        Escribí el importe y apretá <strong className="text-texto">Enter</strong> si pagó en
+        efectivo o <strong className="text-texto">+</strong> si pagó con transferencia o tarjeta.
       </p>
 
       {vueltoDe !== null && !porConfirmar && (
